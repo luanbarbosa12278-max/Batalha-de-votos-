@@ -370,6 +370,79 @@ input {
 .explain {
   line-height: 2;
 }
+    
+/* ========================================
+   CORREÇÃO DOS BOTÕES LATERAIS PIXEL ART
+   ======================================== */
+
+/* Permite que os botões aproveitem toda
+   a largura disponível nas laterais */
+.fight-controls {
+  min-width: 0;
+}
+
+.fight-controls button {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+
+  padding: 14px 4px !important;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+
+  font-family: 'Press Start 2P', monospace !important;
+  font-size: 8px !important;
+  letter-spacing: -0.5px !important;
+  line-height: 1.5 !important;
+  text-align: center;
+}
+
+/* Nunca dividir uma palavra no meio */
+.fight-controls button span {
+  display: block;
+  width: 100%;
+
+  font-family: 'Press Start 2P', monospace !important;
+  font-size: inherit !important;
+
+  white-space: nowrap !important;
+  word-break: normal !important;
+  overflow-wrap: normal !important;
+
+  text-align: center;
+}
+
+/* Teclas grandes e quadradinhas */
+.fight-controls button kbd {
+  font-family: 'Press Start 2P', monospace !important;
+  font-size: 17px !important;
+  line-height: 1.4;
+  flex-shrink: 0;
+}
+
+/* Ajustes em telas menores */
+@media (max-width: 1100px) {
+  .fight-controls button {
+    font-size: 7px !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .fight-controls button {
+    font-size: 6px !important;
+    padding: 10px 2px !important;
+    gap: 7px;
+  }
+
+  .fight-controls button kbd {
+    font-size: 14px !important;
+  }
+}
+
 
   </style>
 </head>
