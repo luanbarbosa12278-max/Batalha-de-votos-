@@ -277,7 +277,7 @@ function playSound(group){
 // NORMALIZAÇÃO DOS SPRITES
 // ========================================
 
-function normalizeSprite(img){
+function normalizeSprite(img,{cropOnly=false}={}){
   const source=document.createElement('canvas');
 
   source.width=img.naturalWidth;
@@ -325,6 +325,18 @@ function normalizeSprite(img){
 
   const cropWidth=maxX-minX+1;
   const cropHeight=maxY-minY+1;
+
+  // A luva usa só o recorte, sem o espaço reservado aos pés do lutador.
+  if(cropOnly){
+    const crop=document.createElement('canvas');
+    crop.width=cropWidth;
+    crop.height=cropHeight;
+    crop.getContext('2d').drawImage(
+      source,minX,minY,cropWidth,cropHeight,
+      0,0,cropWidth,cropHeight
+    );
+    return crop;
+  }
 
   const scale=Math.min(
     220/cropWidth,
@@ -375,6 +387,15 @@ let statusAttack=null;
 let lastHud='';
 
 let specialEffect=null;
+
+const BOLSA_DAMAGE=25;
+const BOLSA_COOLDOWN_MS=5000;
+const BOLSA_SUMMON_MS=350;
+const BOLSA_FALL_MS=380;
+const BOLSA_DURATION_MS=1050;
+let bolsaReadyAt=0;
+let bolsaImpact=null;
+let bolsaRound=game.round;
 
 const KNOCKBACK_DISTANCE=95;
 const LULA_WALL_X=100;
@@ -429,6 +450,12 @@ async function loadAssets(){
       shoryuken:
         './assets/fighters/lula-shoryuken.png',
 
+      bolsaPose:
+        './assets/fighters/lula-bolsa-pancada.png',
+
+      bolsaGlove:
+        './assets/fighters/bolsa-pancada-glove.png',
+
       knockback:
         './assets/fighters/lula-knockback.png',
 
@@ -452,7 +479,7 @@ bolsonaroVictory:
             key==='hadouken'
           )
             ?img
-            :normalizeSprite(img);
+            :normalizeSprite(img,{cropOnly:key==='bolsaGlove'});
         }
       )
     );
@@ -465,6 +492,7 @@ bolsonaroVictory:
       'attackL',
       'attackB',
       'shoryukenL',
+      'specialL',
       'hadoukenB'
     ]){
       const button=$(id);
@@ -529,6 +557,8 @@ function fighter(side,time){
 
     }else if(sp.type==='hadouken'){
       sprite=images.hadoukenPose;
+    }else if(sp.type==='bolsaPancada'){
+      sprite=images.bolsaPose;
     }
 
   }else if(game.phase==='ko'){
@@ -711,6 +741,17 @@ function paint(time){
     return;
   }
 
+  ctx.save();
+  // Tremor curto em passos inteiros para preservar o visual pixelado.
+  if(bolsaImpact && !reduceMotion){
+    const elapsed=time-bolsaImpact.start;
+    const strength=8*Math.max(0,1-elapsed/220);
+    ctx.translate(
+      Math.round(Math.sin(elapsed*.18)*strength),
+      Math.round(Math.cos(elapsed*.23)*strength)
+    );
+  }
+
   ctx.drawImage(
     images.arena,
     0,0,960,540
@@ -801,6 +842,9 @@ function paint(time){
       ctx.restore();
     }
   }
+
+  drawBolsaPancada(time);
+  ctx.restore();
 
   // Tela de K.O.
   if(game.phase==='ko'){
@@ -1397,6 +1441,140 @@ function drawVictoryScreen(now){
 
 
 // ========================================
+// BOLSA PANCADA — E
+// ========================================
+
+function startBolsaPancada(){
+  const now=performance.now();
+  if(
+    !ready ||
+    game.phase!=='ready' ||
+    specialEffect ||
+    lulaKnockback ||
+    game.hp.l<=0 ||
+    game.hp.b<=0 ||
+    now<bolsaReadyAt
+  ){
+    return;
+  }
+
+  bolsaReadyAt=now+BOLSA_COOLDOWN_MS;
+  specialEffect={
+    type:'bolsaPancada',
+    side:'l',
+    start:now,
+    duration:BOLSA_DURATION_MS,
+    round:game.round,
+    x:670,
+    hit:false
+  };
+  $('message').textContent='LULA — BOLSA PANCADA!';
+  updateBolsaButton(now);
+}
+
+function updateBolsaButton(now){
+  const button=$('specialL');
+  if(!button) return;
+  const seconds=Math.ceil(Math.max(0,bolsaReadyAt-now)/1000);
+  button.disabled=(
+    !ready || game.phase!=='ready' || !!specialEffect ||
+    !!lulaKnockback || game.hp.l<=0 || game.hp.b<=0 || seconds>0
+  );
+  const label=seconds>0
+    ?'BOLSA PANCADA · '+seconds+'s'
+    :'BOLSA PANCADA';
+  const span=button.querySelector('span');
+  if(span && span.textContent!==label) span.textContent=label;
+  button.title=seconds>0
+    ?'Recarregando: '+seconds+'s'
+    :'E — Bolsa Pancada (25 HP; recarga de 5 segundos)';
+}
+
+function updateBolsaPancada(now){
+  // Nenhum efeito de um round anterior pode atingir o próximo.
+  if(bolsaRound!==game.round){
+    bolsaRound=game.round;
+    bolsaImpact=null;
+    if(specialEffect?.type==='bolsaPancada') specialEffect=null;
+  }
+  if(bolsaImpact && now-bolsaImpact.start>=420) bolsaImpact=null;
+
+  const sp=specialEffect;
+  if(sp?.type!=='bolsaPancada') return;
+  if(
+    game.phase==='ko' || sp.round!==game.round ||
+    game.hp.l<=0 || (game.hp.b<=0 && !sp.hit)
+  ){
+    specialEffect=null;
+    return;
+  }
+
+  if(!sp.hit && now-sp.start>=BOLSA_SUMMON_MS+BOLSA_FALL_MS){
+    sp.hit=true;
+    game.hp.b=Math.max(0,game.hp.b-BOLSA_DAMAGE);
+    bolsaImpact={start:now,x:sp.x};
+
+    // O mesmo estado de K.O. usado pelos outros golpes mantém
+    // áudio de vitória, placar e avanço automático de rounds.
+    if(game.hp.b===0){
+      game.phase='ko';
+      game.attack=null;
+      game.hit=false;
+      game.winner='l';
+      game.wins.l++;
+      game.elapsed=0;
+      specialEffect=null;
+    }
+  }
+}
+
+function drawBolsaPancada(now){
+  const sp=specialEffect;
+  if(sp?.type==='bolsaPancada'){
+    const elapsed=now-sp.start;
+    if(elapsed>=BOLSA_SUMMON_MS && !sp.hit){
+      const t=Math.min(1,(elapsed-BOLSA_SUMMON_MS)/BOLSA_FALL_MS);
+      const height=175;
+      const width=height*images.bolsaGlove.width/images.bolsaGlove.height;
+      // O X fica fixo sobre Bolsonaro; a aceleração é só vertical.
+      const y=-height+(300+height)*t*t;
+      ctx.drawImage(images.bolsaGlove,sp.x-width/2,y-height,width,height);
+    }
+  }
+
+  if(!bolsaImpact) return;
+  const age=now-bolsaImpact.start;
+  const t=Math.min(1,age/420);
+  ctx.save();
+  ctx.globalAlpha=1-t;
+
+  // Estilhaços quadrados no ponto de contato.
+  for(let i=0;i<16;i++){
+    const angle=i*Math.PI/8;
+    const distance=18+t*88;
+    const size=i%2?8:12;
+    ctx.fillStyle=i%3===0?'#fff8da':'#ffce65';
+    ctx.fillRect(
+      Math.round(bolsaImpact.x+Math.cos(angle)*distance),
+      Math.round(300+Math.sin(angle)*distance),size,size
+    );
+  }
+
+  // Poeira se espalhando junto ao chão.
+  for(let i=0;i<12;i++){
+    const direction=i%2?1:-1;
+    const distance=(12+i*5)*(1+t*2);
+    ctx.fillStyle=i%2?'#c9ac83':'#8d775f';
+    ctx.fillRect(
+      Math.round(bolsaImpact.x+direction*distance),
+      Math.round(482-Math.sin(t*Math.PI)*(12+i*3)),
+      12+i%3*4,8+i%3*4
+    );
+  }
+  ctx.restore();
+}
+
+// ========================================
 // LOOP PRINCIPAL
 // ========================================
 
@@ -1418,6 +1596,8 @@ function frame(now){
   ){
     lulaKnockback=null;
   }
+
+  updateBolsaPancada(now);
 
   // Atualização dos especiais.
   if(specialEffect){
@@ -1484,6 +1664,7 @@ updateFightAudio(now);
 paint(now);
 drawVictoryScreen(now);
 updateHUD();
+updateBolsaButton(now);
 
   requestAnimationFrame(frame);
 }
@@ -1546,6 +1727,9 @@ $('shoryukenL').onclick=()=>{
   playSound('lulaEspecial');
 };
 
+// E - Bolsa Pancada do Lula.
+$('specialL').onclick=startBolsaPancada;
+
 // O - Hadouken do Bolsonaro.
 $('hadoukenB').onclick=()=>{
   if(
@@ -1598,6 +1782,7 @@ document.addEventListener(
     const shortcuts={
       q:'attackL',
       w:'shoryukenL',
+      e:'specialL',
       i:'attackB',
       o:'hadoukenB'
     };
@@ -1623,6 +1808,10 @@ function resetLocalFight(){
   lulaX=290;
   lulaKnockback=null;
   specialEffect=null;
+  bolsaImpact=null;
+  bolsaReadyAt=0;
+  bolsaRound=game.round;
+  updateBolsaButton(performance.now());
 
   statusRound=0;
   statusAttack=null;
