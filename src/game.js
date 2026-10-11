@@ -98,7 +98,9 @@ async function loadAssets() {
     await Promise.all(
   Object.entries(files).map(async ([k, p]) => {
     const img = await loadImage(p);
-    images[k] = k === 'arena' ? img : normalizeSprite(img);
+    images[k] = (k === 'arena' || k === 'hadouken')
+  ? img
+  : normalizeSprite(img);
   })
 );
     ready=true;
