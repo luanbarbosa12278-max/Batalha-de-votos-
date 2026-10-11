@@ -86,7 +86,15 @@ function loadImage(path) {
 }
 async function loadAssets() {
   try {
-    const files={arena:'./cenário.png',l:'./assets/fighters/lula-idle.png',b:'./assets/fighters/bolsonaro-idle.png',punch:'./assets/fighters/bolsonaro-attack.png'};
+    const files = {
+  arena: './cenário.png',
+  l: './assets/fighters/lula-idle.png',
+  b: './assets/fighters/bolsonaro-idle.png',
+  punch: './assets/fighters/bolsonaro-attack.png',
+  hadoukenPose: './assets/fighters/bolsonaro-hadouken.png',
+  hadouken: './assets/fighters/hadouken-blue.png',
+  shoryuken: './assets/fighters/lula-shoryuken.png'
+};
     await Promise.all(
   Object.entries(files).map(async ([k, p]) => {
     const img = await loadImage(p);
