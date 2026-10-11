@@ -74,6 +74,11 @@ let statusRound=0;
 let statusAttack=null;
 let lastHud='';
 let specialEffect=null;
+const KNOCKBACK_DISTANCE=95;
+const LULA_WALL_X=100;
+
+let lulaX=290;
+let lulaKnockback=null;
 
 const HADOUKEN_DAMAGE=20;
 const names={l:'LULA',b:'BOLSONARO'};
@@ -97,7 +102,9 @@ async function loadAssets(){
       punch:'./assets/fighters/bolsonaro-attack.png',
       hadoukenPose:'./assets/fighters/bolsonaro-hadouken.png',
       hadouken:'./assets/fighters/hadouken-blue.png',
-      shoryuken:'./assets/fighters/lula-shoryuken.png'
+      shoryuken:'./assets/fighters/lula-shoryuken.png',
+      knockback:'./assets/fighters/lula-knockback.png',
+      lulaPunch:'./assets/fighters/lula-punch.png'
     };
 
     await Promise.all(
@@ -126,7 +133,7 @@ async function loadAssets(){
 
 function fighter(side,time){
   const facing=side==='l'?1:-1;
-  const baseX=side==='l'?290:670;
+  const baseX=side==='l'?lulaX:670;
   const ground=490;
 
   let x=baseX;
@@ -194,6 +201,31 @@ function fighter(side,time){
         :Math.sin(time/220+(side==='l'?0:1))*.012
     );
   }
+    // Reação do Lula ao Hadouken.
+  let knockbackBlink=false;
+
+  if(side==='l' && lulaKnockback){
+    const kb=lulaKnockback;
+    const progress=Math.min(
+      1,
+      Math.max(0,(time-kb.start)/kb.duration)
+    );
+
+    // Movimento para trás com desaceleração.
+    const ease=1-Math.pow(1-progress,3);
+
+    x=kb.from+(kb.to-kb.from)*ease;
+
+    // Pulinho ao receber o impacto.
+    y-=65*Math.sin(progress*Math.PI);
+
+    sprite=images.knockback;
+
+    // Três piscadas: invisível e visível.
+    knockbackBlink=
+      progress<0.65 &&
+      Math.floor(progress*6/0.65)%2===0;
+  }
 
   ctx.save();
 
@@ -216,8 +248,11 @@ function fighter(side,time){
     ctx.transform(1,0,tilt,sy,0,0);
   }
 
-  ctx.drawImage(sprite,-140,-240);
-  ctx.restore();
+  if(!knockbackBlink){
+    ctx.drawImage(sprite,-140,-240);
+  }
+
+ctx.restore();
 }
 
 function paint(time){
@@ -369,6 +404,12 @@ function frame(now){
     :0;
 
   previousTime=now;
+  if(
+  lulaKnockback &&
+  now-lulaKnockback.start>=lulaKnockback.duration
+){
+  lulaKnockback=null;
+}
 
 if(specialEffect){
   const t=(now-specialEffect.start)/specialEffect.duration;
@@ -379,6 +420,20 @@ if(specialEffect){
     t>=0.55
   ){
     specialEffect.hit=true;
+        const from=lulaX;
+    const to=Math.max(
+      LULA_WALL_X,
+      from-KNOCKBACK_DISTANCE
+    );
+
+    lulaKnockback={
+      start:now,
+      duration:600,
+      from,
+      to
+    };
+
+    lulaX=to;
 
     game.hp.l=Math.max(
       0,
@@ -488,10 +543,12 @@ $('reset').onclick=()=>{
     'Reiniciar a luta local e descartar os golpes pendentes?'
   ))return;
 
-  game.reset();
-  specialEffect=null;
-  statusRound=0;
-  statusAttack=null;
+game.reset();
+lulaX=290;
+lulaKnockback=null;
+specialEffect=null;
+statusRound=0;
+statusAttack=null;
 
   updateHUD();
 };
@@ -534,6 +591,8 @@ async function pollVotes(){
 
     if(delta.changed){
       game.reset();
+      lulaX=290;
+lulaKnockback=null;
       specialEffect=null;
       statusRound=0;
     }
@@ -642,6 +701,8 @@ $('connectForm').addEventListener('submit',async event=>{
     tracker.baseline(data.usuario,0,0);
 
     game.reset();
+    lulaX=290;
+lulaKnockback=null;
     specialEffect=null;
     statusRound=0;
     userEdited=false;
