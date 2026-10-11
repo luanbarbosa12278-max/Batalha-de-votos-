@@ -4,133 +4,23 @@
       "source_box": [
         7,
         8,
-        109,
-        176
+        114,
+        180
       ],
       "body_bbox": [
-        4,
-        8,
+        5,
+        9,
+        107,
+        165
+      ],
+      "source_body_size": [
         102,
-        166
+        156
       ],
-      "source_body_size": [
-        98,
-        158
-      ],
-      "scale": 1.139240506329114,
+      "scale": 1.1538461538461537,
       "touches_crop_edge": true,
-      "components": 1,
-      "removed_pixels": 0
-    },
-    "walk": {
-      "source_box": [
-        699,
-        8,
-        802,
-        177
-      ],
-      "body_bbox": [
-        0,
-        8,
-        103,
-        166
-      ],
-      "source_body_size": [
-        103,
-        158
-      ],
-      "scale": 1.139240506329114,
-      "touches_crop_edge": true,
-      "components": 1,
-      "removed_pixels": 0
-    },
-    "attack": {
-      "source_box": [
-        334,
-        365,
-        472,
-        527
-      ],
-      "body_bbox": [
-        0,
-        2,
-        138,
-        161
-      ],
-      "source_body_size": [
-        138,
-        159
-      ],
-      "scale": 1.139240506329114,
-      "touches_crop_edge": true,
-      "components": 1,
-      "removed_pixels": 0
-    },
-    "hurt": {
-      "source_box": [
-        7,
-        698,
-        123,
-        837
-      ],
-      "body_bbox": [
-        6,
-        0,
-        116,
-        138
-      ],
-      "source_body_size": [
-        110,
-        138
-      ],
-      "scale": 1.139240506329114,
-      "touches_crop_edge": true,
-      "components": 1,
-      "removed_pixels": 0
-    },
-    "victory": {
-      "source_box": [
-        12,
-        840,
-        137,
-        1016
-      ],
-      "body_bbox": [
-        7,
-        0,
-        125,
-        165
-      ],
-      "source_body_size": [
-        118,
-        165
-      ],
-      "scale": 1.139240506329114,
-      "touches_crop_edge": true,
-      "components": 1,
-      "removed_pixels": 0
-    },
-    "defeat": {
-      "source_box": [
-        800,
-        755,
-        994,
-        840
-      ],
-      "body_bbox": [
-        0,
-        0,
-        194,
-        77
-      ],
-      "source_body_size": [
-        194,
-        77
-      ],
-      "scale": 1.139240506329114,
-      "touches_crop_edge": true,
-      "components": 1,
-      "removed_pixels": 0
+      "components": 2,
+      "removed_pixels": 3
     }
   },
   "bolsonaro": {
@@ -138,42 +28,20 @@
       "source_box": [
         8,
         5,
-        117,
-        159
+        120,
+        162
       ],
       "body_bbox": [
         8,
-        4,
-        109,
-        150
-      ],
-      "source_body_size": [
-        101,
-        146
-      ],
-      "scale": 1.2328767123287672,
-      "touches_crop_edge": true,
-      "components": 1,
-      "removed_pixels": 0
-    },
-    "walk": {
-      "source_box": [
-        689,
         5,
-        800,
-        160
-      ],
-      "body_bbox": [
-        0,
-        4,
-        111,
-        153
-      ],
-      "source_body_size": [
-        111,
+        112,
         149
       ],
-      "scale": 1.2328767123287672,
+      "source_body_size": [
+        104,
+        144
+      ],
+      "scale": 1.25,
       "touches_crop_edge": true,
       "components": 1,
       "removed_pixels": 0
@@ -186,85 +54,19 @@
         314
       ],
       "body_bbox": [
-        2,
         3,
+        4,
         158,
-        142
+        141
       ],
       "source_body_size": [
-        156,
-        139
+        155,
+        137
       ],
-      "scale": 1.2328767123287672,
+      "scale": 1.25,
       "touches_crop_edge": false,
       "components": 4,
-      "removed_pixels": 1382
-    },
-    "hurt": {
-      "source_box": [
-        125,
-        656,
-        245,
-        801
-      ],
-      "body_bbox": [
-        7,
-        6,
-        120,
-        142
-      ],
-      "source_body_size": [
-        113,
-        136
-      ],
-      "scale": 1.2328767123287672,
-      "touches_crop_edge": true,
-      "components": 2,
-      "removed_pixels": 64
-    },
-    "victory": {
-      "source_box": [
-        8,
-        812,
-        142,
-        1016
-      ],
-      "body_bbox": [
-        5,
-        3,
-        134,
-        184
-      ],
-      "source_body_size": [
-        129,
-        181
-      ],
-      "scale": 1.2328767123287672,
-      "touches_crop_edge": true,
-      "components": 1,
-      "removed_pixels": 0
-    },
-    "defeat": {
-      "source_box": [
-        764,
-        706,
-        919,
-        795
-      ],
-      "body_bbox": [
-        0,
-        6,
-        155,
-        77
-      ],
-      "source_body_size": [
-        155,
-        71
-      ],
-      "scale": 1.2328767123287672,
-      "touches_crop_edge": true,
-      "components": 2,
-      "removed_pixels": 101
+      "removed_pixels": 1221
     }
   }
 }
