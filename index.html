@@ -1,416 +1,193 @@
 
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Batalha de Votos | Premium</title>
-
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Street Vote Fighter</title>
 <style>
-:root {
+:root{
   --red:#ff5265;
-  --blue:#438cff;
-  --white:#f5f7ff;
-  --muted:#a7b2cf;
+  --blue:#4c94ff;
+  --gold:#ffe47c;
 }
-
-* { box-sizing:border-box; }
-
-html {
-  min-height:100%;
-  background:#070b19;
-}
-
-body {
+*{box-sizing:border-box}
+body{
   margin:0;
-  min-height:100dvh;
-  color:var(--white);
-  font-family:system-ui,-apple-system,Arial,sans-serif;
-  background:
-    radial-gradient(ellipse at 15% 12%,#54233866,transparent 43%),
-    radial-gradient(ellipse at 88% 20%,#1848a855,transparent 44%),
-    linear-gradient(165deg,#11172c,#080c1b 70%);
-  overflow-x:hidden;
+  background:#080b19;
+  color:white;
+  font-family:system-ui,Arial,sans-serif;
 }
-
-body:before {
-  content:"";
-  position:fixed;
-  inset:0;
-  pointer-events:none;
-  background-image:
-    linear-gradient(#ffffff05 1px,transparent 1px),
-    linear-gradient(90deg,#ffffff05 1px,transparent 1px);
-  background-size:38px 38px;
-  mask-image:linear-gradient(#0008,transparent 75%);
-}
-
-main {
-  position:relative;
-  max-width:540px;
-  min-height:100dvh;
+main{
+  max-width:720px;
   margin:auto;
-  padding:30px 15px 26px;
-  display:flex;
-  flex-direction:column;
-  gap:16px;
+  padding:12px;
 }
-
-.top {
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:10px;
-}
-
-.brand {
-  font-size:11px;
-  letter-spacing:2.2px;
-  font-weight:900;
-  color:#e1e7ff;
-}
-
-.live {
-  border:1px solid #ff657a66;
-  background:#ff52651c;
-  color:#ff99a6;
-  border-radius:30px;
-  padding:7px 11px;
-  font-size:11px;
-  font-weight:900;
-  letter-spacing:1px;
-}
-
-.dot {
-  display:inline-block;
-  width:7px;
-  height:7px;
-  border-radius:50%;
-  background:#ff5265;
-  box-shadow:0 0 10px #ff5265;
-  margin-right:5px;
-  animation:pulse 1.5s infinite;
-}
-
-@keyframes pulse {
-  50% { opacity:.35; }
-}
-
-header {
+h1{
   text-align:center;
-  padding:6px 0 2px;
-}
-
-header h1 {
-  font-size:clamp(30px,8.5vw,46px);
-  line-height:1.03;
-  letter-spacing:-1.6px;
-  margin:8px 0;
+  font-size:clamp(24px,7vw,42px);
   font-weight:1000;
+  color:var(--gold);
+  text-shadow:3px 3px #a32943,6px 6px #222;
+  margin:12px 0 4px;
 }
-
-header h1 span {
-  background:linear-gradient(90deg,#ff7782,#fff 50%,#83b6ff);
-  color:transparent;
-  background-clip:text;
-}
-
-header p {
-  color:var(--muted);
-  font-size:12px;
-  margin:8px 0;
-}
-
-.glass {
-  background:linear-gradient(145deg,#ffffff17,#ffffff08);
-  border:1px solid #ffffff25;
-  box-shadow:0 22px 60px #0007,inset 0 1px #ffffff18;
-  border-radius:27px;
-  padding:17px 13px 19px;
-  backdrop-filter:blur(18px);
-}
-
-.match {
-  display:grid;
-  grid-template-columns:minmax(0,1fr) 28px minmax(0,1fr);
-  align-items:start;
-  gap:4px;
-}
-
-.fighter {
-  min-width:0;
+.subtitle{
   text-align:center;
-  position:relative;
-  padding:10px 2px 15px;
-  border-radius:21px;
-  background:linear-gradient(180deg,var(--tint),#ffffff06);
-  border:1px solid #ffffff12;
-  transition:transform .25s;
+  font-size:12px;
+  color:#abb7d5;
+  margin-bottom:15px;
 }
-
-.fighter.pop {
-  animation:bump .4s ease;
+.arena{
+  border:4px solid #57658f;
+  background:#11152a;
+  box-shadow:0 0 30px #3668ff33;
+  overflow:hidden;
 }
-
-@keyframes bump {
-  50% { transform:scale(1.045); }
+.hud{
+  padding:12px 10px;
+  background:#10152a;
+  display:grid;
+  grid-template-columns:1fr 54px 1fr;
+  gap:7px;
+  align-items:center;
 }
-
-.portraitwrap {
-  width:min(32vw,140px);
-  height:min(32vw,140px);
-  max-width:140px;
-  max-height:140px;
-  border-radius:50%;
-  padding:5px;
-  margin:0 auto 13px;
-  background:linear-gradient(140deg,var(--accent),#ffffffa0,var(--accent));
-  box-shadow:0 0 34px var(--glow),0 10px 30px #0006;
+.fighter-name{
+  font-weight:1000;
+  font-size:clamp(12px,3vw,19px);
 }
-
-.portrait {
+.right{text-align:right}
+.hp{
+  height:20px;
+  background:#3d1524;
+  border:3px solid #e6ebff;
+  margin-top:5px;
+  overflow:hidden;
+}
+.hp-fill{
+  height:100%;
+  width:100%;
+  transition:width .35s;
+}
+.hp-l{background:linear-gradient(90deg,#ff3355,#ffbd6b)}
+.hp-b{background:linear-gradient(90deg,#61b7ff,#2861ff)}
+.round-number{
+  text-align:center;
+  font-size:11px;
+  font-weight:900;
+  color:var(--gold);
+}
+.round-number strong{
+  display:block;
+  font-size:23px;
+}
+.arena-canvas{
   display:block;
   width:100%;
-  height:100%;
-  border-radius:50%;
-  object-fit:cover;
-  object-position:center top;
-  background:#242c46;
+  aspect-ratio:16/10;
+  image-rendering:pixelated;
+  background:#171c3b;
 }
-
-.name {
-  font-size:clamp(15px,4.4vw,21px);
-  font-weight:1000;
-  letter-spacing:-.5px;
-}
-
-.pct {
-  font-size:clamp(28px,8vw,43px);
-  font-weight:1000;
-  letter-spacing:-1.5px;
-  font-variant-numeric:tabular-nums;
-  margin-top:5px;
-}
-
-.count {
-  font-size:12px;
-  color:#c1c9e2;
-  font-variant-numeric:tabular-nums;
-}
-
-.vs {
-  align-self:center;
-  margin-top:-25px;
-  text-align:center;
-  font-size:13px;
-  font-style:italic;
-  font-weight:1000;
-  color:#e6e9ff;
-  text-shadow:0 0 20px #fff8;
-}
-
-.label {
+.message{
+  min-height:42px;
   display:flex;
   align-items:center;
-  justify-content:space-between;
-  margin:20px 4px 9px;
-  font-size:10px;
-  font-weight:900;
-  letter-spacing:1.5px;
-  color:#cbd3ee;
-}
-
-.track {
-  height:29px;
-  display:flex;
-  border-radius:999px;
-  overflow:hidden;
-  background:#27314d;
-  border:2px solid #ffffff2d;
-  box-shadow:inset 0 2px 6px #0007;
-}
-
-.red {
-  width:50%;
-  background:linear-gradient(90deg,#b92242,#ff5c68);
-  transition:width .6s cubic-bezier(.2,.9,.2,1);
-  box-shadow:0 0 15px #ff526577;
-}
-
-.blue {
-  flex:1;
-  background:linear-gradient(90deg,#4c94ff,#1d50c9);
-}
-
-.stats {
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:10px;
-  margin-top:15px;
-}
-
-.stat {
-  background:#050a1c80;
-  border:1px solid #ffffff14;
-  border-radius:14px;
-  padding:12px 5px;
-}
-
-.stat small {
-  display:block;
-  font-size:10px;
-  letter-spacing:1.2px;
-  color:#a8b4d5;
-  font-weight:800;
-}
-
-.stat strong {
-  display:block;
-  font-size:21px;
-  font-variant-numeric:tabular-nums;
-  margin-top:3px;
-}
-
-.controls {
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:10px;
-}
-
-.vote {
-  position:relative;
-  overflow:hidden;
-  min-height:74px;
-  border:1px solid #ffffff42;
-  border-radius:19px;
-  color:white;
-  font:900 14px system-ui;
-  box-shadow:0 10px 26px #0005;
-  cursor:pointer;
-  touch-action:manipulation;
-}
-
-.vote span {
-  display:block;
-  font-size:11px;
-  opacity:.85;
-  font-weight:700;
-  margin-top:5px;
-}
-
-.vote:active { transform:scale(.97); }
-
-.vote.l {
-  background:linear-gradient(145deg,#ff6675,#b51d3e);
-}
-
-.vote.b {
-  background:linear-gradient(145deg,#5ca7ff,#1645b9);
-}
-
-.reset {
-  border:1px solid #ffffff20;
-  background:#ffffff0c;
-  color:#c6d0e9;
-  padding:12px;
-  border-radius:14px;
-  font:800 12px system-ui;
-  cursor:pointer;
-}
-
-.footer {
-  text-align:center;
-  color:#8f9cba;
-  font-size:10px;
-  line-height:1.55;
-  margin-top:auto;
-}
-
-.spark {
-  position:fixed;
-  z-index:99;
-  pointer-events:none;
-  font-size:23px;
-  font-weight:1000;
-  animation:fly .9s ease-out forwards;
-}
-
-@keyframes fly {
-  0% { opacity:0;transform:translateY(8px) scale(.6); }
-  25% { opacity:1; }
-  100% { opacity:0;transform:translateY(-100px) scale(1.5); }
-}
-
-/* NOVO PAINEL TIKTOK */
-.tiktok-panel {
-  background:linear-gradient(145deg,#172343,#0b1228);
-  border:1px solid #ffffff30;
-  border-radius:22px;
-  padding:17px;
-  display:grid;
-  gap:11px;
-  box-shadow:0 12px 35px #0005;
-}
-
-.tiktok-title {
+  justify-content:center;
+  background:#10152a;
   text-align:center;
   font-size:14px;
-  font-weight:1000;
-  letter-spacing:1px;
+  font-weight:900;
+  color:var(--gold);
+  padding:8px;
 }
-
-.tiktok-subtitle {
+.scoreboard{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  margin-top:12px;
+}
+.score{
+  padding:12px;
+  background:#161e39;
+  border:1px solid #465277;
   text-align:center;
+  border-radius:10px;
+}
+.score strong{
+  display:block;
+  font-size:26px;
+}
+.score small{
+  color:#aab7d4;
   font-size:11px;
-  color:#a7b2cf;
 }
-
-.tiktok-input {
-  width:100%;
-  padding:14px;
-  border-radius:12px;
-  border:1px solid #ffffff40;
-  background:#080e20;
-  color:white;
-  font:500 16px system-ui;
-  outline:none;
-}
-
-.tiktok-input:focus {
-  border-color:#438cff;
-  box-shadow:0 0 0 3px #438cff22;
-}
-
-.connect-btn {
+.panel{
+  background:#141d37;
+  border:1px solid #39496e;
+  border-radius:14px;
   padding:15px;
-  border:0;
-  border-radius:12px;
-  background:linear-gradient(90deg,#ff5265,#438cff);
-  color:white;
-  font:900 14px system-ui;
-  cursor:pointer;
+  margin-top:14px;
 }
-
-.connect-btn:disabled {
-  opacity:.6;
-  cursor:wait;
-}
-
-.tiktok-status {
+.panel h2{
+  font-size:16px;
   text-align:center;
+  margin:0 0 12px;
+}
+.field{
+  display:block;
+  width:100%;
+  padding:13px;
+  margin-bottom:10px;
+  background:#080e20;
+  border:1px solid #556587;
+  border-radius:9px;
+  color:white;
+  font-size:16px;
+}
+button{
+  border:0;
+  border-radius:10px;
+  padding:13px;
+  font-weight:900;
+  color:white;
+  cursor:pointer;
+  font-size:13px;
+}
+button:disabled{opacity:.5}
+.connect{
+  width:100%;
+  background:linear-gradient(90deg,#e63b61,#356dff);
+}
+.status{
   font-size:12px;
-  color:#a7b2cf;
+  color:#b8c6e6;
+  text-align:center;
+  padding-top:10px;
   overflow-wrap:anywhere;
 }
-
-@media(max-width:350px) {
-  main { padding:19px 9px; }
-  .glass { padding:12px 8px; }
-  .match {
-    grid-template-columns:minmax(0,1fr) 22px minmax(0,1fr);
-  }
-  .vs { font-size:11px; }
-  .vote { font-size:12px; }
+.test-buttons{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+.test-l{background:#c72c4c}
+.test-b{background:#255ed0}
+.reset{
+  width:100%;
+  background:#303a56;
+  margin-top:10px;
+}
+.hint{
+  text-align:center;
+  color:#aab7d4;
+  font-size:12px;
+  line-height:1.6;
+  margin:14px 0;
+}
+footer{
+  text-align:center;
+  color:#8392b5;
+  font-size:10px;
+  padding:15px 0 25px;
 }
 </style>
 </head>
@@ -418,425 +195,652 @@ header p {
 <body>
 <main>
 
-<div class="top">
-  <div class="brand">
-    ◈ VOTE ARENA <span style="opacity:.45">/ 2.0</span>
-  </div>
-  <div class="live">
-    <i class="dot"></i>INTERATIVO
-  </div>
+<h1>⚡ STREET VOTE FIGHTER ⚡</h1>
+<div class="subtitle">
+  ARCADE PIXEL 2D · TIKTOK LIVE INTERATIVO
 </div>
 
-<header>
-  <h1><span>BATALHA<br>DE VOTOS</span></h1>
-  <p>LULA <b style="color:#f4f7ff">×</b> BOLSONARO</p>
-</header>
-
-<section class="glass">
-  <div class="match">
-
-    <div class="fighter" id="cardL"
-      style="--accent:#ff5265;--glow:#ff526544;--tint:#ff52651d">
-      <div class="portraitwrap">
-        <img class="portrait" src="./Lula.png" alt="Foto de Lula">
+<section class="arena">
+  <div class="hud">
+    <div>
+      <div class="fighter-name">🔴 LULA</div>
+      <div class="hp">
+        <div id="hpL" class="hp-fill hp-l"></div>
       </div>
-      <div class="name">LULA</div>
-      <div class="pct" id="pL">0,0%</div>
-      <div class="count" id="vL">0 votos</div>
     </div>
 
-    <div class="vs">VS</div>
+    <div class="round-number">
+      ROUND
+      <strong id="round">1</strong>
+    </div>
 
-    <div class="fighter" id="cardB"
-      style="--accent:#438cff;--glow:#438cff44;--tint:#438cff1d">
-      <div class="portraitwrap">
-        <img class="portrait" src="./Bolsonaro.png" alt="Foto de Bolsonaro">
+    <div>
+      <div class="fighter-name right">BOLSONARO 🔵</div>
+      <div class="hp">
+        <div id="hpB" class="hp-fill hp-b"></div>
       </div>
-      <div class="name">BOLSONARO</div>
-      <div class="pct" id="pB">0,0%</div>
-      <div class="count" id="vB">0 votos</div>
     </div>
-
   </div>
 
-  <div class="label">
-    <span>🔴 LULA</span>
-    <span>DISTRIBUIÇÃO</span>
-    <span>BOLSONARO 🔵</span>
-  </div>
+  <canvas
+    id="game"
+    class="arena-canvas"
+    width="320"
+    height="200">
+  </canvas>
 
-  <div class="track">
-    <div class="red" id="red"></div>
-    <div class="blue"></div>
-  </div>
-
-  <div class="stats">
-    <div class="stat">
-      <small>TOTAL DE VOTOS</small>
-      <strong id="total">0</strong>
-    </div>
-    <div class="stat">
-      <small>TEMPO DECORRIDO</small>
-      <strong id="timer">00:00</strong>
-    </div>
+  <div id="message" class="message">
+    FIGHT! 🥊
   </div>
 </section>
 
-<!-- PAINEL DE CONEXÃO -->
-<section class="tiktok-panel">
-  <div class="tiktok-title">🎥 CONECTAR TIKTOK LIVE</div>
-  <div class="tiktok-subtitle">
-    Escolha a conta que está transmitindo ao vivo
+<div class="scoreboard">
+  <div class="score">
+    <small>COMENTÁRIOS 13</small>
+    <strong id="votesL">0</strong>
+    <small id="winsL">0 rounds vencidos</small>
   </div>
 
+  <div class="score">
+    <small>COMENTÁRIOS 22</small>
+    <strong id="votesB">0</strong>
+    <small id="winsB">0 rounds vencidos</small>
+  </div>
+</div>
+
+<section class="panel">
+  <h2>🎥 CONECTAR TIKTOK LIVE</h2>
+
   <input
-    class="tiktok-input"
-    id="tiktokUsuario"
-    type="text"
+    id="usuario"
+    class="field"
     placeholder="@usuario"
     value="@isabelaaaoiii"
     autocomplete="off"
-    spellcheck="false"
-  >
+    spellcheck="false">
 
   <input
-    class="tiktok-input"
-    id="tiktokSenha"
+    id="senha"
+    class="field"
     type="password"
     placeholder="Senha de administrador"
-    autocomplete="off"
-  >
+    autocomplete="off">
 
-  <button
-    class="connect-btn"
-    id="conectarTikTok"
-    type="button"
-  >
+  <button id="connect" class="connect">
     🔗 CONECTAR LIVE
   </button>
 
-  <div class="tiktok-status" id="statusTikTok">
-    ⏳ Consultando servidor...
+  <div id="status" class="status">
+    Consultando servidor...
   </div>
 </section>
 
-<div class="controls">
-  <button class="vote l" id="voteL">
-    +1 VOTO LULA
-    <span>TOQUE PARA TESTAR</span>
-  </button>
+<section class="panel">
+  <h2>🎮 TESTAR GOLPES</h2>
 
-  <button class="vote b" id="voteB">
-    +1 VOTO BOLSONARO
-    <span>TOQUE PARA TESTAR</span>
+  <div class="test-buttons">
+    <button id="attackL" class="test-l">
+      🔴 SOCO LULA
+    </button>
+    <button id="attackB" class="test-b">
+      🔵 SOCO BOLSONARO
+    </button>
+  </div>
+
+  <button id="reset" class="reset">
+    ↻ REINICIAR JOGO LOCAL
   </button>
+</section>
+
+<div class="hint">
+  💬 Comente <b>13</b> para Lula atacar.<br>
+  💬 Comente <b>22</b> para Bolsonaro atacar.<br>
+  Cada comentário válido gera um golpe.<br>
+  O primeiro a zerar a vida do adversário vence o round!
 </div>
 
-<button class="reset" id="reset">
-  ↻ REINICIAR VOTOS MANUAIS
-</button>
-
-<div class="footer">
-  ENQUETE INFORMAL · COMENTÁRIOS E TESTES MANUAIS<br>
-  Cada comentário válido conta como uma participação,
-  inclusive comentários repetidos.<br>
-  Não é pesquisa eleitoral nem representa a população.
-</div>
+<footer>
+  JOGO FICTÍCIO E CARICATURAL · ENQUETE INFORMAL<br>
+  Comentários repetidos contam. Não é pesquisa eleitoral.
+</footer>
 
 </main>
 
 <script>
 'use strict';
 
-const API_BASE = 'https://tiktok-live-servidor.onrender.com';
-const KEY = 'votacao-live-premium-v1';
+const API = 'https://tiktok-live-servidor.onrender.com';
 
-const el = id => document.getElementById(id);
-const fmt = n => n.toLocaleString('pt-BR');
+const $ = id => document.getElementById(id);
+const canvas = $('game');
+const ctx = canvas.getContext('2d');
 
-let data = {
-  l: 0,
-  b: 0,
-  start: Date.now()
-};
+ctx.imageSmoothingEnabled = false;
 
-let votosLive = {
-  l: 0,
-  b: 0
-};
+// CONFIGURAÇÕES DO JOGO
+const MAX_HP = 100;
+const DAMAGE = 10;
+const ROUND_PAUSE = 3000;
 
-let usuarioServidor = '';
-let statusServidor = 'Consultando servidor...';
-let conectando = false;
-let consultando = false;
+// ESTADO
+let hpL = MAX_HP;
+let hpB = MAX_HP;
 
-try {
-  const d = JSON.parse(localStorage.getItem(KEY));
+let round = 1;
+let winsL = 0;
+let winsB = 0;
 
-  if (
-    d &&
-    Number.isSafeInteger(d.l) && d.l >= 0 &&
-    Number.isSafeInteger(d.b) && d.b >= 0 &&
-    Number.isFinite(d.start)
-  ) {
-    data = d;
+let votesL = 0;
+let votesB = 0;
+
+let lastL = null;
+let lastB = null;
+let lastUser = null;
+
+let busy = false;
+let changingUser = false;
+let polling = false;
+
+let queue = [];
+let currentAttack = null;
+let attackEnd = 0;
+let koUntil = 0;
+
+let flash = 0;
+let shake = 0;
+
+let statusText = 'Aguardando conexão';
+
+// Desenho pixelado
+function rect(x,y,w,h,color){
+  ctx.fillStyle=color;
+  ctx.fillRect(
+    Math.round(x),
+    Math.round(y),
+    Math.round(w),
+    Math.round(h)
+  );
+}
+
+function text(t,x,y,size,color,align='center'){
+  ctx.fillStyle=color;
+  ctx.font='bold '+size+'px monospace';
+  ctx.textAlign=align;
+  ctx.fillText(t,x,y);
+}
+
+function drawBackground(time){
+  rect(0,0,320,200,'#11172e');
+
+  // Céu
+  rect(0,0,320,105,'#27315c');
+
+  // Lua
+  rect(242,16,27,27,'#ffe7a1');
+  rect(250,12,25,25,'#27315c');
+
+  // Prédios
+  for(let i=0;i<11;i++){
+    const h=35+(i*17%42);
+    const x=i*32;
+    rect(x,105-h,29,h,'#151d39');
+
+    for(let yy=110-h;yy<95;yy+=13){
+      rect(x+7,yy,5,6,'#ffce71');
+      rect(x+18,yy,5,6,'#5077aa');
+    }
   }
-} catch (e) {}
 
-function save() {
-  try {
-    localStorage.setItem(KEY, JSON.stringify(data));
-  } catch (e) {}
+  // Plateia
+  for(let i=0;i<23;i++){
+    const x=i*15;
+    const bounce=Math.sin(time/350+i)*2;
+
+    rect(x,103+bounce,10,11,
+      i%2?'#a45d81':'#5078ac');
+
+    rect(x+2,98+bounce,6,7,
+      i%3?'#e3a679':'#9a6d50');
+  }
+
+  // Chão da arena
+  rect(0,121,320,79,'#4a3d55');
+  rect(0,121,320,5,'#b36b77');
+
+  for(let i=0;i<12;i++){
+    rect(i*30,145,25,2,'#69506a');
+    rect(i*30+15,175,25,2,'#69506a');
+  }
+
+  // Linha central
+  rect(159,128,2,70,'#ffffff18');
 }
 
-function update() {
-  const totalLula = data.l + votosLive.l;
-  const totalBolsonaro = data.b + votosLive.b;
-  const total = totalLula + totalBolsonaro;
+// Personagens originais em pixel art
+function drawFighter(x,y,side,time){
+  const left=side==='l';
+  const attacking=
+    currentAttack &&
+    currentAttack.side===side &&
+    performance.now()<attackEnd;
 
-  const porcentagemLula =
-    total ? totalLula / total * 100 : 0;
+  const hurt=
+    currentAttack &&
+    currentAttack.side!==side &&
+    performance.now()<attackEnd;
 
-  const porcentagemBolsonaro =
-    total ? totalBolsonaro / total * 100 : 0;
+  const color=left?'#e43855':'#347be9';
+  const dark=left?'#912a42':'#204a99';
+  const skin=left?'#d99b70':'#d6a079';
+  const hair=left?'#d7d9dc':'#403a35';
 
-  el('pL').textContent =
-    porcentagemLula.toFixed(1).replace('.', ',') + '%';
+  const bob=Math.round(Math.sin(time/180)*2);
+  const offset=attacking?(left?13:-13):0;
+  const recoil=hurt?(left?-5:5):0;
 
-  el('pB').textContent =
-    porcentagemBolsonaro.toFixed(1).replace('.', ',') + '%';
-
-  el('vL').textContent = fmt(totalLula) + ' votos';
-  el('vB').textContent = fmt(totalBolsonaro) + ' votos';
-  el('total').textContent = fmt(total);
-
-  el('red').style.width =
-    (total ? porcentagemLula : 50) + '%';
-}
-
-function sparkle(btn, color) {
-  const r = btn.getBoundingClientRect();
-  const s = document.createElement('span');
-
-  s.className = 'spark';
-  s.textContent = '+1';
-  s.style.color = color;
-  s.style.left = (r.left + r.width / 2 - 12) + 'px';
-  s.style.top = r.top + 'px';
-
-  document.body.appendChild(s);
-  setTimeout(() => s.remove(), 900);
-}
-
-function vote(side) {
-  const btn = el(side === 'l' ? 'voteL' : 'voteB');
-  const card = el(side === 'l' ? 'cardL' : 'cardB');
-
-  data[side]++;
-  save();
-  update();
-
-  sparkle(
-    btn,
-    side === 'l' ? '#ff8b97' : '#8ebcff'
+  ctx.save();
+  ctx.translate(
+    Math.round(x+offset+recoil),
+    Math.round(y+bob)
   );
 
-  card.classList.remove('pop');
-  void card.offsetWidth;
-  card.classList.add('pop');
+  if(!left){
+    ctx.scale(-1,1);
+  }
+
+  // Sombra
+  rect(-16,3,35,5,'#1a162d');
+
+  // Pernas
+  rect(-12,-24,11,26,dark);
+  rect(5,-24,11,26,dark);
+
+  // Botas
+  rect(-16,-3,16,6,'#1b213a');
+  rect(4,-3,18,6,'#1b213a');
+
+  // Tronco
+  rect(-15,-56,32,35,color);
+  rect(-10,-54,21,5,'#ffffff33');
+
+  // Cinto
+  rect(-15,-25,32,5,'#e4d8a1');
+
+  // Pescoço
+  rect(-5,-63,11,9,skin);
+
+  // Cabeça
+  rect(-14,-87,29,26,skin);
+  rect(-16,-79,4,9,skin);
+  rect(14,-79,4,9,skin);
+
+  // Cabelo
+  rect(-14,-91,28,8,hair);
+  rect(-16,-86,7,7,hair);
+
+  // Olhos
+  rect(-7,-76,4,3,'#171a2b');
+  rect(5,-76,4,3,'#171a2b');
+
+  // Nariz
+  rect(0,-72,5,4,'#b57c5d');
+
+  if(left){
+    // Barba clara estilizada
+    rect(-9,-68,21,7,'#e3e3df');
+    rect(-5,-63,13,3,'#b9c0c5');
+  }else{
+    // Cabelo lateral estilizado
+    rect(10,-86,5,10,hair);
+    rect(-6,-65,13,3,'#7d4c39');
+  }
+
+  // Braço traseiro
+  rect(-20,-52,9,25,skin);
+  rect(-21,-32,11,11,color);
+
+  // Braço dianteiro
+  if(attacking){
+    rect(12,-51,27,10,skin);
+    rect(35,-54,13,15,color);
+  }else{
+    rect(12,-54,9,24,skin);
+    rect(11,-36,13,13,color);
+  }
+
+  ctx.restore();
 }
 
-el('voteL').addEventListener('click', () => vote('l'));
-el('voteB').addEventListener('click', () => vote('b'));
+function drawEffects(time){
+  if(currentAttack && time<attackEnd){
+    const left=currentAttack.side==='l';
+    const x=left?188:132;
 
-el('reset').addEventListener('click', () => {
-  if (!confirm(
-    'Apagar apenas os votos manuais e reiniciar o cronômetro?'
-  )) {
+    const colors=['#fff7c3','#ffdb59','#ff7744'];
+
+    for(let i=0;i<8;i++){
+      const angle=i*Math.PI/4;
+      const radius=9+(i%3)*4;
+
+      rect(
+        x+Math.cos(angle)*radius,
+        90+Math.sin(angle)*radius,
+        5,5,colors[i%3]
+      );
+    }
+
+    text('POW!',x,64,15,'#ffe47c');
+  }
+
+  if(flash>0){
+    ctx.fillStyle='rgba(255,255,255,'+(flash/10)+')';
+    ctx.fillRect(0,0,320,200);
+    flash=Math.max(0,flash-0.5);
+  }
+}
+
+function render(time){
+  ctx.save();
+
+  if(shake>0){
+    ctx.translate(
+      Math.round((Math.random()-.5)*shake),
+      Math.round((Math.random()-.5)*shake)
+    );
+    shake=Math.max(0,shake-.3);
+  }
+
+  drawBackground(time);
+  drawFighter(92,166,'l',time);
+  drawFighter(228,166,'b',time);
+  drawEffects(time);
+
+  ctx.restore();
+
+  if(busy && time<koUntil){
+    rect(38,60,244,56,'#101526');
+    rect(42,64,236,48,'#762b48');
+    text('K.O.!',160,96,34,'#ffe47c');
+  }
+
+  requestAnimationFrame(render);
+}
+
+requestAnimationFrame(render);
+
+// HUD
+function updateHUD(){
+  $('hpL').style.width=hpL+'%';
+  $('hpB').style.width=hpB+'%';
+
+  $('round').textContent=round;
+
+  $('votesL').textContent=votesL.toLocaleString('pt-BR');
+  $('votesB').textContent=votesB.toLocaleString('pt-BR');
+
+  $('winsL').textContent=winsL+' rounds vencidos';
+  $('winsB').textContent=winsB+' rounds vencidos';
+}
+
+function message(t){
+  $('message').textContent=t;
+}
+
+// FILA DE GOLPES
+function enqueue(side,amount=1){
+  // Limite para evitar travamentos em lives movimentadas
+  const free=Math.max(0,500-queue.length);
+  const count=Math.min(amount,free);
+
+  for(let i=0;i<count;i++){
+    queue.push(side);
+  }
+
+  processQueue();
+}
+
+function processQueue(){
+  if(busy || currentAttack || queue.length===0){
     return;
   }
 
-  data = {
-    l: 0,
-    b: 0,
-    start: Date.now()
-  };
+  const side=queue.shift();
 
-  save();
-  update();
-  clock();
-});
+  currentAttack={side};
+  attackEnd=performance.now()+320;
 
-function clock() {
-  const segundos = Math.floor(
-    Math.max(0, Date.now() - data.start) / 1000
-  );
-
-  const horas = Math.floor(segundos / 3600);
-  const minutos = Math.floor(segundos % 3600 / 60);
-  const resto = segundos % 60;
-
-  const pad = n => String(n).padStart(2, '0');
-
-  el('timer').textContent =
-    (horas ? pad(horas) + ':' : '') +
-    pad(minutos) + ':' +
-    pad(resto);
-}
-
-const campoUsuario = el('tiktokUsuario');
-const campoSenha = el('tiktokSenha');
-const botaoConectar = el('conectarTikTok');
-const statusTikTok = el('statusTikTok');
-
-function mostrarStatus() {
-  if (conectando) return;
-
-  if (usuarioServidor) {
-    statusTikTok.textContent =
-      '🎥 ' + usuarioServidor + ' · ' + statusServidor;
-  } else {
-    statusTikTok.textContent = statusServidor;
+  if(side==='l'){
+    hpB=Math.max(0,hpB-DAMAGE);
+    message('🔴 LULA ATACOU!');
+  }else{
+    hpL=Math.max(0,hpL-DAMAGE);
+    message('🔵 BOLSONARO ATACOU!');
   }
+
+  flash=2.5;
+  shake=5;
+  updateHUD();
+
+  const knockout=hpL===0 || hpB===0;
+
+  setTimeout(()=>{
+    currentAttack=null;
+
+    if(knockout){
+      finishRound(side);
+    }else{
+      processQueue();
+    }
+  },340);
 }
 
-async function atualizarVotosLive() {
-  if (consultando) return;
-  consultando = true;
+function finishRound(winner){
+  busy=true;
+  queue=[];
 
-  try {
-    const resposta = await fetch(
-      API_BASE + '/votos',
-      { cache: 'no-store' }
+  if(winner==='l'){
+    winsL++;
+    message('🏆 K.O.! LULA VENCEU O ROUND!');
+  }else{
+    winsB++;
+    message('🏆 K.O.! BOLSONARO VENCEU O ROUND!');
+  }
+
+  koUntil=performance.now()+ROUND_PAUSE;
+  updateHUD();
+
+  setTimeout(()=>{
+    hpL=MAX_HP;
+    hpB=MAX_HP;
+    round++;
+    busy=false;
+    currentAttack=null;
+    updateHUD();
+    message('🥊 ROUND '+round+' — FIGHT!');
+    processQueue();
+  },ROUND_PAUSE);
+}
+
+// TESTES MANUAIS
+$('attackL').onclick=()=>{
+  votesL++;
+  updateHUD();
+  enqueue('l');
+};
+
+$('attackB').onclick=()=>{
+  votesB++;
+  updateHUD();
+  enqueue('b');
+};
+
+$('reset').onclick=()=>{
+  if(!confirm('Reiniciar a luta local?'))return;
+
+  // Recarregar também interrompe animações pendentes.
+  // A API será sincronizada novamente.
+  location.reload();
+};
+
+// CONEXÃO COM O RENDER
+async function pollVotes(){
+  if(polling || changingUser)return;
+
+  polling=true;
+
+  try{
+    const response=await fetch(
+      API+'/votos',
+      {cache:'no-store'}
     );
 
-    if (!resposta.ok) {
+    if(!response.ok){
       throw new Error('Servidor indisponível');
     }
 
-    const resultado = await resposta.json();
+    const result=await response.json();
 
-    const lula = Number(resultado['13']);
-    const bolsonaro = Number(resultado['22']);
+    const l=Number(result['13']);
+    const b=Number(result['22']);
 
-    if (
-      !Number.isSafeInteger(lula) || lula < 0 ||
-      !Number.isSafeInteger(bolsonaro) || bolsonaro < 0
-    ) {
-      throw new Error('Dados de votos inválidos');
+    if(
+      !Number.isSafeInteger(l) || l<0 ||
+      !Number.isSafeInteger(b) || b<0
+    ){
+      throw new Error('Contagem inválida');
     }
 
-    votosLive = {
-      l: lula,
-      b: bolsonaro
-    };
+    const user=result.usuario||'';
+    const status=result.status||'Sem status';
 
-    usuarioServidor = resultado.usuario || '';
-    statusServidor = resultado.status || 'Sem status';
-
-    // Não sobrescreve o @ enquanto você digita.
-    if (
-      !conectando &&
-      document.activeElement !== campoUsuario
-    ) {
-      campoUsuario.value = usuarioServidor;
+    // Ao trocar de usuário, começa uma nova contagem.
+    if(lastUser!==null && user!==lastUser){
+      lastL=null;
+      lastB=null;
+      queue=[];
     }
 
-    update();
-    mostrarStatus();
+    lastUser=user;
 
-  } catch (erro) {
-    statusServidor = 'Servidor indisponível ou iniciando';
-    mostrarStatus();
-    console.log('Erro ao consultar votos:', erro.message);
+    // Primeira consulta: sincroniza sem disparar
+    // golpes antigos acumulados antes de abrir o jogo.
+    if(lastL===null || lastB===null){
+      lastL=l;
+      lastB=b;
+    }else{
+      // Se o Render reiniciou e os números zeraram,
+      // não criamos golpes negativos.
+      const deltaL=l>=lastL?l-lastL:0;
+      const deltaB=b>=lastB?b-lastB:0;
 
-  } finally {
-    consultando = false;
+      lastL=l;
+      lastB=b;
+
+      if(deltaL>0){
+        votesL+=deltaL;
+        enqueue('l',deltaL);
+      }
+
+      if(deltaB>0){
+        votesB+=deltaB;
+        enqueue('b',deltaB);
+      }
+    }
+
+    if(document.activeElement!==$('usuario')){
+      $('usuario').value=user;
+    }
+
+    statusText='🎥 '+user+' · '+status;
+    $('status').textContent=statusText;
+
+    updateHUD();
+
+  }catch(error){
+    $('status').textContent=
+      '⚠️ Aguardando servidor: '+error.message;
+  }finally{
+    polling=false;
   }
 }
 
-async function conectarNovaLive() {
-  const usuario = campoUsuario.value.trim();
-  const senha = campoSenha.value;
+// TROCAR A CONTA PELO SITE
+$('connect').onclick=async()=>{
+  const usuario=$('usuario').value.trim();
+  const senha=$('senha').value;
 
-  if (!usuario || !senha) {
-    statusTikTok.textContent =
-      '⚠️ Preencha o @ e a senha de administrador.';
+  if(!usuario || !senha){
+    $('status').textContent=
+      '⚠️ Digite o @ e a senha.';
     return;
   }
 
-  conectando = true;
-  botaoConectar.disabled = true;
-  statusTikTok.textContent = '⏳ Solicitando conexão...';
+  changingUser=true;
+  $('connect').disabled=true;
+  $('status').textContent='⏳ Conectando...';
 
-  try {
-    const resposta = await fetch(
-      API_BASE + '/configurar',
+  try{
+    const response=await fetch(
+      API+'/configurar',
       {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Admin-Password': senha
+        method:'POST',
+        headers:{
+          'Content-Type':'application/json',
+          'X-Admin-Password':senha
         },
-        body: JSON.stringify({
-          usuario: usuario
-        })
+        body:JSON.stringify({usuario})
       }
     );
 
-    const resultado = await resposta.json();
+    const result=await response.json();
 
-    if (!resposta.ok) {
-      let mensagem = resultado.detail;
-
-      if (typeof mensagem !== 'string') {
-        mensagem = 'Não foi possível configurar a LIVE.';
-      }
-
-      throw new Error(mensagem);
+    if(!response.ok){
+      throw new Error(
+        typeof result.detail==='string'
+        ? result.detail
+        : 'Erro ao conectar'
+      );
     }
 
-    usuarioServidor = resultado.usuario;
-    statusServidor = 'Tentando conectar à LIVE';
+    $('senha').value='';
+    $('usuario').value=result.usuario;
 
-    campoUsuario.value = resultado.usuario;
-    campoSenha.value = '';
+    // Não misturar comentários da conta anterior.
+    lastUser=result.usuario;
+    lastL=0;
+    lastB=0;
+    queue=[];
 
-    // O servidor zera os comentários ao trocar de conta.
-    votosLive = { l: 0, b: 0 };
-    update();
+    // Nova luta para a nova conta.
+    hpL=MAX_HP;
+    hpB=MAX_HP;
+    votesL=0;
+    votesB=0;
+    winsL=0;
+    winsB=0;
+    round=1;
+    busy=false;
+    currentAttack=null;
 
-    statusTikTok.textContent =
-      '✅ Conta selecionada: ' + resultado.usuario;
+    updateHUD();
+    message('🥊 NOVA LUTA — FIGHT!');
 
-  } catch (erro) {
-    statusTikTok.textContent =
-      '❌ ' + erro.message;
+    $('status').textContent=
+      '✅ Conta selecionada: '+result.usuario;
 
-  } finally {
-    conectando = false;
-    botaoConectar.disabled = false;
+  }catch(error){
+    $('status').textContent='❌ '+error.message;
+  }finally{
+    changingUser=false;
+    $('connect').disabled=false;
   }
+};
 
-  await atualizarVotosLive();
-}
-
-botaoConectar.addEventListener(
-  'click',
-  conectarNovaLive
-);
-
-// Inicia placar e cronômetro.
-update();
-clock();
-
-setInterval(clock, 1000);
-
-// Atualiza os comentários automaticamente.
-atualizarVotosLive();
-setInterval(atualizarVotosLive, 2000);
+// INICIAR
+updateHUD();
+pollVotes();
+setInterval(pollVotes,2000);
 
 </script>
 </body>
-  </html>
-  
+</html>
