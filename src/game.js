@@ -127,7 +127,7 @@ function fighter(side,time) {
       const approach=Math.min(1,t/.32);
       const retreat=t>.68?(1-t)/.32:1;
       x+=facing*reach*Math.max(0,Math.min(approach,retreat));
-      if (t >= .25 && t < .70) {
+      if (t >= 0 && t <= 1) {
   if (side === 'b') {
     sprite = images.hadoukenPose;
   } else {
