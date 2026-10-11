@@ -5,6 +5,73 @@ const game=new Fight(), tracker=new VoteTracker();
 const canvas=$('game'), ctx=canvas.getContext('2d');
 const reduceMotion=matchMedia('(prefers-reduced-motion: reduce)').matches;
 const images={};
+
+function normalizeSprite(img) {
+  const source = document.createElement('canvas');
+  source.width = img.naturalWidth;
+  source.height = img.naturalHeight;
+
+  const sctx = source.getContext('2d', {
+    willReadFrequently: true
+  });
+  sctx.drawImage(img, 0, 0);
+
+  const { data } = sctx.getImageData(
+    0, 0, source.width, source.height
+  );
+
+  let minX = source.width;
+  let minY = source.height;
+  let maxX = -1;
+  let maxY = -1;
+
+  for (let y = 0; y < source.height; y++) {
+    for (let x = 0; x < source.width; x++) {
+      const alpha = data[(y * source.width + x) * 4 + 3];
+
+      if (alpha > 20) {
+        minX = Math.min(minX, x);
+        minY = Math.min(minY, y);
+        maxX = Math.max(maxX, x);
+        maxY = Math.max(maxY, y);
+      }
+    }
+  }
+
+  if (maxX < 0) {
+    throw new Error('Sprite totalmente transparente');
+  }
+
+  const cropWidth = maxX - minX + 1;
+  const cropHeight = maxY - minY + 1;
+
+  // Preserva a proporção e deixa a altura em 180 pixels.
+  const scale = Math.min(
+    220 / cropWidth,
+    180 / cropHeight
+  );
+
+  const w = Math.round(cropWidth * scale);
+  const h = Math.round(cropHeight * scale);
+
+  const frame = document.createElement('canvas');
+  frame.width = 280;
+  frame.height = 256;
+
+  const fctx = frame.getContext('2d');
+  fctx.imageSmoothingEnabled = false;
+
+  fctx.drawImage(
+    source,
+    minX, minY, cropWidth, cropHeight,
+    Math.round((280 - w) / 2),
+    240 - h,
+    w, h
+  );
+
+  return frame;
+}
+
 let ready=false, previousTime=0, epoch=0, configuring=false, pollController=null, userEdited=false;
 let statusRound=0, statusAttack=null, lastHud='';
 const names={l:'LULA',b:'BOLSONARO'};
@@ -20,7 +87,12 @@ function loadImage(path) {
 async function loadAssets() {
   try {
     const files={arena:'./cenário.png',l:'./assets/fighters/lula-idle.png',b:'./assets/fighters/bolsonaro-idle.png',punch:'./assets/fighters/bolsonaro-attack.png'};
-    await Promise.all(Object.entries(files).map(async([k,p])=>{images[k]=await loadImage(p);}));
+    await Promise.all(
+  Object.entries(files).map(async ([k, p]) => {
+    const img = await loadImage(p);
+    images[k] = k === 'arena' ? img : normalizeSprite(img);
+  })
+);
     ready=true;
     $('loading').hidden=true;
     $('attackL').disabled=$('attackB').disabled=false;
