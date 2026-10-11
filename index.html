@@ -20,5 +20,60 @@
 <button class="reset" id="reset">↻ REINICIAR ENQUETE</button>
 <div class="footer">ENQUETE INFORMAL · VOTOS MANUAIS<br>Não é pesquisa eleitoral nem representa a população.</div>
 </main><script>
-'use strict';const KEY='votacao-live-premium-v1';let data={l:0,b:0,start:Date.now()};try{const d=JSON.parse(localStorage.getItem(KEY));if(d&&Number.isSafeInteger(d.l)&&d.l>=0&&Number.isSafeInteger(d.b)&&d.b>=0&&Number.isFinite(d.start))data=d}catch(e){}const el=id=>document.getElementById(id);const fmt=n=>n.toLocaleString('pt-BR');function save(){try{localStorage.setItem(KEY,JSON.stringify(data))}catch(e){}}function update(){const t=data.l+data.b;const l=t?data.l/t*100:0,b=t?data.b/t*100:0;el('pL').textContent=l.toFixed(1).replace('.',',')+'%';el('pB').textContent=b.toFixed(1).replace('.',',')+'%';el('vL').textContent=fmt(data.l)+' votos';el('vB').textContent=fmt(data.b)+' votos';el('total').textContent=fmt(t);el('red').style.width=(t?l:50)+'%'}function sparkle(btn,color){const r=btn.getBoundingClientRect(),s=document.createElement('span');s.className='spark';s.textContent='+1';s.style.color=color;s.style.left=(r.left+r.width/2-12)+'px';s.style.top=r.top+'px';document.body.appendChild(s);setTimeout(()=>s.remove(),900)}function vote(side){const btn=el(side==='l'?'voteL':'voteB'),card=el(side==='l'?'cardL':'cardB');data[side]++;save();update();sparkle(btn,side==='l'?'#ff8b97':'#8ebcff');card.classList.remove('pop');void card.offsetWidth;card.classList.add('pop')}el('voteL').addEventListener('click',()=>vote('l'));el('voteB').addEventListener('click',()=>vote('b'));el('reset').addEventListener('click',()=>{if(!confirm('Apagar os votos e reiniciar o cronômetro?'))return;data={l:0,b:0,start:Date.now()};save();update();clock()});function clock(){const s=Math.floor(Math.max(0,Date.now()-data.start)/1000),h=Math.floor(s/3600),m=Math.floor(s%3600/60),ss=s%60;const pad=n=>String(n).padStart(2,'0');el('timer').textContent=(h?pad(h)+':':'')+pad(m)+':'+pad(ss)}update();clock();setInterval(clock,1000);
+'use strict';const KEY='votacao-live-premium-v1';let data={l:0,b:0,start:Date.now()};try{const d=JSON.parse(localStorage.getItem(KEY));if(d&&Number.isSafeInteger(d.l)&&d.l>=0&&Number.isSafeInteger(d.b)&&d.b>=0&&Number.isFinite(d.start))data=d}catch(e){}const el=id=>document.getElementById(id);const fmt=n=>n.toLocaleString('pt-BR');function save(){try{localStorage.setItem(KEY,JSON.stringify(data))}catch(e){}}function update(){const t=data.l+data.b;const l=t?data.l/t*100:0,b=t?data.b/t*100:0;el('pL').textContent=l.toFixed(1).replace('.',',')+'%';el('pB').textContent=b.toFixed(1).replace('.',',')+'%';el('vL').textContent=fmt(data.l)+' votos';el('vB').textContent=fmt(data.b)+' votos';el('total').textContent=fmt(t);el('red').style.width=(t?l:50)+'%'}function sparkle(btn,color){const r=btn.getBoundingClientRect(),s=document.createElement('span');s.className='spark';s.textContent='+1';s.style.color=color;s.style.left=(r.left+r.width/2-12)+'px';s.style.top=r.top+'px';document.body.appendChild(s);setTimeout(()=>s.remove(),900)}function vote(side){const btn=el(side==='l'?'voteL':'voteB'),card=el(side==='l'?'cardL':'cardB');data[side]++;save();update();sparkle(btn,side==='l'?'#ff8b97':'#8ebcff');card.classList.remove('pop');void card.offsetWidth;card.classList.add('pop')}el('voteL').addEventListener('click',()=>vote('l'));el('voteB').addEventListener('click',()=>vote('b'));el('reset').addEventListener('click',()=>{if(!confirm('Apagar os votos e reiniciar o cronômetro?'))return;data={l:0,b:0,start:Date.now()};save();update();clock()});function clock(){const s=Math.floor(Math.max(0,Date.now()-data.start)/1000),h=Math.floor(s/3600),m=Math.floor(s%3600/60),ss=s%60;const pad=n=>String(n).padStart(2,'0');el('timer').textContent=(h?pad(h)+':':'')+pad(m)+':'+pad(ss)}
+update();
+clock();
+setInterval(clock, 1000);
+
+// Conexão com os votos recebidos pelo TikTok LIVE
+const API_VOTOS = 'https://tiktok-live-servidor.onrender.com/votos';
+
+let votosLive = { l: 0, b: 0 };
+
+async function atualizarVotosLive() {
+  try {
+    const resposta = await fetch(API_VOTOS, {
+      cache: 'no-store'
+    });
+
+    if (!resposta.ok) {
+      throw new Error('Servidor indisponível');
+    }
+
+    const resultado = await resposta.json();
+
+    const lula = Number(resultado['13']);
+    const bolsonaro = Number(resultado['22']);
+
+    if (!Number.isSafeInteger(lula) || lula < 0 ||
+        !Number.isSafeInteger(bolsonaro) || bolsonaro < 0) {
+      return;
+    }
+
+    votosLive = { l: lula, b: bolsonaro };
+
+    // Atualiza o placar com os votos da live
+    // mais os votos manuais de teste
+    const totalLula = data.l + votosLive.l;
+    const totalBolsonaro = data.b + votosLive.b;
+    const total = totalLula + totalBolsonaro;
+
+    const porcentagemLula = total ? totalLula / total * 100 : 0;
+    const porcentagemBolsonaro = total ? totalBolsonaro / total * 100 : 0;
+
+    el('pL').textContent = porcentagemLula.toFixed(1).replace('.', ',') + '%';
+    el('pB').textContent = porcentagemBolsonaro.toFixed(1).replace('.', ',') + '%';
+    el('vL').textContent = fmt(totalLula) + ' votos';
+    el('vB').textContent = fmt(totalBolsonaro) + ' votos';
+    el('total').textContent = fmt(total);
+    el('red').style.width = (total ? porcentagemLula : 50) + '%';
+
+  } catch (erro) {
+    console.log('Aguardando servidor:', erro.message);
+  }
+}
+
+atualizarVotosLive();
+setInterval(atualizarVotosLive, 2000);
+  
 </script></body></html>
