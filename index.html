@@ -4,483 +4,1242 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#171b25">
+  <meta name="theme-color" content="#141522">
+  <meta name="description" content="Street Vote Fighter: um jogo arcade brasileiro de luta, humor e interação ao vivo.">
 
-  <title>Street Vote Fighter · Arcade ao vivo</title>
+  <title>Street Vote Fighter | Arcade ao vivo</title>
 
+  <!-- CSS ORIGINAL DO JOGO -->
   <link rel="stylesheet" href="./src/style.css">
+
+  <!-- FONTE PIXEL ART -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap"
+    rel="stylesheet"
+  >
 
   <style>
-    /* =========================================
+    /* ==========================================
        STREET VOTE FIGHTER
-       TEMA: VIADUTO BRASILEIRO PIXEL ART
-       ========================================= */
+       EDIÇÃO VIADUTO - PIXEL ARCADE BRASIL
+       ========================================== */
 
     :root {
-      --pixel-black: #0c0d16;
-      --pixel-gold: #ffd45c;
-      --pixel-cream: #fff0bd;
-      --pixel-red: #d94145;
-      --pixel-blue: #327bd1;
+      --bg: #141522;
+      --panel: #171c2e;
+      --panel-light: #242c43;
+      --black: #090b13;
+      --white: #fff7e6;
+      --muted: #b9bed0;
+      --gold: #ffd45c;
+      --gold-dark: #b87c27;
+      --red: #dc4148;
+      --red-light: #ff7770;
+      --blue: #347bd7;
+      --blue-light: #72c4ff;
+      --green: #5ee0a0;
+      --pixel-font: "Press Start 2P", monospace;
+      --body-font: Arial, Helvetica, sans-serif;
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
     }
 
     html {
       min-height: 100%;
+      scroll-behavior: smooth;
     }
 
     body {
       min-height: 100vh;
-
-      background-color: #171b25 !important;
-
+      margin: 0;
+      color: var(--white);
+      font-family: var(--body-font);
+      background-color: var(--bg) !important;
       background-image:
         linear-gradient(
-          rgba(8, 10, 20, 0.30),
-          rgba(8, 10, 20, 0.60)
+          180deg,
+          rgba(9, 11, 19, .36) 0%,
+          rgba(9, 11, 19, .58) 52%,
+          rgba(9, 11, 19, .80) 100%
         ),
         url("./fundo-viaduto.png") !important;
-
       background-position: center center !important;
       background-size: cover !important;
       background-repeat: no-repeat !important;
       background-attachment: fixed !important;
     }
 
-    /* Deixa o conteúdo acima do fundo */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      background:
+        repeating-linear-gradient(
+          0deg,
+          transparent 0px,
+          transparent 5px,
+          rgba(0, 0, 0, .055) 6px
+        );
+    }
+
     main {
       position: relative;
       z-index: 1;
+      width: min(100% - 32px, 1440px);
+      margin: 0 auto;
+      padding-bottom: 35px;
     }
 
-    /* Tipografia estilo fliperama */
-    .masthead,
-    .intro h1,
-    .eyebrow,
-    .edition,
-    .fight-controls button,
-    .test-buttons button,
-    .primary,
-    .secondary,
-    .ticker,
-    .score-label {
-      font-family: "Courier New", monospace;
+    a {
+      color: var(--gold);
     }
 
-    /* Título */
-    .intro h1 {
-      font-weight: 900;
-      letter-spacing: 2px;
-      text-shadow:
-        4px 4px 0 #090910,
-        7px 7px 0 rgba(0, 0, 0, 0.45);
+    a:hover {
+      color: #fff1b0;
     }
 
-    .intro h1 em {
-      font-style: normal;
-      color: var(--pixel-gold);
-      text-shadow:
-        3px 3px 0 #5c3015,
-        6px 6px 0 #08080c;
+    button,
+    input,
+    output {
+      font: inherit;
     }
 
-    /* Cabeçalho */
-    .masthead {
-      border-bottom: 4px solid var(--pixel-black);
-      box-shadow: 0 4px 0 rgba(255, 212, 92, 0.5);
-    }
-
-    /* Painéis externos */
-    .panel {
-      border: 4px solid var(--pixel-black);
-      border-radius: 0 !important;
-
-      box-shadow:
-        6px 6px 0 rgba(0, 0, 0, 0.8);
-
-      background-color: rgba(
-        18, 22, 37, 0.94
-      );
-    }
-
-    /* Moldura da arena */
-    .cabinet {
-      border: 5px solid #0a0a12;
-      border-radius: 0 !important;
-
-      box-shadow:
-        0 0 0 3px #d6a641,
-        8px 8px 0 rgba(0, 0, 0, 0.7);
-    }
-
-    /* Todos os botões */
     button {
-      font-family: "Courier New", monospace !important;
-      font-weight: 900 !important;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-
-      border: 4px solid var(--pixel-black) !important;
-      border-radius: 0 !important;
-
-      box-shadow:
-        inset 3px 3px 0 rgba(255, 255, 255, 0.28),
-        inset -3px -3px 0 rgba(0, 0, 0, 0.3),
-        5px 5px 0 #08080d !important;
-
-      text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.7);
-
       cursor: pointer;
-
-      transition:
-        transform 80ms steps(2),
-        filter 80ms steps(2),
-        box-shadow 80ms steps(2);
-    }
-
-    button:hover:not(:disabled) {
-      transform: translate(-2px, -2px);
-      filter: brightness(1.15);
-    }
-
-    button:active:not(:disabled) {
-      transform: translate(5px, 5px);
-
-      box-shadow:
-        inset 3px 3px 0 rgba(0, 0, 0, 0.3)
-        !important;
     }
 
     button:disabled {
       cursor: not-allowed;
-      opacity: 0.55;
     }
 
-    /* Teclas Q, W, I, O */
-    .fight-controls kbd {
+    button:focus-visible,
+    a:focus-visible,
+    input:focus-visible {
+      outline: 3px solid var(--gold);
+      outline-offset: 5px;
+    }
+
+    /* ==========================================
+       CABEÇALHO
+       ========================================== */
+
+    .masthead {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      padding: 20px 12px;
+      border-bottom: 4px solid var(--black);
+      box-shadow: 0 4px 0 var(--gold-dark);
+      background: rgba(13, 16, 29, .93);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      color: var(--gold);
+      text-decoration: none;
+      font-family: var(--pixel-font);
+      font-size: 22px;
+      line-height: 1.5;
+      text-shadow: 3px 3px 0 var(--black);
+    }
+
+    .brand span {
+      color: var(--white);
+      font-size: 8px;
+      line-height: 1.7;
+    }
+
+    .edition {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      color: var(--white);
+      font-family: var(--pixel-font);
+      font-size: 8px;
+      line-height: 1.8;
+    }
+
+    .edition i {
       display: inline-block;
+      width: 9px;
+      height: 9px;
+      background: var(--green);
+      box-shadow: 0 0 10px var(--green);
+      animation: liveBlink 1.6s steps(2) infinite;
+    }
 
-      border: 3px solid #0a0a12;
+    @keyframes liveBlink {
+      50% {
+        opacity: .3;
+      }
+    }
+
+    /* ==========================================
+       TÍTULO
+       ========================================== */
+
+    .intro {
+      padding: 35px 16px 30px;
+      text-align: center;
+    }
+
+    .eyebrow {
+      margin: 0 0 16px;
+      color: var(--gold);
+      font-family: var(--pixel-font);
+      font-size: 9px;
+      line-height: 2;
+      letter-spacing: 0;
+      text-transform: uppercase;
+    }
+
+    .intro h1 {
+      margin: 0 auto 20px;
+      max-width: 1100px;
+      color: var(--white);
+      font-family: var(--pixel-font) !important;
+      font-size: clamp(22px, 4.1vw, 54px);
+      line-height: 1.45;
+      letter-spacing: -1px;
+      text-shadow:
+        4px 4px 0 var(--black),
+        7px 7px 0 #823331,
+        10px 10px 0 rgba(0, 0, 0, .55);
+    }
+
+    .intro h1 em {
+      color: var(--gold);
+      font-style: normal;
+      text-shadow:
+        4px 4px 0 #8a4c1e,
+        7px 7px 0 var(--black);
+    }
+
+    .intro > p:last-child {
+      max-width: 720px;
+      margin: 0 auto;
+      color: #f4e9d8;
+      font-size: 15px;
+      font-weight: 700;
+      line-height: 1.8;
+      text-shadow: 2px 2px 0 var(--black);
+    }
+
+    /* ==========================================
+       LAYOUT DA LUTA
+       ========================================== */
+
+    .fight-layout {
+      display: grid;
+      grid-template-columns: minmax(118px, 150px) minmax(0, 1fr) minmax(118px, 150px);
+      gap: 16px;
+      align-items: center;
+      margin: 20px auto 24px;
+    }
+
+    .fight-controls {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      min-width: 0;
+      align-self: center;
+      overflow-wrap: normal;
+    }
+
+    /* ==========================================
+       BOTÕES LATERAIS PIXEL ART
+       ========================================== */
+
+    .fight-controls button {
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: center !important;
+      justify-content: center !important;
+      gap: 13px !important;
+
+      width: 100%;
+      min-width: 0;
+      min-height: 125px;
+      padding: 16px 4px !important;
+
+      border: 4px solid var(--black) !important;
       border-radius: 0 !important;
 
-      background: #fff0bd;
-      color: #15131d;
+      font-family: var(--pixel-font) !important;
+      font-size: 8px !important;
+      font-weight: 400 !important;
+      line-height: 1.6 !important;
+      letter-spacing: -0.35px !important;
 
-      box-shadow: 3px 3px 0 #08080d;
+      text-align: center;
+      text-transform: uppercase;
 
-      font-family: "Courier New", monospace;
-      font-weight: 900;
-    }
-
-    /* Botões do Lula */
-    .lula-controls button:not(:disabled) {
-      background-color: var(--pixel-red);
-      color: white;
-    }
-
-    /* Botões do Bolsonaro */
-    .bolsonaro-controls button:not(:disabled) {
-      background-color: var(--pixel-blue);
-      color: white;
-    }
-
-    /* Botão principal */
-    button.primary {
-      background: #e3ac36;
-      color: #17131a;
-      text-shadow: none;
-    }
-
-    /* Botão secundário */
-    button.secondary {
-      background: #343c57;
-      color: white;
-    }
-
-    /* Campos de formulário */
-    input {
-      border: 3px solid #0b0d18 !important;
-      border-radius: 0 !important;
+      color: var(--white);
+      text-shadow: 2px 2px 0 var(--black);
 
       box-shadow:
-        inset 3px 3px 0 rgba(0, 0, 0, 0.18);
+        inset 3px 3px 0 rgba(255,255,255,.22),
+        inset -3px -3px 0 rgba(0,0,0,.28),
+        5px 5px 0 var(--black) !important;
+
+      transition:
+        transform 90ms steps(2),
+        filter 90ms steps(2),
+        box-shadow 90ms steps(2);
     }
 
-    input:focus {
-      outline: 3px solid var(--pixel-gold);
-      outline-offset: 2px;
+    .lula-controls button {
+      background: var(--red) !important;
     }
 
-    /* Rodapé */
+    .bolsonaro-controls button {
+      background: var(--blue) !important;
+    }
+
+    .fight-controls button:hover:not(:disabled) {
+      transform: translate(-2px, -2px);
+      filter: brightness(1.15);
+    }
+
+    .fight-controls button:active:not(:disabled) {
+      transform: translate(5px, 5px);
+      box-shadow: none !important;
+    }
+
+    .fight-controls button:disabled {
+      opacity: .5;
+      filter: grayscale(.35);
+    }
+
+    .fight-controls button kbd {
+      display: grid !important;
+      place-items: center;
+
+      width: 47px;
+      height: 47px;
+      padding: 0;
+
+      border: 3px solid var(--black) !important;
+      border-radius: 0 !important;
+
+      background: var(--gold) !important;
+      color: var(--black) !important;
+
+      font-family: var(--pixel-font) !important;
+      font-size: 19px !important;
+      line-height: 1 !important;
+      text-shadow: none !important;
+
+      box-shadow: 3px 3px 0 var(--black);
+      flex-shrink: 0;
+    }
+
+    .fight-controls button span {
+      display: block;
+      width: 100%;
+      max-width: 100%;
+
+      font-family: var(--pixel-font) !important;
+      font-size: inherit !important;
+      line-height: 1.6 !important;
+      letter-spacing: inherit !important;
+
+      white-space: nowrap !important;
+      word-break: normal !important;
+      overflow-wrap: normal !important;
+
+      text-align: center;
+    }
+
+    /* ==========================================
+       MOLDURA DA ARENA
+       ========================================== */
+
+    .cabinet {
+      min-width: 0;
+      overflow: hidden;
+
+      border: 5px solid var(--black) !important;
+      border-radius: 0 !important;
+
+      background: #0c1020;
+
+      box-shadow:
+        0 0 0 3px var(--gold-dark),
+        8px 8px 0 rgba(0,0,0,.78) !important;
+    }
+
+    .hud {
+      display: grid;
+      grid-template-columns: minmax(0,1fr) auto minmax(0,1fr);
+      align-items: center;
+      gap: 12px;
+
+      padding: 16px;
+      border-bottom: 4px solid var(--black);
+
+      background: #171b30;
+      font-family: var(--pixel-font) !important;
+    }
+
+    .player {
+      min-width: 0;
+    }
+
+    .player .name {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 9px;
+
+      font-family: var(--pixel-font) !important;
+      font-size: 9px;
+      line-height: 1.7;
+    }
+
+    .player .name b {
+      color: var(--gold);
+    }
+
+    .player-b .name {
+      flex-direction: row;
+    }
+
+    .health {
+      height: 17px;
+      overflow: hidden;
+      border: 3px solid var(--black);
+      border-radius: 0 !important;
+      background: #4b2030;
+    }
+
+    #hpL,
+    #hpB {
+      height: 100%;
+      width: 100%;
+      transition: width .2s steps(8);
+    }
+
+    #hpL {
+      background: var(--red-light);
+    }
+
+    #hpB {
+      background: var(--blue-light);
+    }
+
+    .player small {
+      display: block;
+      margin-top: 9px;
+      color: var(--muted);
+      font-family: var(--pixel-font) !important;
+      font-size: 7px;
+      line-height: 1.7;
+    }
+
+    .player-b small {
+      text-align: right;
+    }
+
+    .round {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 5px;
+
+      color: var(--white);
+      font-family: var(--pixel-font) !important;
+      font-size: 8px;
+      line-height: 1.6;
+      text-align: center;
+    }
+
+    .round strong {
+      color: var(--gold);
+      font-size: 23px;
+    }
+
+    .round span {
+      color: var(--red-light);
+      font-size: 16px;
+    }
+
+    .stage {
+      position: relative;
+      overflow: hidden;
+      background: #0b0c16;
+    }
+
+    #game {
+      display: block;
+      width: 100%;
+      height: auto;
+      aspect-ratio: 16 / 9;
+      image-rendering: pixelated;
+    }
+
+    #loading {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      padding: 20px;
+
+      background: #111527;
+      color: var(--gold);
+      font-family: var(--pixel-font) !important;
+      font-size: 11px;
+      line-height: 2;
+      text-align: center;
+    }
+
+    #loading[hidden] {
+      display: none !important;
+    }
+
+    .ticker {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 15px;
+
+      border-top: 4px solid var(--black);
+      background: #202740;
+
+      font-family: var(--pixel-font) !important;
+      font-size: 8px;
+      line-height: 1.8;
+    }
+
+    .ticker .queue {
+      flex-shrink: 0;
+      color: var(--gold);
+    }
+
+    /* ==========================================
+       PLACAR DE COMENTÁRIOS
+       ========================================== */
+
+    .scoreboard {
+      display: grid;
+      grid-template-columns: minmax(0,1fr) auto minmax(0,1fr);
+      align-items: center;
+      gap: 12px;
+
+      margin: 28px auto;
+      padding: 20px;
+
+      border: 4px solid var(--black);
+      background: rgba(18, 23, 39, .95);
+
+      box-shadow:
+        0 0 0 3px var(--gold-dark),
+        6px 6px 0 var(--black);
+
+      text-align: center;
+    }
+
+    .scoreboard > div:first-child,
+    .scoreboard > div:last-child {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .scoreboard span {
+      font-family: var(--pixel-font);
+      font-size: 8px;
+      line-height: 1.8;
+    }
+
+    .scoreboard span b {
+      color: var(--gold);
+    }
+
+    #votesL,
+    #votesB {
+      display: block;
+      font-family: var(--pixel-font);
+      font-size: clamp(22px, 3vw, 36px);
+      line-height: 1.4;
+      overflow-wrap: anywhere;
+    }
+
+    #votesL {
+      color: var(--red-light);
+    }
+
+    #votesB {
+      color: var(--blue-light);
+    }
+
+    .score-label {
+      padding: 12px;
+      border-left: 3px solid #4e5875;
+      border-right: 3px solid #4e5875;
+
+      color: var(--muted);
+      font-family: var(--pixel-font) !important;
+      font-size: 8px;
+      line-height: 2.1;
+    }
+
+    .score-label b {
+      color: var(--gold);
+      font-size: 10px;
+    }
+
+    /* ==========================================
+       PAINÉIS INFERIORES
+       ========================================== */
+
+    .panels {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 22px;
+      margin: 30px auto;
+    }
+
+    .panel {
+      min-width: 0;
+      padding: 27px;
+
+      border: 4px solid var(--black) !important;
+      border-radius: 0 !important;
+
+      background: rgba(19, 24, 41, .96) !important;
+
+      box-shadow:
+        0 0 0 2px #6b5839,
+        6px 6px 0 var(--black) !important;
+    }
+
+    .panel h2 {
+      margin: 0 0 20px;
+      color: var(--white);
+
+      font-family: var(--pixel-font) !important;
+      font-size: clamp(13px, 1.5vw, 19px);
+      line-height: 1.8;
+    }
+
+    .panel p,
+    .panel .explain {
+      font-size: 14px;
+      line-height: 1.8;
+    }
+
+    .panel .eyebrow {
+      font-size: 8px;
+      line-height: 2;
+      margin-bottom: 13px;
+    }
+
+    .panel form {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .panel label {
+      margin-top: 6px;
+      color: var(--gold);
+      font-family: var(--pixel-font) !important;
+      font-size: 8px;
+      line-height: 1.9;
+    }
+
+    .panel input:not([type="range"]) {
+      display: block;
+      width: 100%;
+      min-width: 0;
+      padding: 15px;
+
+      border: 3px solid var(--black) !important;
+      border-radius: 0 !important;
+
+      background: #0e1322;
+      color: var(--white);
+
+      font-family: var(--body-font) !important;
+      font-size: 15px;
+
+      box-shadow: inset 3px 3px 0 rgba(0,0,0,.3);
+    }
+
+    .panel input::placeholder {
+      color: #8f96aa;
+    }
+
+    .panel button {
+      min-height: 52px;
+      padding: 14px 12px;
+
+      border: 4px solid var(--black) !important;
+      border-radius: 0 !important;
+
+      font-family: var(--pixel-font) !important;
+      font-size: 9px !important;
+      line-height: 1.8 !important;
+      letter-spacing: 0;
+
+      box-shadow: 5px 5px 0 var(--black) !important;
+
+      transition:
+        transform .08s steps(2),
+        filter .08s steps(2);
+    }
+
+    .panel button:hover:not(:disabled) {
+      transform: translate(-2px, -2px);
+      filter: brightness(1.12);
+    }
+
+    .panel button:active:not(:disabled) {
+      transform: translate(4px, 4px);
+      box-shadow: none !important;
+    }
+
+    .panel .primary {
+      background: var(--gold) !important;
+      color: var(--black) !important;
+      text-shadow: none !important;
+    }
+
+    .panel .secondary {
+      background: #343f62 !important;
+      color: var(--white) !important;
+    }
+
+    .panel .status {
+      margin-top: 20px;
+      padding: 13px;
+      border-left: 4px solid var(--gold-dark);
+      background: #101526;
+
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.8;
+      overflow-wrap: anywhere;
+    }
+
+    .test-buttons {
+      margin: 17px 0;
+      padding: 14px;
+
+      border: 3px solid #3e4b69;
+      background: #11192b;
+    }
+
+    .test-buttons .explain {
+      margin: 0;
+      font-family: var(--pixel-font);
+      font-size: 8px;
+      line-height: 2.3;
+      color: #e9dfc9;
+    }
+
+    .review-link {
+      display: inline-block;
+      margin-top: 20px;
+
+      font-family: var(--pixel-font);
+      font-size: 8px;
+      line-height: 2;
+      text-decoration: none;
+    }
+
+    /* ==========================================
+       PLAYER DE MÚSICA
+       ========================================== */
+
+    .music-section {
+      margin: 32px auto;
+      padding: 25px;
+
+      border: 4px solid var(--black);
+      background: rgba(16, 21, 37, .96);
+
+      box-shadow:
+        0 0 0 3px var(--gold-dark),
+        7px 7px 0 var(--black);
+    }
+
+    .music-heading {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .music-heading h2 {
+      margin: 0;
+      color: var(--gold);
+      font-family: var(--pixel-font);
+      font-size: clamp(12px, 1.6vw, 18px);
+      line-height: 1.8;
+    }
+
+    .music-heading p {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .music-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      color: var(--green);
+      font-family: var(--pixel-font);
+      font-size: 8px;
+      white-space: nowrap;
+    }
+
+    .music-indicator::before {
+      content: "";
+      width: 10px;
+      height: 10px;
+      background: currentColor;
+    }
+
+    .music-player {
+      display: grid;
+      grid-template-columns: auto minmax(0,1fr);
+      gap: 24px;
+      align-items: center;
+    }
+
+    #toggleMusica {
+      min-width: 205px;
+      min-height: 57px;
+      margin: 0;
+      padding: 15px 17px;
+
+      border: 4px solid var(--black) !important;
+      border-radius: 0 !important;
+
+      background: var(--gold) !important;
+      color: var(--black) !important;
+
+      font-family: var(--pixel-font) !important;
+      font-size: 9px !important;
+      line-height: 1.8;
+      text-shadow: none !important;
+
+      box-shadow:
+        inset 3px 3px 0 rgba(255,255,255,.4),
+        5px 5px 0 var(--black) !important;
+    }
+
+    #toggleMusica:hover {
+      filter: brightness(1.12);
+    }
+
+    #toggleMusica:active {
+      transform: translate(4px,4px);
+      box-shadow: none !important;
+    }
+
+    .volume-control {
+      display: grid;
+      grid-template-columns: auto minmax(0,1fr) 55px;
+      align-items: center;
+      gap: 18px;
+      min-width: 0;
+    }
+
+    .volume-control label,
+    .volume-control output {
+      color: var(--gold);
+      font-family: var(--pixel-font) !important;
+      font-size: 9px;
+      line-height: 1.6;
+    }
+
+    .volume-control output {
+      text-align: right;
+    }
+
+    #volumeMusica {
+      display: block;
+      width: 100%;
+      min-width: 0;
+      height: 18px;
+      margin: 0;
+
+      appearance: none;
+      -webkit-appearance: none;
+
+      border: 3px solid var(--black) !important;
+      border-radius: 0 !important;
+
+      background:
+        linear-gradient(
+          90deg,
+          var(--gold) 0%,
+          var(--gold) var(--volume-fill, 28%),
+          #3d4662 var(--volume-fill, 28%),
+          #3d4662 100%
+        ) !important;
+
+      box-shadow: 3px 3px 0 var(--black);
+      cursor: pointer;
+    }
+
+    #volumeMusica::-webkit-slider-thumb {
+      appearance: none;
+      -webkit-appearance: none;
+
+      width: 22px;
+      height: 29px;
+
+      border: 3px solid var(--black);
+      border-radius: 0;
+
+      background: #fff1a8;
+      box-shadow: 3px 3px 0 var(--black);
+      cursor: grab;
+    }
+
+    #volumeMusica::-moz-range-thumb {
+      width: 16px;
+      height: 23px;
+
+      border: 3px solid var(--black);
+      border-radius: 0;
+
+      background: #fff1a8;
+      box-shadow: 3px 3px 0 var(--black);
+      cursor: grab;
+    }
+
+    #volumeMusica:active::-webkit-slider-thumb {
+      cursor: grabbing;
+    }
+
+    .music-note {
+      margin: 20px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.7;
+    }
+
+    /* ==========================================
+       RODAPÉ
+       ========================================== */
+
     footer {
       margin-top: 35px;
-      border-top: 3px solid rgba(255, 212, 92, 0.6);
-      padding-top: 20px;
+      padding: 26px 15px 12px;
+      border-top: 4px solid var(--gold-dark);
+      text-align: center;
     }
 
-    /* Fundo permanece agradável no celular */
-    @media (max-width: 768px) {
+    footer span {
+      color: var(--gold);
+      font-family: var(--pixel-font);
+      font-size: 10px;
+      line-height: 1.8;
+    }
+
+    footer p {
+      max-width: 800px;
+      margin: 14px auto 0;
+      color: #c6cad5;
+      font-size: 12px;
+      line-height: 1.9;
+    }
+
+    /* ==========================================
+       TELAS INTERMEDIÁRIAS
+       ========================================== */
+
+    @media (max-width: 1150px) {
+      .fight-layout {
+        grid-template-columns:
+          minmax(100px, 120px)
+          minmax(0, 1fr)
+          minmax(100px, 120px);
+        gap: 10px;
+      }
+
+      .fight-controls button {
+        font-size: 7px !important;
+        min-height: 112px;
+      }
+
+      .fight-controls button kbd {
+        width: 42px;
+        height: 42px;
+        font-size: 17px !important;
+      }
+
+      .hud {
+        gap: 8px;
+        padding: 11px;
+      }
+
+      .player .name {
+        font-size: 7px;
+      }
+    }
+
+    /* ==========================================
+       TABLETS E CELULARES
+       ========================================== */
+
+    @media (max-width: 800px) {
       body {
         background-attachment: scroll !important;
       }
 
+      main {
+        width: min(100% - 20px, 1440px);
+      }
+
+      .masthead {
+        padding: 16px 10px;
+      }
+
+      .brand {
+        font-size: 17px;
+      }
+
+      .brand span,
+      .edition {
+        font-size: 7px;
+      }
+
+      .intro {
+        padding: 28px 8px 20px;
+      }
+
       .intro h1 {
-        letter-spacing: 0;
+        font-size: clamp(18px, 4.5vw, 31px);
+      }
+
+      .fight-layout {
+        grid-template-columns: repeat(2, minmax(0,1fr));
+        gap: 12px;
+      }
+
+      .cabinet {
+        grid-column: 1 / -1;
+        grid-row: 1;
+      }
+
+      .lula-controls {
+        grid-column: 1;
+        grid-row: 2;
+      }
+
+      .bolsonaro-controls {
+        grid-column: 2;
+        grid-row: 2;
+      }
+
+      .fight-controls {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0,1fr));
+        gap: 8px;
+        align-self: stretch;
+      }
+
+      .fight-controls button {
+        min-height: 90px;
+        padding: 10px 2px !important;
+        gap: 8px !important;
+        font-size: 6px !important;
+        letter-spacing: -0.4px !important;
+      }
+
+      .fight-controls button kbd {
+        width: 32px;
+        height: 32px;
+        font-size: 13px !important;
+      }
+
+      .panels {
+        grid-template-columns: 1fr;
+      }
+
+      .music-player {
+        grid-template-columns: 1fr;
+        gap: 20px;
+      }
+
+      #toggleMusica {
+        width: 100%;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .masthead {
+        flex-wrap: wrap;
+        justify-content: center;
+        text-align: center;
+      }
+
+      .intro h1 {
+        font-size: clamp(16px, 5vw, 24px);
+        letter-spacing: -1px;
+      }
+
+      .intro > p:last-child {
+        font-size: 12px;
+      }
+
+      .hud {
+        padding: 7px;
+        gap: 5px;
+      }
+
+      .player .name {
+        font-size: 5px;
+        gap: 3px;
+      }
+
+      .player small {
+        font-size: 5px;
+      }
+
+      .health {
+        height: 13px;
+      }
+
+      .round {
+        font-size: 6px;
+      }
+
+      .round strong {
+        font-size: 15px;
+      }
+
+      .round span {
+        font-size: 12px;
+      }
+
+      .ticker {
+        padding: 10px;
+        font-size: 6px;
+      }
+
+      .fight-layout {
+        gap: 8px;
+      }
+
+      .fight-controls {
+        gap: 5px;
+      }
+
+      .fight-controls button {
+        min-height: 77px;
+        padding: 8px 1px !important;
+        gap: 7px !important;
+        font-size: 5px !important;
+        border-width: 3px !important;
+      }
+
+      .fight-controls button kbd {
+        width: 27px;
+        height: 27px;
+        font-size: 11px !important;
+      }
+
+      .scoreboard {
+        padding: 12px 6px;
+        gap: 5px;
+      }
+
+      .scoreboard span {
+        font-size: 5px;
+      }
+
+      .score-label {
+        padding: 7px 4px;
+        font-size: 5px;
+      }
+
+      .score-label b {
+        font-size: 6px;
+      }
+
+      #votesL,
+      #votesB {
+        font-size: 19px;
       }
 
       .panel {
-        box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.75);
+        padding: 17px;
+      }
+
+      .panel h2 {
+        font-size: 13px;
+      }
+
+      .panel button {
+        font-size: 8px !important;
+      }
+
+      .music-section {
+        padding: 17px;
+      }
+
+      .music-heading {
+        flex-wrap: wrap;
+      }
+
+      .music-heading h2 {
+        font-size: 12px;
+      }
+
+      .volume-control {
+        grid-template-columns: 1fr auto;
+        gap: 12px;
+      }
+
+      .volume-control label {
+        grid-column: 1 / -1;
+      }
+
+      .volume-control output {
+        font-size: 8px;
       }
     }
 
     @media (prefers-reduced-motion: reduce) {
-      button {
-        transition: none;
+      *,
+      *::before,
+      *::after {
+        animation-duration: .01ms !important;
+        transition-duration: .01ms !important;
       }
     }
-    
-/* =====================================
-   FONTE PIXEL ART - STREET VOTE FIGHTER
-   ===================================== */
-
-:root {
-  --arcade-font: 'Press Start 2P', monospace;
-}
-
-/* Fonte pixelada em toda a interface */
-body,
-button,
-input,
-label,
-kbd,
-.masthead,
-.brand,
-.edition,
-.intro,
-.intro h1,
-.intro h1 em,
-.eyebrow,
-.hud,
-.player,
-.round,
-.ticker,
-.fight-controls,
-.fight-controls button,
-.fight-controls kbd,
-.scoreboard,
-.score-label,
-.panel,
-.panel h2,
-.status,
-footer {
-  font-family: var(--arcade-font) !important;
-}
-
-/* Título principal */
-.intro h1 {
-  font-size: clamp(20px, 4vw, 48px);
-  line-height: 1.5;
-  letter-spacing: -1px;
-}
-
-/* Textos pequenos */
-.eyebrow,
-.edition,
-.panel label,
-.panel p,
-.status,
-footer {
-  font-size: 9px;
-  line-height: 1.9;
-}
-
-/* Botões */
-button,
-.fight-controls button {
-  font-size: 10px;
-  line-height: 1.7;
-  letter-spacing: 0;
-}
-
-/* Letras dos controles */
-.fight-controls kbd {
-  font-size: 18px;
-  line-height: 1.4;
-}
-
-/* Títulos dos painéis */
-.panel h2 {
-  font-size: clamp(13px, 1.5vw, 18px);
-  line-height: 1.7;
-}
-
-/* Campos de texto */
-input {
-  font-size: 10px;
-  line-height: 1.6;
-}
-
-/* Evita textos ultrapassando os painéis */
-.panel,
-.fight-controls,
-.scoreboard {
-  overflow-wrap: anywhere;
-}
-
-/* Ajustes para celular */
-@media (max-width: 768px) {
-  .intro h1 {
-    font-size: clamp(17px, 5vw, 27px);
-  }
-
-  .fight-controls button {
-    font-size: 8px;
-  }
-
-  .panel h2 {
-    font-size: 13px;
-  }
-
-  .eyebrow,
-  .edition,
-  footer {
-    font-size: 8px;
-  }
-}
-    /* AJUSTES FINAIS DA FONTE PIXELADA */
-
-.fight-controls button {
-  font-size: 9px;
-  letter-spacing: 0;
-  line-height: 1.6;
-}
-
-.fight-controls button span {
-  overflow-wrap: anywhere;
-}
-
-.panel button {
-  font-size: 9px;
-  line-height: 1.8;
-}
-
-.intro p,
-.explain {
-  line-height: 2;
-}
-    
-/* ========================================
-   CORREÇÃO DOS BOTÕES LATERAIS PIXEL ART
-   ======================================== */
-
-/* Permite que os botões aproveitem toda
-   a largura disponível nas laterais */
-.fight-controls {
-  min-width: 0;
-}
-
-.fight-controls button {
-  width: 100%;
-  min-width: 0;
-  box-sizing: border-box;
-
-  padding: 14px 4px !important;
-
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-
-  font-family: 'Press Start 2P', monospace !important;
-  font-size: 8px !important;
-  letter-spacing: -0.5px !important;
-  line-height: 1.5 !important;
-  text-align: center;
-}
-
-/* Nunca dividir uma palavra no meio */
-.fight-controls button span {
-  display: block;
-  width: 100%;
-
-  font-family: 'Press Start 2P', monospace !important;
-  font-size: inherit !important;
-
-  white-space: nowrap !important;
-  word-break: normal !important;
-  overflow-wrap: normal !important;
-
-  text-align: center;
-}
-
-/* Teclas grandes e quadradinhas */
-.fight-controls button kbd {
-  font-family: 'Press Start 2P', monospace !important;
-  font-size: 17px !important;
-  line-height: 1.4;
-  flex-shrink: 0;
-}
-
-/* Ajustes em telas menores */
-@media (max-width: 1100px) {
-  .fight-controls button {
-    font-size: 7px !important;
-  }
-}
-
-@media (max-width: 768px) {
-  .fight-controls button {
-    font-size: 6px !important;
-    padding: 10px 2px !important;
-    gap: 7px;
-  }
-
-  .fight-controls button kbd {
-    font-size: 14px !important;
-  }
-}
-
-    
-/* BOTÃO DA MÚSICA - PIXEL ART */
-
-#toggleMusica {
-  display: block;
-  margin: 25px auto;
-  padding: 16px 24px;
-
-  background: #e4ad37;
-  color: #11121b;
-
-  font-family: 'Press Start 2P', monospace !important;
-  font-size: 10px !important;
-  line-height: 1.8;
-
-  border: 4px solid #08080d;
-  border-radius: 0;
-
-  text-shadow: none;
-
-  box-shadow: 5px 5px 0 #08080d;
-}
-
-#toggleMusica:hover:not(:disabled) {
-  background: #ffd75c;
-}
-
-
   </style>
 </head>
 
 <body>
 <main>
 
-  <!-- =====================================
-       CABEÇALHO
-       ===================================== -->
-
+  <!-- CABEÇALHO -->
   <header class="masthead">
     <a class="brand" href="./">
       SVF
@@ -488,18 +1247,15 @@ input {
     </a>
 
     <span class="edition">
-      EDIÇÃO 01 <i></i> INTERATIVO
+      EDIÇÃO 01
+      <i aria-hidden="true"></i>
+      INTERATIVO
     </span>
   </header>
 
-  <!-- =====================================
-       APRESENTAÇÃO
-       ===================================== -->
-
+  <!-- TÍTULO -->
   <section class="intro">
-    <p class="eyebrow">
-      DIRETO DAS RUAS DO BRASIL
-    </p>
+    <p class="eyebrow">★ DIRETO DAS RUAS DO BRASIL ★</p>
 
     <h1>
       STREET VOTE <em>FIGHTER</em>
@@ -511,49 +1267,36 @@ input {
     </p>
   </section>
 
-  <!-- =====================================
-       ARENA E CONTROLES
-       ===================================== -->
-
+  <!-- ARENA E CONTROLES -->
   <div class="fight-layout">
 
-    <!-- CONTROLES LULA -->
-
+    <!-- LULA -->
     <aside
       class="fight-controls lula-controls"
       aria-label="Controles do Lula"
     >
-
-      <button id="attackL" disabled>
+      <button id="attackL" type="button" disabled>
         <kbd>Q</kbd>
         <span>SOCO</span>
       </button>
 
-      <button id="shoryukenL" disabled>
+      <button id="shoryukenL" type="button" disabled>
         <kbd>W</kbd>
         <span>SHORYUKEN</span>
       </button>
 
-      <button id="specialL" disabled>
+      <button id="specialL" type="button" disabled>
         <kbd>E</kbd>
         <span>EM BREVE</span>
       </button>
-
     </aside>
 
     <!-- ARENA CENTRAL -->
-
-    <section
-      class="cabinet"
-      aria-label="Arena de luta"
-    >
-
-      <!-- PLACAR SUPERIOR -->
+    <section class="cabinet" aria-label="Arena de luta">
 
       <div class="hud">
 
         <div class="player">
-
           <div class="name">
             <span>P1 · LULA</span>
             <b>13</b>
@@ -570,10 +1313,7 @@ input {
             <div id="hpL"></div>
           </div>
 
-          <small id="winsL">
-            0 ROUNDS
-          </small>
-
+          <small id="winsL">0 ROUNDS</small>
         </div>
 
         <div class="round">
@@ -583,7 +1323,6 @@ input {
         </div>
 
         <div class="player player-b">
-
           <div class="name">
             <b>22</b>
             <span>BOLSONARO · P2</span>
@@ -600,23 +1339,17 @@ input {
             <div id="hpB"></div>
           </div>
 
-          <small id="winsB">
-            0 ROUNDS
-          </small>
-
+          <small id="winsB">0 ROUNDS</small>
         </div>
 
       </div>
 
-      <!-- CANVAS DO JOGO -->
-
       <div class="stage">
-
         <canvas
           id="game"
           width="960"
           height="540"
-          aria-label="Lula à esquerda e Bolsonaro à direita, lutando na arena"
+          aria-label="Lula e Bolsonaro lutando na arena"
         >
           Seu navegador precisa oferecer suporte ao Canvas.
         </canvas>
@@ -624,63 +1357,47 @@ input {
         <div id="loading" role="status">
           CARREGANDO A ARENA…
         </div>
-
       </div>
 
-      <!-- MENSAGENS DO JOGO -->
-
       <div class="ticker">
-
         <span id="message" aria-live="polite">
           Preparando os lutadores
         </span>
 
         <span class="queue">
-          NA FILA
-          <b id="pending">0</b>
+          NA FILA <b id="pending">0</b>
         </span>
-
       </div>
 
     </section>
 
-    <!-- CONTROLES BOLSONARO -->
-
+    <!-- BOLSONARO -->
     <aside
       class="fight-controls bolsonaro-controls"
       aria-label="Controles do Bolsonaro"
     >
-
-      <button id="attackB" disabled>
+      <button id="attackB" type="button" disabled>
         <kbd>I</kbd>
         <span>SOCO</span>
       </button>
 
-      <button id="hadoukenB" disabled>
+      <button id="hadoukenB" type="button" disabled>
         <kbd>O</kbd>
         <span>HADOUKEN</span>
       </button>
 
-      <button id="specialB" disabled>
+      <button id="specialB" type="button" disabled>
         <kbd>P</kbd>
         <span>EM BREVE</span>
       </button>
-
     </aside>
 
   </div>
 
-  <!-- =====================================
-       PLACAR DE COMENTÁRIOS
-       ===================================== -->
-
+  <!-- PLACAR DE COMENTÁRIOS -->
   <div class="scoreboard">
-
     <div>
-      <span>
-        COMENTÁRIOS <b>13</b>
-      </span>
-
+      <span>COMENTÁRIOS <b>13</b></span>
       <strong id="votesL">0</strong>
     </div>
 
@@ -691,36 +1408,22 @@ input {
     </div>
 
     <div>
-      <span>
-        COMENTÁRIOS <b>22</b>
-      </span>
-
+      <span>COMENTÁRIOS <b>22</b></span>
       <strong id="votesB">0</strong>
     </div>
-
   </div>
 
-  <!-- =====================================
-       PAINÉIS INFERIORES
-       ===================================== -->
-
+  <!-- PAINÉIS -->
   <div class="panels">
 
-    <!-- CONECTAR TIKTOK -->
-
+    <!-- CONEXÃO TIKTOK -->
     <section class="panel">
-
-      <p class="eyebrow">
-        01 / ENTRE NA LIVE
-      </p>
+      <p class="eyebrow">01 / ENTRE NA LIVE</p>
 
       <h2>Conecte o TikTok</h2>
 
       <form id="connectForm">
-
-        <label for="usuario">
-          Conta da live
-        </label>
+        <label for="usuario">Conta da live</label>
 
         <input
           id="usuario"
@@ -730,9 +1433,7 @@ input {
           required
         >
 
-        <label for="senha">
-          Senha de administrador
-        </label>
+        <label for="senha">Senha de administrador</label>
 
         <input
           id="senha"
@@ -742,41 +1443,25 @@ input {
           required
         >
 
-        <button
-          id="connect"
-          class="primary"
-          type="submit"
-        >
-          CONECTAR LIVE
-          <span>↗</span>
+        <button id="connect" class="primary" type="submit">
+          CONECTAR LIVE ↗
         </button>
-
       </form>
 
-      <p
-        id="status"
-        class="status"
-        role="status"
-      >
+      <p id="status" class="status" role="status">
         Consultando o servidor…
       </p>
-
     </section>
 
-    <!-- TESTAR ARENA -->
-
+    <!-- TESTES -->
     <section class="panel">
-
-      <p class="eyebrow">
-        02 / AQUEÇA OS PUNHOS
-      </p>
+      <p class="eyebrow">02 / AQUEÇA OS PUNHOS</p>
 
       <h2>Teste a arena</h2>
 
       <p class="explain">
-        Use os botões ao lado da arena
-        ou as teclas Q, W, I e O para
-        testar os golpes.
+        Use os botões ao lado da arena ou o teclado
+        para testar os golpes sem precisar entrar na live.
       </p>
 
       <div class="test-buttons">
@@ -791,106 +1476,215 @@ input {
         0 golpes de teste
       </p>
 
-      <button
-        id="reset"
-        class="secondary"
-        type="button"
-      >
+      <button id="reset" class="secondary" type="button">
         ↻ REINICIAR LUTA LOCAL
       </button>
 
-      <a
-        class="review-link"
-        href="./preview.html"
-      >
+      <a class="review-link" href="./preview.html">
         Conferir sprites e alinhamento ↗
       </a>
-
     </section>
 
   </div>
 
-  <!-- =====================================
-       RODAPÉ
-       ===================================== -->
+  <!-- ==========================================
+       PLAYER DE MÚSICA COM VOLUME
+       ========================================== -->
+  <section class="music-section" aria-label="Trilha sonora do jogo">
 
+    <div class="music-heading">
+      <div>
+        <h2>♫ RÁDIO DO FLIPERAMA</h2>
+        <p>Trilha sonora do Street Vote Fighter</p>
+      </div>
+
+      <span class="music-indicator" id="musicStatus">
+        DESLIGADA
+      </span>
+    </div>
+
+    <div class="music-player">
+
+      <audio
+        id="musicaFundo"
+        src="./assets/fighters/audio/musica-arena.mp3"
+        preload="metadata"
+        loop
+      ></audio>
+
+      <button
+        id="toggleMusica"
+        type="button"
+        aria-pressed="false"
+      >
+        ▶ LIGAR MÚSICA
+      </button>
+
+      <div class="volume-control">
+        <label for="volumeMusica">VOLUME</label>
+
+        <input
+          id="volumeMusica"
+          type="range"
+          min="0"
+          max="100"
+          step="1"
+          value="28"
+          aria-label="Volume da música"
+        >
+
+        <output id="volumeValor" for="volumeMusica">
+          28%
+        </output>
+      </div>
+
+    </div>
+
+    <p class="music-note">
+      A música começa quando você clicar em ligar.
+      O volume é independente das vozes dos lutadores.
+    </p>
+
+  </section>
+
+  <!-- RODAPÉ -->
   <footer>
-
     <span>STREET VOTE FIGHTER</span>
 
     <p>
-      Jogo fictício e caricatural ·
-      Enquete informal ·
+      Jogo fictício e caricatural · Enquete informal ·
       Sem vínculo com candidatos.
       <br>
       Comentários repetidos contam.
       Não é pesquisa eleitoral.
     </p>
-
   </footer>
 
 </main>
 
-<!-- MÚSICA DE FUNDO DO STREET VOTE FIGHTER -->
-
-<audio
-  id="musicaFundo"
-  src="./assets/fighters/audio/musica-arena.mp3"
-  preload="auto"
-  loop
-></audio>
-
-<button
-  id="toggleMusica"
-  type="button"
-  aria-pressed="false"
->
-  🔇 LIGAR MÚSICA
-</button>
-
+<!-- ==========================================
+     CONTROLE DA TRILHA SONORA
+     ========================================== -->
 <script>
 (() => {
-  const musica = document.getElementById('musicaFundo');
-  const botao = document.getElementById('toggleMusica');
+  "use strict";
 
-  // VOLUME FIXO EM 28%
-  musica.volume = 0.28;
+  const musica = document.getElementById("musicaFundo");
+  const botao = document.getElementById("toggleMusica");
+  const regulador = document.getElementById("volumeMusica");
+  const valor = document.getElementById("volumeValor");
+  const indicador = document.getElementById("musicStatus");
 
-  function atualizarBotao() {
-    const tocando = !musica.paused;
+  const CHAVE_VOLUME = "svf-volume-musica";
 
-    botao.textContent = tocando
-      ? '🔊 MÚSICA: ON'
-      : '🔇 MÚSICA: OFF';
+  // Recupera o volume salvo ou usa 28%.
+  let volumeInicial = 28;
 
-    botao.setAttribute(
-      'aria-pressed',
-      String(tocando)
+  try {
+    const salvo = localStorage.getItem(CHAVE_VOLUME);
+
+    if (salvo !== null) {
+      const numero = Number(salvo);
+
+      if (Number.isFinite(numero)) {
+        volumeInicial = Math.max(0, Math.min(100, numero));
+      }
+    }
+  } catch (erro) {
+    console.warn("Preferência de volume indisponível:", erro);
+  }
+
+  function definirVolume(volume) {
+    const numero = Math.max(
+      0,
+      Math.min(100, Number(volume) || 0)
+    );
+
+    musica.volume = numero / 100;
+    regulador.value = String(numero);
+    valor.textContent = Math.round(numero) + "%";
+
+    regulador.style.setProperty(
+      "--volume-fill",
+      numero + "%"
     );
   }
 
-  botao.addEventListener('click', async () => {
+  function atualizarEstado() {
+    const tocando = !musica.paused;
+
+    botao.textContent = tocando
+      ? "■ DESLIGAR MÚSICA"
+      : "▶ LIGAR MÚSICA";
+
+    botao.setAttribute(
+      "aria-pressed",
+      String(tocando)
+    );
+
+    indicador.textContent = tocando
+      ? "TOCANDO"
+      : "DESLIGADA";
+
+    indicador.style.color = tocando
+      ? "#5ee0a0"
+      : "#b9bed0";
+  }
+
+  // Volume inicial.
+  definirVolume(volumeInicial);
+
+  // Botão ligar/desligar.
+  botao.addEventListener("click", async () => {
     if (musica.paused) {
       try {
         await musica.play();
       } catch (erro) {
-        console.warn('Erro ao tocar música:', erro);
+        console.warn(
+          "Não foi possível reproduzir a música:",
+          erro
+        );
+
+        indicador.textContent = "ERRO NO ÁUDIO";
+        indicador.style.color = "#ff7770";
       }
     } else {
       musica.pause();
     }
 
-    atualizarBotao();
+    atualizarEstado();
   });
 
-  atualizarBotao();
+  // Regulador de volume.
+  regulador.addEventListener("input", () => {
+    const volume = Number(regulador.value);
+
+    definirVolume(volume);
+
+    try {
+      localStorage.setItem(
+        CHAVE_VOLUME,
+        String(volume)
+      );
+    } catch (erro) {
+      // Continua funcionando sem salvar.
+    }
+  });
+
+  musica.addEventListener("play", atualizarEstado);
+  musica.addEventListener("pause", atualizarEstado);
+
+  musica.addEventListener("error", () => {
+    indicador.textContent = "ÁUDIO NÃO ENCONTRADO";
+    indicador.style.color = "#ff7770";
+  });
+
+  atualizarEstado();
 })();
 </script>
 
-<script
-  type="module"
-  src="./src/game.js"
-></script>
+<!-- SCRIPT ORIGINAL DO JOGO -->
+<script type="module" src="./src/game.js"></script>
 
 </body>
 </html>
