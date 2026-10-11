@@ -10,17 +10,39 @@
       "body_bbox": [
         5,
         9,
-        107,
+        101,
         165
       ],
       "source_body_size": [
-        102,
+        96,
         156
       ],
       "scale": 1.1538461538461537,
-      "touches_crop_edge": true,
+      "touches_crop_edge": false,
       "components": 2,
       "removed_pixels": 3
+    },
+    "attack": {
+      "source_box": [
+        810,
+        173,
+        940,
+        367
+      ],
+      "body_bbox": [
+        0,
+        0,
+        128,
+        194
+      ],
+      "source_body_size": [
+        128,
+        194
+      ],
+      "scale": 1.1538461538461537,
+      "touches_crop_edge": true,
+      "components": 3,
+      "removed_pixels": 1
     }
   },
   "bolsonaro": {
@@ -34,15 +56,15 @@
       "body_bbox": [
         8,
         5,
-        112,
+        108,
         149
       ],
       "source_body_size": [
-        104,
+        100,
         144
       ],
       "scale": 1.25,
-      "touches_crop_edge": true,
+      "touches_crop_edge": false,
       "components": 1,
       "removed_pixels": 0
     },
