@@ -1,34 +1,606 @@
+
 <!doctype html>
 <html lang="pt-BR">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#0b101b">
-<title>Street Vote Fighter · Arcade ao vivo</title>
-<link rel="stylesheet" href="./src/style.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#171b25">
+
+  <title>Street Vote Fighter · Arcade ao vivo</title>
+
+  <link rel="stylesheet" href="./src/style.css">
+
+  <style>
+    /* =========================================
+       STREET VOTE FIGHTER
+       TEMA: VIADUTO BRASILEIRO PIXEL ART
+       ========================================= */
+
+    :root {
+      --pixel-black: #0c0d16;
+      --pixel-gold: #ffd45c;
+      --pixel-cream: #fff0bd;
+      --pixel-red: #d94145;
+      --pixel-blue: #327bd1;
+    }
+
+    html {
+      min-height: 100%;
+    }
+
+    body {
+      min-height: 100vh;
+
+      background-color: #171b25 !important;
+
+      background-image:
+        linear-gradient(
+          rgba(8, 10, 20, 0.30),
+          rgba(8, 10, 20, 0.60)
+        ),
+        url("./fundo-viaduto.png") !important;
+
+      background-position: center center !important;
+      background-size: cover !important;
+      background-repeat: no-repeat !important;
+      background-attachment: fixed !important;
+    }
+
+    /* Deixa o conteúdo acima do fundo */
+    main {
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Tipografia estilo fliperama */
+    .masthead,
+    .intro h1,
+    .eyebrow,
+    .edition,
+    .fight-controls button,
+    .test-buttons button,
+    .primary,
+    .secondary,
+    .ticker,
+    .score-label {
+      font-family: "Courier New", monospace;
+    }
+
+    /* Título */
+    .intro h1 {
+      font-weight: 900;
+      letter-spacing: 2px;
+      text-shadow:
+        4px 4px 0 #090910,
+        7px 7px 0 rgba(0, 0, 0, 0.45);
+    }
+
+    .intro h1 em {
+      font-style: normal;
+      color: var(--pixel-gold);
+      text-shadow:
+        3px 3px 0 #5c3015,
+        6px 6px 0 #08080c;
+    }
+
+    /* Cabeçalho */
+    .masthead {
+      border-bottom: 4px solid var(--pixel-black);
+      box-shadow: 0 4px 0 rgba(255, 212, 92, 0.5);
+    }
+
+    /* Painéis externos */
+    .panel {
+      border: 4px solid var(--pixel-black);
+      border-radius: 0 !important;
+
+      box-shadow:
+        6px 6px 0 rgba(0, 0, 0, 0.8);
+
+      background-color: rgba(
+        18, 22, 37, 0.94
+      );
+    }
+
+    /* Moldura da arena */
+    .cabinet {
+      border: 5px solid #0a0a12;
+      border-radius: 0 !important;
+
+      box-shadow:
+        0 0 0 3px #d6a641,
+        8px 8px 0 rgba(0, 0, 0, 0.7);
+    }
+
+    /* Todos os botões */
+    button {
+      font-family: "Courier New", monospace !important;
+      font-weight: 900 !important;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+
+      border: 4px solid var(--pixel-black) !important;
+      border-radius: 0 !important;
+
+      box-shadow:
+        inset 3px 3px 0 rgba(255, 255, 255, 0.28),
+        inset -3px -3px 0 rgba(0, 0, 0, 0.3),
+        5px 5px 0 #08080d !important;
+
+      text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.7);
+
+      cursor: pointer;
+
+      transition:
+        transform 80ms steps(2),
+        filter 80ms steps(2),
+        box-shadow 80ms steps(2);
+    }
+
+    button:hover:not(:disabled) {
+      transform: translate(-2px, -2px);
+      filter: brightness(1.15);
+    }
+
+    button:active:not(:disabled) {
+      transform: translate(5px, 5px);
+
+      box-shadow:
+        inset 3px 3px 0 rgba(0, 0, 0, 0.3)
+        !important;
+    }
+
+    button:disabled {
+      cursor: not-allowed;
+      opacity: 0.55;
+    }
+
+    /* Teclas Q, W, I, O */
+    .fight-controls kbd {
+      display: inline-block;
+
+      border: 3px solid #0a0a12;
+      border-radius: 0 !important;
+
+      background: #fff0bd;
+      color: #15131d;
+
+      box-shadow: 3px 3px 0 #08080d;
+
+      font-family: "Courier New", monospace;
+      font-weight: 900;
+    }
+
+    /* Botões do Lula */
+    .lula-controls button:not(:disabled) {
+      background-color: var(--pixel-red);
+      color: white;
+    }
+
+    /* Botões do Bolsonaro */
+    .bolsonaro-controls button:not(:disabled) {
+      background-color: var(--pixel-blue);
+      color: white;
+    }
+
+    /* Botão principal */
+    button.primary {
+      background: #e3ac36;
+      color: #17131a;
+      text-shadow: none;
+    }
+
+    /* Botão secundário */
+    button.secondary {
+      background: #343c57;
+      color: white;
+    }
+
+    /* Campos de formulário */
+    input {
+      border: 3px solid #0b0d18 !important;
+      border-radius: 0 !important;
+
+      box-shadow:
+        inset 3px 3px 0 rgba(0, 0, 0, 0.18);
+    }
+
+    input:focus {
+      outline: 3px solid var(--pixel-gold);
+      outline-offset: 2px;
+    }
+
+    /* Rodapé */
+    footer {
+      margin-top: 35px;
+      border-top: 3px solid rgba(255, 212, 92, 0.6);
+      padding-top: 20px;
+    }
+
+    /* Fundo permanece agradável no celular */
+    @media (max-width: 768px) {
+      body {
+        background-attachment: scroll !important;
+      }
+
+      .intro h1 {
+        letter-spacing: 0;
+      }
+
+      .panel {
+        box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.75);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      button {
+        transition: none;
+      }
+    }
+  </style>
 </head>
+
 <body>
 <main>
-<header class="masthead"><a class="brand" href="./">SVF<span>ARCADE / LIVE</span></a><span class="edition">EDIÇÃO 01 <i></i> INTERATIVO</span></header>
-<section class="intro"><p class="eyebrow">SEU COMENTÁRIO ENTRA NO RINGUE</p><h1>STREET VOTE <em>FIGHTER</em></h1><p>Dois cantos. Uma arena. A live escolhe o próximo golpe.</p></section>
-<div class="fight-layout">  <aside class="fight-controls lula-controls" aria-label="Controles do Lula">   <button id="attackL" disabled>     <kbd>Q</kbd>     <span>SOCO</span>   </button>    <button id="shoryukenL" disabled>     <kbd>W</kbd>     <span>SHORYUKEN</span>   </button>    <button id="specialL" disabled>     <kbd>E</kbd>     <span>EM BREVE</span>   </button> </aside>  <section class="cabinet" aria-label="Arena de luta">
-<div class="hud">
- <div class="player"><div class="name"><span>P1 · LULA</span><b>13</b></div><div class="health" role="progressbar" aria-label="Vida de Lula" aria-valuemin="0" aria-valuemax="100" aria-valuenow="100"><div id="hpL"></div></div><small id="winsL">0 ROUNDS</small></div>
- <div class="round">ROUND<strong id="round">01</strong><span>VS</span></div>
- <div class="player player-b"><div class="name"><b>22</b><span>BOLSONARO · P2</span></div><div class="health" role="progressbar" aria-label="Vida de Bolsonaro" aria-valuemin="0" aria-valuemax="100" aria-valuenow="100"><div id="hpB"></div></div><small id="winsB">0 ROUNDS</small></div>
-</div>
-<div class="stage"><canvas id="game" width="960" height="540" aria-label="Lula à esquerda e Bolsonaro à direita, lutando no ringue">Seu navegador precisa oferecer suporte ao Canvas.</canvas><div id="loading" role="status">CARREGANDO A ARENA…</div></div>
-<div class="ticker"><span id="message" aria-live="polite">Preparando os lutadores</span><span class="queue">NA FILA <b id="pending">0</b></span></div>
-</section>
-<aside class="fight-controls bolsonaro-controls" aria-label="Controles do Bolsonaro">   <button id="attackB" disabled>     <kbd>I</kbd>     <span>SOCO</span>   </button>    <button id="hadoukenB" disabled>     <kbd>O</kbd>     <span>HADOUKEN</span>   </button>    <button id="specialB" disabled>     <kbd>P</kbd>     <span>EM BREVE</span>   </button> </aside>  </div><div><span>COMENTÁRIOS <b>13</b></span><strong id="votesL">0</strong></div><div class="score-label">CADA COMENTÁRIO<br><b>UM GOLPE</b></div><div><span>COMENTÁRIOS <b>22</b></span><strong id="votesB">0</strong></div></div>
-<div class="panels">
-<section class="panel"><p class="eyebrow">01 / ENTRE NA LIVE</p><h2>Conecte o TikTok</h2><form id="connectForm">
-<label for="usuario">Conta da live</label><input id="usuario" placeholder="@seuusuario" autocomplete="off" spellcheck="false" required>
-<label for="senha">Senha de administrador</label><input id="senha" type="password" placeholder="Digite sua senha" autocomplete="off" required>
-<button id="connect" class="primary" type="submit">CONECTAR LIVE <span>↗</span></button></form><p id="status" class="status" role="status">Consultando o servidor…</p></section>
-<section class="panel"><p class="eyebrow">02 / AQUEÇA OS PUNHOS</p><h2>Teste a arena</h2><p class="explain">Os botões simulam golpes localmente. Os comentários da live continuam na mesma fila.</p><div class="test-buttons"><button id="attackL" disabled>13 <span>GOLPE LULA</span></button><button id="attackB" disabled>22 <span>GOLPE BOLSONARO</span></button></div><p id="manual" class="status">0 golpes de teste</p><button id="reset" class="secondary">↻ REINICIAR LUTA LOCAL</button><a class="review-link" href="./preview.html">Conferir sprites e alinhamento ↗</a></section>
-</div>
-<footer><span>STREET VOTE FIGHTER</span><p>Jogo fictício e caricatural · Enquete informal · Sem vínculo com candidatos.<br>Comentários repetidos contam. Não é pesquisa eleitoral.</p></footer>
+
+  <!-- =====================================
+       CABEÇALHO
+       ===================================== -->
+
+  <header class="masthead">
+    <a class="brand" href="./">
+      SVF
+      <span>ARCADE / LIVE</span>
+    </a>
+
+    <span class="edition">
+      EDIÇÃO 01 <i></i> INTERATIVO
+    </span>
+  </header>
+
+  <!-- =====================================
+       APRESENTAÇÃO
+       ===================================== -->
+
+  <section class="intro">
+    <p class="eyebrow">
+      DIRETO DAS RUAS DO BRASIL
+    </p>
+
+    <h1>
+      STREET VOTE <em>FIGHTER</em>
+    </h1>
+
+    <p>
+      Dois cantos. Uma arena.
+      A live escolhe o próximo golpe.
+    </p>
+  </section>
+
+  <!-- =====================================
+       ARENA E CONTROLES
+       ===================================== -->
+
+  <div class="fight-layout">
+
+    <!-- CONTROLES LULA -->
+
+    <aside
+      class="fight-controls lula-controls"
+      aria-label="Controles do Lula"
+    >
+
+      <button id="attackL" disabled>
+        <kbd>Q</kbd>
+        <span>SOCO</span>
+      </button>
+
+      <button id="shoryukenL" disabled>
+        <kbd>W</kbd>
+        <span>SHORYUKEN</span>
+      </button>
+
+      <button id="specialL" disabled>
+        <kbd>E</kbd>
+        <span>EM BREVE</span>
+      </button>
+
+    </aside>
+
+    <!-- ARENA CENTRAL -->
+
+    <section
+      class="cabinet"
+      aria-label="Arena de luta"
+    >
+
+      <!-- PLACAR SUPERIOR -->
+
+      <div class="hud">
+
+        <div class="player">
+
+          <div class="name">
+            <span>P1 · LULA</span>
+            <b>13</b>
+          </div>
+
+          <div
+            class="health"
+            role="progressbar"
+            aria-label="Vida de Lula"
+            aria-valuemin="0"
+            aria-valuemax="100"
+            aria-valuenow="100"
+          >
+            <div id="hpL"></div>
+          </div>
+
+          <small id="winsL">
+            0 ROUNDS
+          </small>
+
+        </div>
+
+        <div class="round">
+          ROUND
+          <strong id="round">01</strong>
+          <span>VS</span>
+        </div>
+
+        <div class="player player-b">
+
+          <div class="name">
+            <b>22</b>
+            <span>BOLSONARO · P2</span>
+          </div>
+
+          <div
+            class="health"
+            role="progressbar"
+            aria-label="Vida de Bolsonaro"
+            aria-valuemin="0"
+            aria-valuemax="100"
+            aria-valuenow="100"
+          >
+            <div id="hpB"></div>
+          </div>
+
+          <small id="winsB">
+            0 ROUNDS
+          </small>
+
+        </div>
+
+      </div>
+
+      <!-- CANVAS DO JOGO -->
+
+      <div class="stage">
+
+        <canvas
+          id="game"
+          width="960"
+          height="540"
+          aria-label="Lula à esquerda e Bolsonaro à direita, lutando na arena"
+        >
+          Seu navegador precisa oferecer suporte ao Canvas.
+        </canvas>
+
+        <div id="loading" role="status">
+          CARREGANDO A ARENA…
+        </div>
+
+      </div>
+
+      <!-- MENSAGENS DO JOGO -->
+
+      <div class="ticker">
+
+        <span id="message" aria-live="polite">
+          Preparando os lutadores
+        </span>
+
+        <span class="queue">
+          NA FILA
+          <b id="pending">0</b>
+        </span>
+
+      </div>
+
+    </section>
+
+    <!-- CONTROLES BOLSONARO -->
+
+    <aside
+      class="fight-controls bolsonaro-controls"
+      aria-label="Controles do Bolsonaro"
+    >
+
+      <button id="attackB" disabled>
+        <kbd>I</kbd>
+        <span>SOCO</span>
+      </button>
+
+      <button id="hadoukenB" disabled>
+        <kbd>O</kbd>
+        <span>HADOUKEN</span>
+      </button>
+
+      <button id="specialB" disabled>
+        <kbd>P</kbd>
+        <span>EM BREVE</span>
+      </button>
+
+    </aside>
+
+  </div>
+
+  <!-- =====================================
+       PLACAR DE COMENTÁRIOS
+       ===================================== -->
+
+  <div class="scoreboard">
+
+    <div>
+      <span>
+        COMENTÁRIOS <b>13</b>
+      </span>
+
+      <strong id="votesL">0</strong>
+    </div>
+
+    <div class="score-label">
+      CADA COMENTÁRIO
+      <br>
+      <b>UM GOLPE</b>
+    </div>
+
+    <div>
+      <span>
+        COMENTÁRIOS <b>22</b>
+      </span>
+
+      <strong id="votesB">0</strong>
+    </div>
+
+  </div>
+
+  <!-- =====================================
+       PAINÉIS INFERIORES
+       ===================================== -->
+
+  <div class="panels">
+
+    <!-- CONECTAR TIKTOK -->
+
+    <section class="panel">
+
+      <p class="eyebrow">
+        01 / ENTRE NA LIVE
+      </p>
+
+      <h2>Conecte o TikTok</h2>
+
+      <form id="connectForm">
+
+        <label for="usuario">
+          Conta da live
+        </label>
+
+        <input
+          id="usuario"
+          placeholder="@seuusuario"
+          autocomplete="off"
+          spellcheck="false"
+          required
+        >
+
+        <label for="senha">
+          Senha de administrador
+        </label>
+
+        <input
+          id="senha"
+          type="password"
+          placeholder="Digite sua senha"
+          autocomplete="off"
+          required
+        >
+
+        <button
+          id="connect"
+          class="primary"
+          type="submit"
+        >
+          CONECTAR LIVE
+          <span>↗</span>
+        </button>
+
+      </form>
+
+      <p
+        id="status"
+        class="status"
+        role="status"
+      >
+        Consultando o servidor…
+      </p>
+
+    </section>
+
+    <!-- TESTAR ARENA -->
+
+    <section class="panel">
+
+      <p class="eyebrow">
+        02 / AQUEÇA OS PUNHOS
+      </p>
+
+      <h2>Teste a arena</h2>
+
+      <p class="explain">
+        Use os botões ao lado da arena
+        ou as teclas Q, W, I e O para
+        testar os golpes.
+      </p>
+
+      <div class="test-buttons">
+        <p class="explain">
+          Q = Soco Lula · W = Shoryuken
+          <br>
+          I = Soco Bolsonaro · O = Hadouken
+        </p>
+      </div>
+
+      <p id="manual" class="status">
+        0 golpes de teste
+      </p>
+
+      <button
+        id="reset"
+        class="secondary"
+        type="button"
+      >
+        ↻ REINICIAR LUTA LOCAL
+      </button>
+
+      <a
+        class="review-link"
+        href="./preview.html"
+      >
+        Conferir sprites e alinhamento ↗
+      </a>
+
+    </section>
+
+  </div>
+
+  <!-- =====================================
+       RODAPÉ
+       ===================================== -->
+
+  <footer>
+
+    <span>STREET VOTE FIGHTER</span>
+
+    <p>
+      Jogo fictício e caricatural ·
+      Enquete informal ·
+      Sem vínculo com candidatos.
+      <br>
+      Comentários repetidos contam.
+      Não é pesquisa eleitoral.
+    </p>
+
+  </footer>
+
 </main>
-<script type="module" src="./src/game.js"></script>
-</body></html>
+
+<script
+  type="module"
+  src="./src/game.js"
+></script>
+
+</body>
+</html>
