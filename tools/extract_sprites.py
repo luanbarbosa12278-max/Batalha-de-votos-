@@ -7,8 +7,8 @@ OUT=Path("assets/fighters"); OUT.mkdir(parents=True,exist_ok=True)
 REVIEW=Path("review"); REVIEW.mkdir(exist_ok=True)
 # Pixel coordinates in the verified 1536 x 1024 source sheets.
 BOXES={
-"lula":{"idle":(7,8,109,176),"walk":(699,8,802,177),"attack":(334,365,472,527),"hurt":(7,698,123,837),"victory":(12,840,137,1016),"defeat":(800,755,994,840)},
-"bolsonaro":{"idle":(8,5,117,159),"walk":(689,5,800,160),"attack":(452,168,614,314),"hurt":(125,656,245,801),"victory":(8,812,142,1016),"defeat":(764,706,919,795)}
+"lula":{"idle":(7,8,114,180)},
+"bolsonaro":{"idle":(8,5,120,162),"attack":(452,168,614,314)}
 }
 report={}
 tiles=[]
@@ -24,13 +24,13 @@ for who,poses in BOXES.items():
         pixels=list(a.getdata())
         seen=bytearray(w*h); components=[]
         for i,value in enumerate(pixels):
-            if value<=8 or seen[i]: continue
+            if value<96 or seen[i]: continue
             seen[i]=1; q=[i]; component=[]
             while q:
                 p=q.pop(); component.append(p); x=p%w; y=p//w
                 for nx,ny in ((x-1,y),(x+1,y),(x,y-1),(x,y+1)):
                     n=ny*w+nx
-                    if 0<=nx<w and 0<=ny<h and not seen[n] and pixels[n]>8:
+                    if 0<=nx<w and 0<=ny<h and not seen[n] and pixels[n]>=96:
                         seen[n]=1; q.append(n)
             components.append(component)
         main=max(components,key=len)
