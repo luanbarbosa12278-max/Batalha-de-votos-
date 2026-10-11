@@ -1,0 +1,33 @@
+name: Bolsa Pancada tests
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - src/**
+      - tests/**
+      - index.html
+      - package.json
+      - .github/workflows/bolsa-pancada-test.yml
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - run: npm test
+      - run: npm install --no-save --package-lock=false playwright@1.51.1
+      - run: npx playwright install --with-deps chromium
+      - name: Browser regression with mocked TikTok
+        run: |
+          python3 -m http.server 8000 --bind 127.0.0.1 > /tmp/bolsa-http.log 2>&1 &
+          node tests/bolsa-pancada.browser.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: bolsa-pancada-screenshots
+          path: review/bolsa-pancada/
