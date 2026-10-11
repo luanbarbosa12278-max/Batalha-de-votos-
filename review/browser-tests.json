@@ -1,0 +1,21 @@
+{
+  "passed": true,
+  "checks": [
+    "desktop assets",
+    "manual attacks",
+    "KO",
+    "automatic rounds",
+    "queue during KO",
+    "repeated comments",
+    "authenticated configuration contract",
+    "password cleared",
+    "draft username preserved",
+    "local reset",
+    "mobile 390px",
+    "landscape 844px",
+    "sprite preview",
+    "missing asset error",
+    "no JavaScript errors"
+  ],
+  "liveAPI": "mocked; no real configuration changed"
+}
