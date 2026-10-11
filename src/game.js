@@ -177,9 +177,11 @@ function fighter(side,time){
       );
 
       // Socos comuns permanecem separados dos especiais.
-      if(side==='b'){
-        sprite=images.punch;
-      }
+if(side==='b'){
+  sprite=images.punch;
+}else if(side==='l'){
+  sprite=images.lulaPunch;
+}
 
       sy=1+(reduceMotion?0:Math.sin(t*Math.PI*4)*.018);
 
