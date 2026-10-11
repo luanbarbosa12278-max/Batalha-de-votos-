@@ -75,6 +75,7 @@ let statusAttack=null;
 let lastHud='';
 let specialEffect=null;
 
+const HADOUKEN_DAMAGE=20;
 const names={l:'LULA',b:'BOLSONARO'};
 const fmt=n=>n.toLocaleString('pt-BR');
 
@@ -275,7 +276,7 @@ function paint(time){
 
     if(t>=.12){
       const progress=(t-.12)/.88;
-      const x=600-progress*650;
+      const x=530-progress*570;
 
       ctx.save();
       ctx.translate(x,350);
@@ -283,7 +284,7 @@ function paint(time){
 
       ctx.drawImage(
         images.hadouken,
-        -75,-48,150,96
+        -125,-80,250,160
       );
 
       ctx.restore();
@@ -369,12 +370,34 @@ function frame(now){
 
   previousTime=now;
 
+if(specialEffect){
+  const t=(now-specialEffect.start)/specialEffect.duration;
+
   if(
-    specialEffect &&
-    now-specialEffect.start>=specialEffect.duration
+    specialEffect.type==='hadouken' &&
+    !specialEffect.hit &&
+    t>=0.55
   ){
+    specialEffect.hit=true;
+
+    game.hp.l=Math.max(
+      0,
+      game.hp.l-HADOUKEN_DAMAGE
+    );
+
+    if(game.hp.l===0){
+      game.phase='ko';
+      game.attack=null;
+      game.winner='b';
+      game.wins.b++;
+      game.elapsed=0;
+    }
+  }
+
+  if(t>=1){
     specialEffect=null;
   }
+}
 
   // Os votos continuam na fila enquanto um especial acontece.
   if(ready&&!specialEffect){
