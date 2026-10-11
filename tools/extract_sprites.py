@@ -7,7 +7,7 @@ OUT=Path("assets/fighters"); OUT.mkdir(parents=True,exist_ok=True)
 REVIEW=Path("review"); REVIEW.mkdir(exist_ok=True)
 # Pixel coordinates in the verified 1536 x 1024 source sheets.
 BOXES={
-"lula":{"idle":(7,8,114,180)},
+"lula":{"idle":(7,8,114,180),"attack":(810,173,940,367)},
 "bolsonaro":{"idle":(8,5,120,162),"attack":(452,168,614,314)}
 }
 report={}
@@ -19,6 +19,12 @@ for who,poses in BOXES.items():
     report[who]={}
     for state,box in poses.items():
         crop=source.crop(box)
+        # Exclude the neighboring shoe fringe outside the selected stance.
+        if state=="idle":
+            cutoff=108 if who=="lula" else 116
+            floor_y=156 if who=="lula" else 141
+            clean=ImageDraw.Draw(crop)
+            clean.rectangle((cutoff-box[0],floor_y-box[1],crop.width,crop.height),fill=(0,0,0,0))
         w,h=crop.size
         a=crop.getchannel("A")
         pixels=list(a.getdata())
@@ -63,8 +69,8 @@ for who,poses in BOXES.items():
         d.text((8,8),who+" / "+state+(" / EDGE" if touches else ""),fill="white")
         d.line((0,272,279,272),fill="#ffc859")
         tiles.append(tile)
-sheet=Image.new("RGB",(280*6,292*2))
-for i,tile in enumerate(tiles): sheet.paste(tile,((i%6)*280,(i//6)*292))
+sheet=Image.new("RGB",(280*len(tiles),292))
+for i,tile in enumerate(tiles): sheet.paste(tile,(i*280,0))
 sheet.save(REVIEW/"crops.jpg",quality=92)
 (REVIEW/"crops.json").write_text(json.dumps(report,indent=2),encoding="utf-8")
 print(json.dumps(report,indent=2))
