@@ -279,7 +279,7 @@ function paint(time){
       const x=530-progress*570;
 
       ctx.save();
-      ctx.translate(x,350);
+      ctx.translate(x,290);
       ctx.scale(-1,1);
 
       ctx.drawImage(
