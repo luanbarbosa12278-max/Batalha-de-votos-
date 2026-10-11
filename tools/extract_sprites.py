@@ -1,100 +1,580 @@
-"""Extract candidate poses from the original RGBA sheets; never synthesize frames."""
-from pathlib import Path
-from collections import deque
-import json
-from PIL import Image, ImageDraw
-OUT=Path("assets/fighters"); OUT.mkdir(parents=True,exist_ok=True)
-REVIEW=Path("review"); REVIEW.mkdir(exist_ok=True)
-# Pixel coordinates in the verified 1536 x 1024 source sheets.
-BOXES={
-"lula":{"idle":(7,8,114,180)},
-"bolsonaro":{"idle":(8,5,120,162),"attack":(452,168,614,314)}
-}
-selected={who+"-"+state+".png" for who,poses in BOXES.items() for state in poses}
-for generated in OUT.glob("*.png"):
-    if generated.name not in selected: generated.unlink()
-report={}
-tiles=[]
-for who,poses in BOXES.items():
-    source=Image.open(who+"-sprites.png").convert("RGBA")
-    assert source.size==(1536,1024), "Coordinates require original 1536x1024 sheets"
-    idle_height=None
-    report[who]={}
-    for state,box in poses.items():
-        crop=source.crop(box)
-        # Exclude the neighboring shoe fringe outside the selected stance.
-        if state=="idle":
-            cutoff=108 if who=="lula" else 116
-            floor_y=156 if who=="lula" else 141
-            clean=ImageDraw.Draw(crop)
-            clean.rectangle((cutoff-box[0],floor_y-box[1],crop.width,crop.height),fill=(0,0,0,0))
-        w,h=crop.size
-        a=crop.getchannel("A")
-        pixels=list(a.getdata())
-        seen=bytearray(w*h); components=[]
-        for i,value in enumerate(pixels):
-            if value<96 or seen[i]: continue
-            seen[i]=1; q=[i]; component=[]
-            while q:
-                p=q.pop(); component.append(p); x=p%w; y=p//w
-                for nx,ny in ((x-1,y),(x+1,y),(x,y-1),(x,y+1)):
-                    n=ny*w+nx
-                    if 0<=nx<w and 0<=ny<h and not seen[n] and pixels[n]>=96:
-                        seen[n]=1; q.append(n)
-            components.append(component)
-        main=max(components,key=len)
-        keep=set(main)
-        # Keep disconnected details only inside the principal body's bounds.
-        xs=[p%w for p in main]; ys=[p//w for p in main]
-        bounds=(min(xs),min(ys),max(xs)+1,max(ys)+1)
-        for comp in components:
-            if all(bounds[0]<p%w<bounds[2]-1 and bounds[1]<p//w<bounds[3]-1 for p in comp): keep.update(comp)
-        mask=Image.new("L",(w,h))
-        mask.putdata([pixels[i] if i in keep else 0 for i in range(w*h)])
-        crop.putalpha(mask)
-        bbox=crop.getbbox()
-        touches=bool(bbox[0]==0 or bbox[1]==0 or bbox[2]==w or bbox[3]==h)
-        assert not touches, f"Selected pose touches crop edge: {who}/{state}"
-        crop=crop.crop(bbox)
-        if state=="idle": idle_height=crop.height
-        scale=180/idle_height
-        resized=crop.resize((round(crop.width*scale),round(crop.height*scale)),Image.Resampling.NEAREST)
-        frame=Image.new("RGBA",(280,256))
-        foot=240
-        frame.alpha_composite(resized,((280-resized.width)//2,foot-resized.height))
-        frame.save(OUT/(who+"-"+state+".png"))
-        report[who][state]={"source_box":box,"body_bbox":bbox,"source_body_size":list(crop.size),"scale":scale,"touches_crop_edge":touches,"components":len(components),"removed_pixels":sum(len(c) for c in components)-len(keep)}
-        tile=Image.new("RGB",(280,292),"#252b38")
-        d=ImageDraw.Draw(tile)
-        for yy in range(32,288,16):
-            for xx in range(0,280,16):
-                if (xx//16+yy//16)%2: d.rectangle((xx,yy,xx+15,yy+15),fill="#394154")
-        tile.paste(frame,(0,32),frame)
-        d.text((8,8),who+" / "+state+(" / EDGE" if touches else ""),fill="white")
-        d.line((0,272,279,272),fill="#ffc859")
-        tiles.append(tile)
-sheet=Image.new("RGB",(280*len(tiles),292))
-for i,tile in enumerate(tiles): sheet.paste(tile,(i*280,0))
-sheet.save(REVIEW/"crops.jpg",quality=92)
-(REVIEW/"crops.json").write_text(json.dumps(report,indent=2),encoding="utf-8")
-print(json.dumps(report,indent=2))
 
-# Expanded review grid: transformations of the selected pose, not new painted frames.
-states=["idle","move","attack","hurt","victory","defeat"]
-preview=Image.new("RGB",(280*6,292*2),"#252b38")
-for row,who in enumerate(BOXES):
-    for col,state in enumerate(states):
-        im=Image.open(OUT/(who+("-attack.png" if who=="bolsonaro" and state=="attack" else "-idle.png")))
-        pose=im.crop(im.getbbox())
-        if state=="defeat": pose=pose.rotate(90,expand=True)
-        if who=="bolsonaro": pose=pose.transpose(Image.Transpose.FLIP_LEFT_RIGHT)
-        tile=Image.new("RGB",(280,292),"#252b38")
-        d=ImageDraw.Draw(tile)
-        for yy in range(32,292,16):
-            for xx in range(0,280,16):
-                if (xx//16+yy//16)%2: d.rectangle((xx,yy,xx+15,yy+15),fill="#394154")
-        tile.paste(pose,((280-pose.width)//2,272-pose.height),pose)
-        d.text((8,8),who+" / "+state,fill="white")
-        d.line((0,272,279,272),fill="#ffc859")
-        preview.paste(tile,(col*280,row*292))
-preview.save(REVIEW/"animations.jpg",quality=90)
+import { Fight, VoteTracker, ATTACK_MS, HIT_MS } from './engine.js';
+
+const API = 'https://tiktok-live-servidor.onrender.com';
+const $ = id => document.getElementById(id);
+
+const game = new Fight();
+const tracker = new VoteTracker();
+
+const canvas = $('game');
+const ctx = canvas.getContext('2d');
+const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+const images = {};
+const names = { l: 'LULA', b: 'BOLSONARO' };
+const fmt = n => n.toLocaleString('pt-BR');
+
+let ready = false;
+let previousTime = 0;
+let epoch = 0;
+let configuring = false;
+let pollController = null;
+let userEdited = false;
+let statusRound = 0;
+let statusAttack = null;
+let lastHud = '';
+
+ctx.imageSmoothingEnabled = false;
+
+// Caminhos reais dos arquivos no GitHub.
+const FILES = {
+  arena: './cenário.png',
+  l: './assets/fighters/lula-idle.png',
+  b: './assets/fighters/bolsonaro-idle.png',
+  punch: './assets/fighters/bolsonaro-attack.png'
+};
+
+function loadImage(path) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+
+    img.onload = () => {
+      if (!img.naturalWidth || !img.naturalHeight) {
+        reject(new Error('Imagem vazia ou inválida: ' + path));
+        return;
+      }
+
+      console.log(
+        '[SVF] Imagem carregada:',
+        path,
+        img.naturalWidth + 'x' + img.naturalHeight
+      );
+
+      resolve(img);
+    };
+
+    img.onerror = () => {
+      reject(new Error('Falha ao carregar: ' + path));
+    };
+
+    img.src = path;
+  });
+}
+
+async function loadAssets() {
+  $('loading').hidden = false;
+  $('loading').textContent = 'CARREGANDO A ARENA…';
+
+  const entries = Object.entries(FILES);
+
+  const results = await Promise.allSettled(
+    entries.map(async ([key, path]) => {
+      const img = await loadImage(path);
+      images[key] = img;
+      return key;
+    })
+  );
+
+  results.forEach((result, index) => {
+    if (result.status === 'rejected') {
+      console.error(
+        '[SVF] Erro:',
+        entries[index][1],
+        result.reason
+      );
+    }
+  });
+
+  // O soco é opcional: a guarda pode substituí-lo.
+  if (!images.punch && images.b) {
+    console.warn(
+      '[SVF] Sprite de ataque indisponível. Usando guarda.'
+    );
+    images.punch = images.b;
+  }
+
+  // Os dois lutadores precisam existir.
+  if (!images.l || !images.b) {
+    $('loading').textContent =
+      'ERRO NOS SPRITES — abra F12 > Console para detalhes.';
+
+    $('message').textContent =
+      'Não foi possível carregar os personagens.';
+
+    return;
+  }
+
+  // O cenário não deve impedir a exibição dos lutadores.
+  if (!images.arena) {
+    console.warn(
+      '[SVF] Cenário indisponível. Usando fundo temporário.'
+    );
+  }
+
+  ready = true;
+  $('loading').hidden = true;
+
+  $('attackL').disabled = false;
+  $('attackB').disabled = false;
+
+  $('message').textContent = 'ROUND 01 — FIGHT!';
+
+  console.log('[SVF] Arena pronta.', {
+    lula: images.l.naturalWidth + 'x' + images.l.naturalHeight,
+    bolsonaro: images.b.naturalWidth + 'x' + images.b.naturalHeight,
+    ataque: images.punch.naturalWidth + 'x' + images.punch.naturalHeight
+  });
+}
+
+function fighter(side, time) {
+  const facing = side === 'l' ? 1 : -1;
+  const baseX = side === 'l' ? 290 : 670;
+  const ground = 490;
+
+  let x = baseX;
+  let y = ground;
+  let tilt = 0;
+  let sy = 1;
+  let sprite = images[side];
+  const scale = 1.65;
+  let losing = false;
+
+  if (!sprite || !sprite.complete || !sprite.naturalWidth) {
+    return;
+  }
+
+  if (game.phase === 'ko') {
+    if (game.winner === side) {
+      sy = 1 + (
+        reduceMotion ? 0 : Math.sin(time / 170) * 0.025
+      );
+    } else {
+      losing = true;
+    }
+  } else if (game.phase === 'attack') {
+    const t = game.elapsed / ATTACK_MS;
+
+    if (game.attack === side) {
+      const reach = side === 'l' ? 205 : 160;
+      const approach = Math.min(1, t / 0.32);
+      const retreat = t > 0.68 ? (1 - t) / 0.32 : 1;
+
+      x += facing * reach *
+        Math.max(0, Math.min(approach, retreat));
+
+      if (t >= 0.25 && t < 0.70) {
+        if (side === 'b' && images.punch) {
+          sprite = images.punch;
+        } else {
+          tilt = -0.16;
+        }
+      } else {
+        sy = 1 + (
+          reduceMotion ? 0 :
+          Math.sin(t * Math.PI * 4) * 0.018
+        );
+      }
+    } else if (game.hit) {
+      x -= facing * (
+        reduceMotion ? 3 :
+        Math.sin(
+          Math.min(1, (game.elapsed - HIT_MS) / 220) *
+          Math.PI
+        ) * 12
+      );
+
+      tilt = 0.09;
+    }
+  } else {
+    sy = 1 + (
+      reduceMotion ? 0 :
+      Math.sin(time / 220 + (side === 'l' ? 0 : 1)) * 0.012
+    );
+  }
+
+  ctx.save();
+
+  // Sombra abaixo dos pés.
+  ctx.fillStyle = '#0006';
+  ctx.beginPath();
+  ctx.ellipse(x, ground + 3, 58, 10, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.translate(x, y);
+  ctx.scale(facing * scale, scale);
+
+  if (losing) {
+    const fall = reduceMotion ?
+      1 : Math.min(1, game.elapsed / 380);
+
+    ctx.translate(fall * 70, -fall * 60);
+    ctx.rotate(-fall * Math.PI / 2);
+  } else {
+    ctx.transform(1, 0, tilt, sy, 0, 0);
+  }
+
+  // PNG individual, sem coordenadas de spritesheet.
+  // Mantém o centro horizontal e os pés na linha y=240.
+  const width = sprite.naturalWidth;
+  const height = sprite.naturalHeight;
+
+  ctx.imageSmoothingEnabled = false;
+
+  ctx.drawImage(
+    sprite,
+    -width / 2,
+    -Math.min(240, height),
+    width,
+    height
+  );
+
+  ctx.restore();
+}
+
+function paint(time) {
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.imageSmoothingEnabled = false;
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  if (!ready) return;
+
+  if (images.arena) {
+    ctx.drawImage(
+      images.arena,
+      0, 0,
+      canvas.width,
+      canvas.height
+    );
+  } else {
+    ctx.fillStyle = '#20283a';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+  }
+
+  // Desenha primeiro quem não está atacando.
+  if (game.attack === 'l') {
+    fighter('b', time);
+    fighter('l', time);
+  } else {
+    fighter('l', time);
+    fighter('b', time);
+  }
+
+  if (
+    game.phase === 'attack' &&
+    game.hit &&
+    game.elapsed < HIT_MS + 150
+  ) {
+    ctx.save();
+
+    ctx.strokeStyle = '#ffe9a5';
+    ctx.lineWidth = 4;
+
+    const x = game.attack === 'l' ? 609 : 356;
+    const y = 337;
+
+    for (let i = 0; i < 8; i++) {
+      const a = i * Math.PI / 4;
+
+      ctx.beginPath();
+      ctx.moveTo(
+        x + Math.cos(a) * 12,
+        y + Math.sin(a) * 12
+      );
+      ctx.lineTo(
+        x + Math.cos(a) * 26,
+        y + Math.sin(a) * 26
+      );
+      ctx.stroke();
+    }
+
+    ctx.restore();
+  }
+
+  if (game.phase === 'ko') {
+    ctx.fillStyle = '#0b101bb8';
+    ctx.fillRect(330, 100, 300, 104);
+
+    ctx.textAlign = 'center';
+    ctx.fillStyle = '#ffce65';
+    ctx.font = '900 68px monospace';
+    ctx.fillText('K.O.', 480, 168);
+
+    ctx.fillStyle = '#fff';
+    ctx.font = 'bold 14px monospace';
+    ctx.fillText(
+      names[game.winner] + ' VENCEU O ROUND',
+      480,
+      192
+    );
+  }
+}
+
+function updateHUD() {
+  const key = [
+    game.hp.l,
+    game.hp.b,
+    game.round,
+    game.wins.l,
+    game.wins.b,
+    game.votes.l,
+    game.votes.b,
+    game.pending,
+    game.manual.l,
+    game.manual.b
+  ].join(':');
+
+  if (key !== lastHud) {
+    lastHud = key;
+
+    for (const [side, id] of [['l', 'L'], ['b', 'B']]) {
+      $('hp' + id).style.width = game.hp[side] + '%';
+
+      $('hp' + id).parentElement.setAttribute(
+        'aria-valuenow',
+        game.hp[side]
+      );
+
+      $('wins' + id).textContent =
+        game.wins[side] + ' ROUNDS';
+
+      $('votes' + id).textContent =
+        fmt(game.votes[side]);
+    }
+
+    $('round').textContent =
+      String(game.round).padStart(2, '0');
+
+    $('pending').textContent = fmt(game.pending);
+
+    $('manual').textContent =
+      fmt(game.manual.l + game.manual.b) +
+      ' golpes de teste';
+  }
+
+  if (!ready) return;
+
+  if (game.phase === 'ko') {
+    $('message').textContent =
+      'K.O. — ' + names[game.winner] + ' VENCEU!';
+  } else if (
+    game.attack &&
+    game.attack !== statusAttack
+  ) {
+    $('message').textContent =
+      names[game.attack] + ' ATACA!';
+  } else if (game.round !== statusRound) {
+    $('message').textContent =
+      'ROUND ' + game.round + ' — FIGHT!';
+  }
+
+  statusRound = game.round;
+  statusAttack = game.attack;
+}
+
+function frame(now) {
+  const dt = previousTime ?
+    Math.min(100, now - previousTime) : 0;
+
+  previousTime = now;
+
+  if (ready) game.advance(dt);
+
+  paint(now);
+  updateHUD();
+
+  requestAnimationFrame(frame);
+}
+
+document.addEventListener('visibilitychange', () => {
+  previousTime = 0;
+});
+
+// Botões de teste.
+$('attackL').onclick = () => game.enqueue(1, 0, true);
+$('attackB').onclick = () => game.enqueue(0, 1, true);
+
+$('reset').onclick = () => {
+  if (!confirm(
+    'Reiniciar a luta local e descartar os golpes pendentes?'
+  )) return;
+
+  game.reset();
+  statusRound = 0;
+  statusAttack = null;
+  updateHUD();
+};
+
+$('usuario').addEventListener('input', () => {
+  userEdited = true;
+});
+
+// Consulta de votos da LIVE.
+async function pollVotes() {
+  if (configuring || pollController) return;
+
+  const controller = new AbortController();
+  const mine = epoch;
+
+  pollController = controller;
+
+  const timeout = setTimeout(() => {
+    controller.abort();
+  }, 15000);
+
+  try {
+    const response = await fetch(API + '/votos', {
+      cache: 'no-store',
+      signal: controller.signal
+    });
+
+    if (!response.ok) {
+      throw new Error(
+        'Servidor indisponível (' + response.status + ')'
+      );
+    }
+
+    const data = await response.json();
+
+    if (mine !== epoch) return;
+
+    const delta = tracker.accept(data);
+
+    if (delta.changed) {
+      game.reset();
+      statusRound = 0;
+    }
+
+    game.enqueue(delta.l, delta.b);
+
+    if (
+      !userEdited &&
+      document.activeElement !== $('usuario')
+    ) {
+      $('usuario').value = data.usuario;
+    }
+
+    $('status').textContent =
+      (data.usuario || 'Live') + ' · ' +
+      (
+        typeof data.status === 'string' ?
+        data.status : 'Servidor conectado'
+      ) +
+      (
+        delta.reset ?
+        ' · Contadores do servidor reiniciados' : ''
+      );
+
+    updateHUD();
+  } catch (error) {
+    if (mine === epoch && !configuring) {
+      $('status').textContent =
+        error.name === 'AbortError' ?
+        'Servidor demorou a responder. Tentando novamente…' :
+        'Aguardando servidor: ' + error.message;
+    }
+  } finally {
+    clearTimeout(timeout);
+
+    if (pollController === controller) {
+      pollController = null;
+    }
+  }
+}
+
+// Configuração da conta TikTok.
+$('connectForm').addEventListener(
+  'submit',
+  async event => {
+    event.preventDefault();
+
+    if (configuring) return;
+
+    const usuario = $('usuario').value.trim();
+    const senha = $('senha').value;
+
+    if (!usuario || !senha) {
+      $('status').textContent =
+        'Digite o @ e a senha.';
+      return;
+    }
+
+    configuring = true;
+    epoch++;
+
+    pollController?.abort();
+    pollController = null;
+
+    $('connect').disabled = true;
+    $('status').textContent = 'Conectando…';
+
+    const controller = new AbortController();
+
+    const timeout = setTimeout(() => {
+      controller.abort();
+    }, 20000);
+
+    try {
+      const response = await fetch(
+        API + '/configurar',
+        {
+          method: 'POST',
+          signal: controller.signal,
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Admin-Password': senha
+          },
+          body: JSON.stringify({ usuario })
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          typeof data.detail === 'string' ?
+          data.detail : 'Erro ao conectar'
+        );
+      }
+
+      if (
+        typeof data.usuario !== 'string' ||
+        !data.usuario
+      ) {
+        throw new Error(
+          'Resposta de configuração inválida'
+        );
+      }
+
+      tracker.baseline(data.usuario, 0, 0);
+
+      game.reset();
+      statusRound = 0;
+      userEdited = false;
+
+      $('usuario').value = data.usuario;
+      $('status').textContent =
+        'Conta selecionada: ' + data.usuario;
+
+      updateHUD();
+    } catch (error) {
+      $('status').textContent =
+        error.name === 'AbortError' ?
+        'A configuração demorou. Confira o estado da live antes de tentar novamente.' :
+        error.message;
+    } finally {
+      clearTimeout(timeout);
+
+      $('senha').value = '';
+      configuring = false;
+      $('connect').disabled = false;
+    }
+  }
+);
+
+// Inicialização.
+loadAssets();
+updateHUD();
+requestAnimationFrame(frame);
+pollVotes();
+setInterval(pollVotes, 2000);
