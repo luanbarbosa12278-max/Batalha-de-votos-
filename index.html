@@ -443,6 +443,33 @@ input {
   }
 }
 
+    
+/* BOTÃO DA MÚSICA - PIXEL ART */
+
+#toggleMusica {
+  display: block;
+  margin: 25px auto;
+  padding: 16px 24px;
+
+  background: #e4ad37;
+  color: #11121b;
+
+  font-family: 'Press Start 2P', monospace !important;
+  font-size: 10px !important;
+  line-height: 1.8;
+
+  border: 4px solid #08080d;
+  border-radius: 0;
+
+  text-shadow: none;
+
+  box-shadow: 5px 5px 0 #08080d;
+}
+
+#toggleMusica:hover:not(:disabled) {
+  background: #ffd75c;
+}
+
 
   </style>
 </head>
@@ -803,6 +830,62 @@ input {
   </footer>
 
 </main>
+
+<!-- MÚSICA DE FUNDO DO STREET VOTE FIGHTER -->
+
+<audio
+  id="musicaFundo"
+  src="./assets/fighters/audio/musica-arena.mp3"
+  preload="auto"
+  loop
+></audio>
+
+<button
+  id="toggleMusica"
+  type="button"
+  aria-pressed="false"
+>
+  🔇 LIGAR MÚSICA
+</button>
+
+<script>
+(() => {
+  const musica = document.getElementById('musicaFundo');
+  const botao = document.getElementById('toggleMusica');
+
+  // VOLUME FIXO EM 28%
+  musica.volume = 0.28;
+
+  function atualizarBotao() {
+    const tocando = !musica.paused;
+
+    botao.textContent = tocando
+      ? '🔊 MÚSICA: ON'
+      : '🔇 MÚSICA: OFF';
+
+    botao.setAttribute(
+      'aria-pressed',
+      String(tocando)
+    );
+  }
+
+  botao.addEventListener('click', async () => {
+    if (musica.paused) {
+      try {
+        await musica.play();
+      } catch (erro) {
+        console.warn('Erro ao tocar música:', erro);
+      }
+    } else {
+      musica.pause();
+    }
+
+    atualizarBotao();
+  });
+
+  atualizarBotao();
+})();
+</script>
 
 <script
   type="module"
