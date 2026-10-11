@@ -127,7 +127,13 @@ function fighter(side,time) {
       const approach=Math.min(1,t/.32);
       const retreat=t>.68?(1-t)/.32:1;
       x+=facing*reach*Math.max(0,Math.min(approach,retreat));
-      if(t>=.25&&t<.70){if(side==='b')sprite=images.punch;else tilt=-.16;}
+      if (t >= .25 && t < .70) {
+  if (side === 'b') {
+    sprite = images.hadoukenPose;
+  } else {
+    sprite = images.shoryuken;
+  }
+}
       else sy=1+(reduceMotion?0:Math.sin(t*Math.PI*4)*.018);
     } else if(game.hit) {
       x-=facing*(reduceMotion?3:Math.sin(Math.min(1,(game.elapsed-HIT_MS)/220)*Math.PI)*12);
