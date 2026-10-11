@@ -51,7 +51,7 @@ const soundCache={};
 
 for(const [group,filenames] of Object.entries(soundGroups)){
   soundCache[group]=filenames.map(filename=>{
-    const audio=new Audio('./assets/audio/'+filename);
+    const audio=new Audio('./assets/fighters/audio/'+filename);
     audio.preload='auto';
     audio.volume=0.8;
     return audio;
