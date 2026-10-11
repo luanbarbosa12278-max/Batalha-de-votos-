@@ -11,7 +11,7 @@
 <main>
 <header class="masthead"><a class="brand" href="./">SVF<span>ARCADE / LIVE</span></a><span class="edition">EDIÇÃO 01 <i></i> INTERATIVO</span></header>
 <section class="intro"><p class="eyebrow">SEU COMENTÁRIO ENTRA NO RINGUE</p><h1>STREET VOTE <em>FIGHTER</em></h1><p>Dois cantos. Uma arena. A live escolhe o próximo golpe.</p></section>
-<section class="cabinet" aria-label="Arena de luta">
+<div class="fight-layout">  <aside class="fight-controls lula-controls" aria-label="Controles do Lula">   <button id="attackL" disabled>     <kbd>Q</kbd>     <span>SOCO</span>   </button>    <button id="shoryukenL" disabled>     <kbd>W</kbd>     <span>SHORYUKEN</span>   </button>    <button id="specialL" disabled>     <kbd>E</kbd>     <span>EM BREVE</span>   </button> </aside>  <section class="cabinet" aria-label="Arena de luta">
 <div class="hud">
  <div class="player"><div class="name"><span>P1 · LULA</span><b>13</b></div><div class="health" role="progressbar" aria-label="Vida de Lula" aria-valuemin="0" aria-valuemax="100" aria-valuenow="100"><div id="hpL"></div></div><small id="winsL">0 ROUNDS</small></div>
  <div class="round">ROUND<strong id="round">01</strong><span>VS</span></div>
@@ -20,7 +20,7 @@
 <div class="stage"><canvas id="game" width="960" height="540" aria-label="Lula à esquerda e Bolsonaro à direita, lutando no ringue">Seu navegador precisa oferecer suporte ao Canvas.</canvas><div id="loading" role="status">CARREGANDO A ARENA…</div></div>
 <div class="ticker"><span id="message" aria-live="polite">Preparando os lutadores</span><span class="queue">NA FILA <b id="pending">0</b></span></div>
 </section>
-<div class="scoreboard"><div><span>COMENTÁRIOS <b>13</b></span><strong id="votesL">0</strong></div><div class="score-label">CADA COMENTÁRIO<br><b>UM GOLPE</b></div><div><span>COMENTÁRIOS <b>22</b></span><strong id="votesB">0</strong></div></div>
+<aside class="fight-controls bolsonaro-controls" aria-label="Controles do Bolsonaro">   <button id="attackB" disabled>     <kbd>I</kbd>     <span>SOCO</span>   </button>    <button id="hadoukenB" disabled>     <kbd>O</kbd>     <span>HADOUKEN</span>   </button>    <button id="specialB" disabled>     <kbd>P</kbd>     <span>EM BREVE</span>   </button> </aside>  </div><div><span>COMENTÁRIOS <b>13</b></span><strong id="votesL">0</strong></div><div class="score-label">CADA COMENTÁRIO<br><b>UM GOLPE</b></div><div><span>COMENTÁRIOS <b>22</b></span><strong id="votesB">0</strong></div></div>
 <div class="panels">
 <section class="panel"><p class="eyebrow">01 / ENTRE NA LIVE</p><h2>Conecte o TikTok</h2><form id="connectForm">
 <label for="usuario">Conta da live</label><input id="usuario" placeholder="@seuusuario" autocomplete="off" spellcheck="false" required>
