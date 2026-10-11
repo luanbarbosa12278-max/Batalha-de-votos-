@@ -1,0 +1,59 @@
+name: Street Vote Fighter review
+on:
+  push:
+    branches: [codex/street-vote-fighter]
+    paths:
+      - tools/**
+      - .github/workflows/street-vote-review.yml
+      - index.html
+      - preview.html
+      - src/**
+      - tests/**
+      - package.json
+      - "*.png"
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: street-vote-review
+  cancel-in-progress: true
+jobs:
+  review:
+    if: github.ref == 'refs/heads/codex/street-vote-fighter'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - run: python -m pip install Pillow==11.3.0
+      - run: python tools/inspect_assets.py
+      - run: python tools/extract_sprites.py
+      - run: node --test tests/engine.test.js
+      - run: npm install --no-save --package-lock=false playwright@1.51.1
+      - run: npx playwright install --with-deps chromium
+      - name: Browser tests and screenshots with mocked API
+        run: |
+          python -m http.server 8000 --bind 127.0.0.1 > /tmp/street-vote-http.log 2>&1 &
+          node tests/browser.mjs
+      - name: Save generated review files on the review branch only
+        env:
+          REVIEW_BRANCH: codex/street-vote-fighter
+        run: |
+          test "$GITHUB_REF_NAME" = "$REVIEW_BRANCH"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add review assets/fighters
+          if ! git diff --cached --quiet; then
+            git commit -m "Generate verified sprites and browser review screenshots"
+            git push origin "HEAD:$REVIEW_BRANCH"
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: street-vote-review
+          path: review/

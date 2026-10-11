@@ -1,0 +1,47 @@
+{
+  "lula": {
+    "file": "lula-sprites.png",
+    "size": [
+      1536,
+      1024
+    ],
+    "mode": "RGBA",
+    "alpha_extrema": [
+      0,
+      255
+    ],
+    "transparent_pixels": 647140,
+    "partial_alpha_pixels": 198755,
+    "pixels": 1572864
+  },
+  "bolsonaro": {
+    "file": "bolsonaro-sprites.png",
+    "size": [
+      1536,
+      1024
+    ],
+    "mode": "RGBA",
+    "alpha_extrema": [
+      0,
+      255
+    ],
+    "transparent_pixels": 752492,
+    "partial_alpha_pixels": 200410,
+    "pixels": 1572864
+  },
+  "arena": {
+    "file": "cen\u00e1rio.png",
+    "size": [
+      1672,
+      941
+    ],
+    "mode": "RGB",
+    "alpha_extrema": [
+      255,
+      255
+    ],
+    "transparent_pixels": 0,
+    "partial_alpha_pixels": 0,
+    "pixels": 1573352
+  }
+}

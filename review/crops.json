@@ -1,0 +1,72 @@
+{
+  "lula": {
+    "idle": {
+      "source_box": [
+        7,
+        8,
+        114,
+        180
+      ],
+      "body_bbox": [
+        5,
+        9,
+        101,
+        165
+      ],
+      "source_body_size": [
+        96,
+        156
+      ],
+      "scale": 1.1538461538461537,
+      "touches_crop_edge": false,
+      "components": 2,
+      "removed_pixels": 3
+    }
+  },
+  "bolsonaro": {
+    "idle": {
+      "source_box": [
+        8,
+        5,
+        120,
+        162
+      ],
+      "body_bbox": [
+        8,
+        5,
+        108,
+        149
+      ],
+      "source_body_size": [
+        100,
+        144
+      ],
+      "scale": 1.25,
+      "touches_crop_edge": false,
+      "components": 1,
+      "removed_pixels": 0
+    },
+    "attack": {
+      "source_box": [
+        452,
+        168,
+        614,
+        314
+      ],
+      "body_bbox": [
+        3,
+        4,
+        158,
+        141
+      ],
+      "source_body_size": [
+        155,
+        137
+      ],
+      "scale": 1.25,
+      "touches_crop_edge": false,
+      "components": 4,
+      "removed_pixels": 1221
+    }
+  }
+}

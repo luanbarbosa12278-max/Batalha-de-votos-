@@ -1,0 +1,68 @@
+import {chromium} from 'playwright';
+import assert from 'node:assert/strict';
+import {randomUUID} from 'node:crypto';
+import {mkdir,writeFile} from 'node:fs/promises';
+await mkdir('review',{recursive:true});
+const browser=await chromium.launch();
+try{
+ const page=await browser.newPage({viewport:{width:1280,height:1000},deviceScaleFactor:1});
+ const errors=[];page.on('pageerror',e=>errors.push(e.message));
+ let counts={'13':0,'22':0,usuario:'@teste',status:'Conectado'};
+ const password=randomUUID();let configured=false;
+ await page.route('https://tiktok-live-servidor.onrender.com/**',async route=>{
+   if(route.request().url().endsWith('/configurar')){
+     assert.equal(route.request().headers()['x-admin-password'],password);
+     assert.deepEqual(route.request().postDataJSON(),{usuario:'@outra'});
+     configured=true;counts={'13':0,'22':0,usuario:'@outra',status:'Conectado'};
+     return route.fulfill({json:{usuario:'@outra'}});
+   }
+   return route.fulfill({json:counts});
+ });
+ await page.goto('http://127.0.0.1:8000/');
+ await page.waitForFunction(()=>document.querySelector('#loading').hidden);
+ await page.screenshot({path:'review/desktop.jpg',type:'jpeg',quality:88,fullPage:true});
+ assert.equal(await page.locator('#attackL').isEnabled(),true);
+ await page.locator('#usuario').fill('@rascunho');
+ counts['13']=3;
+ await page.waitForFunction(()=>document.querySelector('#votesL').textContent==='3');
+ await page.waitForTimeout(2300);
+ assert.equal(await page.locator('#votesL').textContent(),'3');
+ assert.equal(await page.locator('#usuario').inputValue(),'@rascunho');
+ await page.locator('#usuario').fill('@outra');
+ await page.locator('#senha').fill(password);
+ await page.locator('#connect').click();
+ await page.waitForFunction(()=>document.querySelector('#status').textContent.includes('Conta selecionada'));
+ assert.equal(configured,true);assert.equal(await page.locator('#senha').inputValue(),'');
+ assert.equal(await page.locator('#votesL').textContent(),'0');
+ await page.locator('#attackL').click();
+ await page.waitForTimeout(300);
+ await page.locator('.cabinet').screenshot({path:'review/attack-lula.jpg',type:'jpeg',quality:90});
+ for(let i=0;i<9;i++)await page.locator('#attackL').click();
+ await page.waitForFunction(()=>document.querySelector('#message').textContent.includes('K.O.'),{},{timeout:12000});
+ await page.waitForTimeout(450);
+ await page.locator('.cabinet').screenshot({path:'review/knockout.jpg',type:'jpeg',quality:90});
+ await page.locator('#attackB').click();
+ await page.waitForFunction(()=>document.querySelector('#round').textContent==='02');
+ await page.waitForFunction(()=>document.querySelector('#hpL').parentElement.getAttribute('aria-valuenow')==='90');
+ await page.locator('.cabinet').screenshot({path:'review/attack-bolsonaro.jpg',type:'jpeg',quality:90});
+ page.on('dialog',dialog=>dialog.accept());
+ await page.locator('#reset').click();
+ await page.waitForFunction(()=>document.querySelector('#round').textContent==='01');
+ assert.equal(await page.locator('#hpL').evaluate(el=>el.parentElement.getAttribute('aria-valuenow')),'100');
+ await page.setViewportSize({width:390,height:844});
+ await page.screenshot({path:'review/mobile.jpg',type:'jpeg',quality:88,fullPage:true});
+ assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+ await page.setViewportSize({width:844,height:390});
+ assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+ await page.goto('http://127.0.0.1:8000/preview.html');
+ await page.waitForFunction(()=>document.querySelectorAll('img').length>=3&&[...document.images].every(im=>im.complete&&im.naturalWidth>0));
+ await page.screenshot({path:'review/preview-page.jpg',type:'jpeg',quality:88,fullPage:true});
+ await page.route('**/assets/fighters/lula-idle.png',route=>route.abort());
+ await page.goto('http://127.0.0.1:8000/');
+ await page.waitForFunction(()=>document.querySelector('#loading').textContent.includes('Não foi possível'));
+ assert.equal(await page.locator('#attackL').isDisabled(),true);
+ assert.deepEqual(errors,[]);
+ await writeFile('review/browser-tests.json',JSON.stringify({passed:true,checks:['desktop assets','manual attacks','KO','automatic rounds','queue during KO','repeated comments','authenticated configuration contract','password cleared','draft username preserved','local reset','mobile 390px','landscape 844px','sprite preview','missing asset error','no JavaScript errors'],liveAPI:'mocked; no real configuration changed'},null,2));
+ console.log('Browser tests passed; API was mocked.');
+ await browser.close();
+}catch(e){await browser.close();throw e;}
