@@ -440,6 +440,7 @@ lulaVictory:
 
 bolsonaroVictory:
   './assets/fighters/bolsonaro-victory.png'
+  };
 
     await Promise.all(
       Object.entries(files).map(
