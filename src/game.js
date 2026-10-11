@@ -432,9 +432,14 @@ async function loadAssets(){
       knockback:
         './assets/fighters/lula-knockback.png',
 
-      lulaPunch:
-        './assets/fighters/lula-punch.png'
-    };
+     lulaPunch:
+  './assets/fighters/lula-punch.png',
+
+lulaVictory:
+  './assets/fighters/lula-victory.png',
+
+bolsonaroVictory:
+  './assets/fighters/bolsonaro-victory.png'
 
     await Promise.all(
       Object.entries(files).map(
@@ -1135,6 +1140,261 @@ function updateFightAudio(now){
   };
 }
 
+ // ========================================
+ // TELA DE VITÓRIA ARCADE
+ // ========================================
+
+let victoryStart=0;
+let victoryWinner=null;
+
+const victoryConfetti=Array.from(
+  {length:85},
+  (_,i)=>({
+    x:Math.random()*960,
+    y:Math.random()*540,
+    speed:1+Math.random()*2.8,
+    size:3+Math.random()*6,
+    drift:Math.random()*3,
+    color:[
+      '#ffd700',
+      '#ffffff',
+      '#ff4444',
+      '#44ddff',
+      '#ff88dd'
+    ][i%5]
+  })
+);
+
+const victoryPhrases={
+  l:{
+    title:'LULA CAMPEÃO!',
+    phrase:'NUNCA ANTES NA HISTÓRIA DESSE PAÍS...',
+    color:'#ff4747',
+    glow:'#ffb347'
+  },
+  b:{
+    title:'BOLSONARO CAMPEÃO!',
+    phrase:'ACABOU, PORRA! HAHAHA!',
+    color:'#45bbff',
+    glow:'#ffe36e'
+  }
+};
+
+function drawVictoryBubble(x,y,w,h,phrase){
+  ctx.save();
+
+  ctx.fillStyle='#090a18';
+  ctx.fillRect(x-5,y-5,w+10,h+10);
+
+  ctx.fillStyle='#fffdf0';
+  ctx.fillRect(x,y,w,h);
+
+  // Pontinha pixelada do balão.
+  ctx.fillStyle='#090a18';
+  ctx.fillRect(x+65,y+h+5,35,15);
+  ctx.fillRect(x+75,y+h+20,15,10);
+
+  ctx.fillStyle='#fffdf0';
+  ctx.fillRect(x+70,y+h,25,15);
+  ctx.fillRect(x+80,y+h+15,10,10);
+
+  ctx.fillStyle='#161326';
+  ctx.textAlign='center';
+  ctx.textBaseline='middle';
+  ctx.font='bold 18px monospace';
+
+  // Quebra a frase em linhas.
+  const words=phrase.split(' ');
+  const lines=[];
+  let line='';
+
+  for(const word of words){
+    const test=line?line+' '+word:word;
+
+    if(ctx.measureText(test).width>w-36 && line){
+      lines.push(line);
+      line=word;
+    }else{
+      line=test;
+    }
+  }
+
+  if(line)lines.push(line);
+
+  const lineHeight=23;
+  const startY=y+h/2-(lines.length-1)*lineHeight/2;
+
+  lines.forEach((text,i)=>{
+    ctx.fillText(
+      text,
+      x+w/2,
+      startY+i*lineHeight
+    );
+  });
+
+  ctx.restore();
+}
+
+function drawVictoryScreen(now){
+  if(game.phase!=='ko'){
+    victoryWinner=null;
+    victoryStart=0;
+    return;
+  }
+
+  if(victoryWinner!==game.winner){
+    victoryWinner=game.winner;
+    victoryStart=now;
+  }
+
+  const info=victoryPhrases[game.winner];
+  if(!info)return;
+
+  const elapsed=now-victoryStart;
+  const t=elapsed/1000;
+
+  const sprite=game.winner==='l'
+    ?images.lulaVictory
+    :images.bolsonaroVictory;
+
+  ctx.save();
+
+  // Fundo escurecido, mantendo a arena visível.
+  ctx.fillStyle='rgba(6,7,25,0.88)';
+  ctx.fillRect(0,0,960,540);
+
+  // Raios dourados de campeão.
+  ctx.save();
+  ctx.translate(480,270);
+
+  for(let i=0;i<18;i++){
+    const angle=i*Math.PI/9+t*0.14;
+
+    ctx.save();
+    ctx.rotate(angle);
+
+    ctx.fillStyle=i%2===0
+      ?'rgba(255,208,70,0.15)'
+      :'rgba(255,255,255,0.06)';
+
+    ctx.beginPath();
+    ctx.moveTo(0,0);
+    ctx.lineTo(-35,-650);
+    ctx.lineTo(35,-650);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.restore();
+  }
+
+  ctx.restore();
+
+  // Confetes caindo.
+  for(const c of victoryConfetti){
+    const cy=(c.y+elapsed*c.speed*0.07)%570;
+    const cx=c.x+Math.sin(t*2+c.drift)*18;
+
+    ctx.fillStyle=c.color;
+    ctx.fillRect(cx,cy,c.size,c.size);
+  }
+
+  // Faixa superior.
+  ctx.fillStyle='#0a0920';
+  ctx.fillRect(0,0,960,112);
+
+  ctx.fillStyle='#ffd54f';
+  ctx.fillRect(0,105,960,7);
+
+  ctx.textAlign='center';
+  ctx.textBaseline='middle';
+
+  ctx.shadowColor=info.glow;
+  ctx.shadowBlur=22;
+
+  ctx.fillStyle='#ffdf66';
+  ctx.font='900 49px monospace';
+
+  ctx.fillText(
+    '🏆 VITÓRIA! 🏆',
+    480,
+    43
+  );
+
+  ctx.shadowBlur=0;
+
+  ctx.fillStyle=info.color;
+  ctx.font='900 30px monospace';
+
+  ctx.fillText(
+    info.title,
+    480,
+    86
+  );
+
+  // Plataforma do campeão.
+  ctx.fillStyle='#17142c';
+  ctx.fillRect(60,475,840,65);
+
+  ctx.fillStyle='#dba735';
+  ctx.fillRect(60,475,840,9);
+
+  ctx.fillStyle='#fff2ad';
+  ctx.font='bold 17px monospace';
+
+  ctx.fillText(
+    '★ STREET VOTE CHAMPION ★',
+    480,
+    516
+  );
+
+  // Personagem vencedor com cinturão.
+  if(sprite){
+    const bounce=Math.sin(t*4)*5;
+
+    ctx.save();
+
+    // Personagem grande, em destaque.
+    ctx.translate(265,470+bounce);
+    ctx.scale(1.45,1.45);
+
+    ctx.drawImage(
+      sprite,
+      -140,
+      -240
+    );
+
+    ctx.restore();
+  }
+
+  // Balão de fala.
+  drawVictoryBubble(
+    425,
+    190,
+    455,
+    125,
+    info.phrase
+  );
+
+  // Estrelas piscando.
+  ctx.fillStyle='#ffe879';
+  ctx.font='bold 35px monospace';
+
+  for(let i=0;i<5;i++){
+    const alpha=0.5+0.5*Math.sin(t*5+i);
+    ctx.globalAlpha=alpha;
+
+    ctx.fillText(
+      '✦',
+      480+i*82,
+      365+(i%2)*28
+    );
+  }
+
+  ctx.globalAlpha=1;
+  ctx.restore();
+}
+
+
 // ========================================
 // LOOP PRINCIPAL
 // ========================================
@@ -1219,9 +1479,10 @@ function frame(now){
     game.advance(dt);
   }
 
-  updateFightAudio(now);
-  paint(now);
-  updateHUD();
+updateFightAudio(now);
+paint(now);
+drawVictoryScreen(now);
+updateHUD();
 
   requestAnimationFrame(frame);
 }
