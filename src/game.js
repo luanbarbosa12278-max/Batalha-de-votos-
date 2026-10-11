@@ -517,7 +517,7 @@ bolsonaroVictory:
 // ========================================
 
 function fighter(side,time){
-  const facing=side==='l'?1:-1;
+  const facing=1;
 
   const baseX=side==='l'
     ?lulaX
