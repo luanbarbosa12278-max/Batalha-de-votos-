@@ -370,6 +370,30 @@ function normalizeSprite(img,{cropOnly=false}={}){
   return frame;
 }
 
+// Borda preta pixelada: desenhada ao redor dos pixels visíveis,
+// sem alterar o arquivo PNG original no repositório.
+function addPixelOutline(sprite){
+  const outlined=document.createElement('canvas');
+  outlined.width=sprite.width;
+  outlined.height=sprite.height;
+  const octx=outlined.getContext('2d');
+  octx.imageSmoothingEnabled=false;
+  const thickness=3;
+  for(let dy=-thickness;dy<=thickness;dy++){
+    for(let dx=-thickness;dx<=thickness;dx++){
+      if(dx===0 && dy===0)continue;
+      if(Math.max(Math.abs(dx),Math.abs(dy))>thickness)continue;
+      octx.drawImage(sprite,dx,dy);
+    }
+  }
+  octx.globalCompositeOperation='source-in';
+  octx.fillStyle='#090909';
+  octx.fillRect(0,0,outlined.width,outlined.height);
+  octx.globalCompositeOperation='source-over';
+  octx.drawImage(sprite,0,0);
+  return outlined;
+}
+
 // ========================================
 // VARIÁVEIS DO JOGO
 // ========================================
@@ -493,6 +517,9 @@ bolsonaroVictory:
         }
       )
     );
+
+    // Contorno preto pixelado para a pose de queda do Bolsonaro.
+    images.bolsonaroKnockbackPose=addPixelOutline(images.bolsonaroKnockbackPose);
 
     // Pose opcional: mantém o jogo funcionando se ainda não existir.
     try{
