@@ -814,7 +814,10 @@ x+=dashDirection*reach*Math.max(
     // As poses do Bolsa Pancada têm enquadramentos mais largos.
     // Amplia apenas o Lula durante o especial, mantendo os pés
     // alinhados ao chão e sem mudar os outros golpes.
-    const bolsaScale=side==='l' && sp?.type==='bolsaPancada' ? 1.3 : 1;
+    // A pose com o braço estendido ocupa mais altura no PNG e a
+    // normalização padrão (180px) faz o corpo parecer miniatura.
+    // Mantém a escala fixa durante TODAS as etapas do especial.
+    const bolsaScale=side==='l' && sp?.type==='bolsaPancada' ? 1.7 : 1;
     ctx.drawImage(
       sprite,
       -140*bolsaScale,
