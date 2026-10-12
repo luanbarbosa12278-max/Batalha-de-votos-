@@ -1344,58 +1344,63 @@ const victoryPhrases={
   }
 };
 
-function drawVictoryBubble(x,y,w,h,phrase){
+
+const VICTORY_FONT='"Press Start 2P", monospace';
+
+function victoryText(text,x,y,size,color='#fff4cf',maxWidth=900){
   ctx.save();
-
-  ctx.fillStyle='#090a18';
-  ctx.fillRect(x-5,y-5,w+10,h+10);
-
-  ctx.fillStyle='#fffdf0';
-  ctx.fillRect(x,y,w,h);
-
-  // Pontinha pixelada do balão.
-  ctx.fillStyle='#090a18';
-  ctx.fillRect(x+65,y+h+5,35,15);
-  ctx.fillRect(x+75,y+h+20,15,10);
-
-  ctx.fillStyle='#fffdf0';
-  ctx.fillRect(x+70,y+h,25,15);
-  ctx.fillRect(x+80,y+h+15,10,10);
-
-  ctx.fillStyle='#161326';
+  ctx.font=size+'px '+VICTORY_FONT;
+  ctx.fillStyle='#070916';
   ctx.textAlign='center';
   ctx.textBaseline='middle';
-  ctx.font='bold 18px monospace';
+  ctx.fillText(text,x+3,y+4,maxWidth);
+  ctx.fillStyle=color;
+  ctx.fillText(text,x,y,maxWidth);
+  ctx.restore();
+}
 
-  // Quebra a frase em linhas.
+function victoryPixelFrame(x,y,w,h,accent){
+  ctx.fillStyle='#060812';
+  ctx.fillRect(x-8,y-8,w+16,h+16);
+  ctx.fillStyle=accent;
+  ctx.fillRect(x-4,y-4,w+8,h+8);
+  ctx.fillStyle='#11162c';
+  ctx.fillRect(x+3,y+3,w-6,h-6);
+  ctx.fillStyle='#fff2ae';
+  for(let px=x+12;px<x+w-12;px+=24){
+    ctx.fillRect(px,y-4,8,4);
+    ctx.fillRect(px,y+h,8,4);
+  }
+}
+
+function drawVictoryBubble(x,y,w,h,phrase){
+  ctx.save();
+  victoryPixelFrame(x,y,w,h,'#d5a444');
+  ctx.fillStyle='#fff7dc';
+  ctx.fillRect(x+10,y+10,w-20,h-20);
+  ctx.fillStyle='#15182b';
+  ctx.fillRect(x+18,y+18,w-36,h-36);
+  ctx.fillStyle='#ffd966';
+  ctx.fillRect(x+18,y+18,w-36,5);
+  victoryText('FALA DO CAMPEAO',x+w/2,y+36,11,'#ffe17b',w-44);
   const words=phrase.split(' ');
   const lines=[];
   let line='';
-
+  ctx.font='12px '+VICTORY_FONT;
   for(const word of words){
-    const test=line?line+' '+word:word;
-
-    if(ctx.measureText(test).width>w-36 && line){
-      lines.push(line);
-      line=word;
-    }else{
-      line=test;
-    }
+    const candidate=line?line+' '+word:word;
+    if(ctx.measureText(candidate).width>w-70 && line){
+      lines.push(line);line=word;
+    }else line=candidate;
   }
-
   if(line)lines.push(line);
-
-  const lineHeight=23;
-  const startY=y+h/2-(lines.length-1)*lineHeight/2;
-
-  lines.forEach((text,i)=>{
-    ctx.fillText(
-      text,
-      x+w/2,
-      startY+i*lineHeight
-    );
-  });
-
+  const lineHeight=25;
+  const firstY=y+78-(lines.length-1)*lineHeight/2;
+  lines.forEach((line,i)=>victoryText(line,x+w/2,firstY+i*lineHeight,12,'#fff9e8',w-64));
+  // Ponteiro quadrado do balão.
+  ctx.fillStyle='#d5a444';
+  ctx.fillRect(x+68,y+h+4,36,8);
+  ctx.fillRect(x+78,y+h+12,18,8);
   ctx.restore();
 }
 
@@ -1405,159 +1410,110 @@ function drawVictoryScreen(now){
     victoryStart=0;
     return;
   }
-
   if(victoryWinner!==game.winner){
     victoryWinner=game.winner;
     victoryStart=now;
   }
-
-  const info=victoryPhrases[game.winner];
-  if(!info)return;
-
+  const isDraw=game.winner==='draw';
+  const info=isDraw?null:victoryPhrases[game.winner];
+  if(!isDraw&&!info)return;
   const elapsed=now-victoryStart;
   const t=elapsed/1000;
-
-  const sprite=game.winner==='l'
-    ?images.lulaVictory
-    :images.bolsonaroVictory;
+  const sprite=isDraw?null:(game.winner==='l'?images.lulaVictory:images.bolsonaroVictory);
+  const accent=isDraw?'#c7c8d4':(game.winner==='l'?'#ff575e':'#48c8ff');
 
   ctx.save();
-
-  // Fundo escurecido, mantendo a arena visível.
-  ctx.fillStyle='rgba(6,7,25,0.88)';
+  ctx.imageSmoothingEnabled=false;
+  // Arena ainda visível sob o overlay.
+  ctx.fillStyle='rgba(5,8,22,0.9)';
   ctx.fillRect(0,0,960,540);
 
-  // Raios dourados de campeão.
+  // Moldura externa, cantos e barras em pixels.
+  ctx.fillStyle='#060713';
+  ctx.fillRect(8,8,944,524);
+  ctx.fillStyle='#d9a441';
+  ctx.fillRect(14,14,932,6);
+  ctx.fillRect(14,520,932,6);
+  ctx.fillRect(14,14,6,512);
+  ctx.fillRect(940,14,6,512);
+  ctx.fillStyle='#fff2a0';
+  for(let i=0;i<12;i++){
+    const x=40+i*78;
+    ctx.fillRect(x,24,26,4);
+    ctx.fillRect(x,512,26,4);
+  }
+
+  // Raios retrô, sem suavização.
   ctx.save();
-  ctx.translate(480,270);
-
-  for(let i=0;i<18;i++){
-    const angle=i*Math.PI/9+t*0.14;
-
+  ctx.translate(315,295);
+  for(let i=0;i<16;i++){
+    const angle=i*Math.PI/8+(reduceMotion?0:t*.08);
     ctx.save();
     ctx.rotate(angle);
-
-    ctx.fillStyle=i%2===0
-      ?'rgba(255,208,70,0.15)'
-      :'rgba(255,255,255,0.06)';
-
+    ctx.fillStyle=i%2===0?'#8b692d35':'#ffdf7630';
     ctx.beginPath();
     ctx.moveTo(0,0);
-    ctx.lineTo(-35,-650);
-    ctx.lineTo(35,-650);
+    ctx.lineTo(-23,-480);
+    ctx.lineTo(23,-480);
     ctx.closePath();
     ctx.fill();
-
     ctx.restore();
   }
-
   ctx.restore();
 
-  // Confetes caindo.
-  for(const c of victoryConfetti){
-    const cy=(c.y+elapsed*c.speed*0.07)%570;
-    const cx=c.x+Math.sin(t*2+c.drift)*18;
-
-    ctx.fillStyle=c.color;
-    ctx.fillRect(cx,cy,c.size,c.size);
+  // Confetes e faíscas em quadradinhos.
+  if(!reduceMotion){
+    for(const c of victoryConfetti){
+      const cy=(c.y+elapsed*c.speed*.07)%530;
+      const cx=c.x+Math.sin(t*2+c.drift)*15;
+      ctx.fillStyle=c.color;
+      ctx.fillRect(Math.round(cx),Math.round(cy),c.size,c.size);
+    }
   }
 
-  // Faixa superior.
-  ctx.fillStyle='#0a0920';
-  ctx.fillRect(0,0,960,112);
+  // Placa superior de campeão.
+  victoryPixelFrame(55,35,850,115,'#dca83d');
+  ctx.fillStyle='#090d1e';
+  ctx.fillRect(63,43,834,99);
+  victoryText('STREET VOTE FIGHTER',480,60,14,'#ffdd76',810);
+  victoryText(isDraw?'EMPATE!':'VITORIA!',480,104,37,isDraw?'#f0f0ff':'#fff3a1',790);
 
-  ctx.fillStyle='#ffd54f';
-  ctx.fillRect(0,105,960,7);
+  if(isDraw){
+    victoryPixelFrame(175,204,610,198,'#b1b5d2');
+    victoryText('DOUBLE K.O.',480,265,30,'#ffe176',550);
+    victoryText('OS DOIS CAIRAM!',480,335,16,'#fff5df',550);
+  }else{
+    // Painel lateral do vencedor.
+    victoryPixelFrame(50,174,402,287,accent);
+    ctx.fillStyle='#0b1024';
+    ctx.fillRect(59,183,384,269);
+    victoryText('CAMPEAO',252,207,15,'#ffe186',350);
+    victoryText(game.winner==='l'?'LULA':'BOLSONARO',252,245,21,accent,370);
 
-  ctx.textAlign='center';
-  ctx.textBaseline='middle';
+    // Sprite original com cinturão, em primeiro plano.
+    if(sprite){
+      const bounce=reduceMotion?0:Math.round(Math.sin(t*3.5)*4);
+      ctx.save();
+      ctx.translate(251,468+bounce);
+      ctx.scale(1.32,1.32);
+      ctx.drawImage(sprite,-140,-240);
+      ctx.restore();
+    }
 
-  ctx.shadowColor=info.glow;
-  ctx.shadowBlur=22;
-
-  ctx.fillStyle='#ffdf66';
-  ctx.font='900 49px monospace';
-
-  ctx.fillText(
-    '🏆 VITÓRIA! 🏆',
-    480,
-    43
-  );
-
-  ctx.shadowBlur=0;
-
-  ctx.fillStyle=info.color;
-  ctx.font='900 30px monospace';
-
-  ctx.fillText(
-    info.title,
-    480,
-    86
-  );
-
-  // Plataforma do campeão.
-  ctx.fillStyle='#17142c';
-  ctx.fillRect(60,475,840,65);
-
-  ctx.fillStyle='#dba735';
-  ctx.fillRect(60,475,840,9);
-
-  ctx.fillStyle='#fff2ad';
-  ctx.font='bold 17px monospace';
-
-  ctx.fillText(
-    '★ STREET VOTE CHAMPION ★',
-    480,
-    516
-  );
-
-  // Personagem vencedor com cinturão.
-  if(sprite){
-    const bounce=Math.sin(t*4)*5;
-
-    ctx.save();
-
-    // Personagem grande, em destaque.
-    ctx.translate(265,470+bounce);
-    ctx.scale(1.45,1.45);
-
-    ctx.drawImage(
-      sprite,
-      -140,
-      -240
-    );
-
-    ctx.restore();
+    // Fala do campeão.
+    drawVictoryBubble(492,197,397,142,info.phrase);
+    victoryText('ROUND '+String(game.round).padStart(2,'0'),690,388,14,'#ffe4a1',380);
+    victoryText('K.O.!',690,437,27,accent,350);
   }
 
-  // Balão de fala.
-  drawVictoryBubble(
-    425,
-    190,
-    455,
-    125,
-    info.phrase
-  );
-
-  // Estrelas piscando.
-  ctx.fillStyle='#ffe879';
-  ctx.font='bold 35px monospace';
-
-  for(let i=0;i<5;i++){
-    const alpha=0.5+0.5*Math.sin(t*5+i);
-    ctx.globalAlpha=alpha;
-
-    ctx.fillText(
-      '✦',
-      480+i*82,
-      365+(i%2)*28
-    );
-  }
-
-  ctx.globalAlpha=1;
+  // Rodapé.
+  ctx.fillStyle='#080c1c';
+  ctx.fillRect(24,477,912,33);
+  ctx.fillStyle='#e7b94d';
+  ctx.fillRect(24,477,912,4);
+  victoryText('STREET VOTE CHAMPION',480,497,13,'#fff1bc',870);
   ctx.restore();
 }
-
 
 // ========================================
 // BOLSA PANCADA — E
