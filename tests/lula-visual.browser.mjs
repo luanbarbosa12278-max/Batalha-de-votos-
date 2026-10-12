@@ -15,19 +15,19 @@ try{
   page.on('pageerror',e=>errors.push(e.message));
   await page.route('https://tiktok-live-servidor.onrender.com/**',r=>
     r.fulfill({json:{'13':0,'22':0,usuario:'@teste',status:'Conectado'}}));
-  await page.route('**/src/game.js',async r=>{
+  await page.route('**/src/game.js*',async r=>{
     const response=await r.fetch();
     await r.fulfill({response,body:(await response.text())+`
       window.visualReview={images,normalizeSprite,loadImage,lulaSuitPalette,
         matchBolsaSuit,isBolsaSuitPixel,LULA_BOLSA_BODY_TOP,game,
-        getEffect:()=>specialEffect,resetLocalFight,
+        getEffect:()=>specialEffects[0]??null,resetLocalFight,
         step(time){previousTime=0;frame(time);}};`});
   });
   await page.clock.install();
-  await page.goto('http://127.0.0.1:8000/');
+  await page.goto(process.env.BASE_URL || 'http://127.0.0.1:8000/');
   await page.waitForFunction(()=>document.querySelector('#loading').hidden);
   await page.clock.pauseAt(await page.evaluate(()=>Date.now()+1000));
-  assert.equal(await page.locator('.arcade-version').textContent(),'v1.5.9');
+  assert.equal(await page.locator('.arcade-version').textContent(),'v1.6.0');
 
   const metrics=await page.evaluate(async()=>{
     const api=visualReview;

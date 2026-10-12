@@ -26,6 +26,75 @@ export class Fight {
     this.hit = false;
     this.lastSide = 'b';
     this.bothAttack = false;
+    this.god = {l:false,b:false};
+    this.godAttacks = [];
+    this.godBlockedHits = {l:0,b:0};
+  }
+  setGod(side, enabled) {
+    if (!(side in this.god)) throw new Error('Lutador inválido');
+    this.god[side] = Boolean(enabled);
+    // Release an already-started punch from the shared animation lock.
+    if(enabled && this.phase==='attack' && (this.attack===side || this.attack==='both')){
+      this.godAttacks.push({side,count:this.hit?0:1,elapsed:this.elapsed,hit:this.hit});
+      if(this.attack==='both') this.attack=side==='l'?'b':'l';
+      else {this.phase='ready';this.attack=null;this.elapsed=0;this.hit=false;}
+      this.bothAttack=false;
+    }
+  }
+  enterKO() {
+    if (this.phase==='ko' || (this.hp.l>0 && this.hp.b>0)) return;
+    if(this.phase==='attack' && !this.hit && this.attack){
+      const l=this.attack==='l'||this.attack==='both'?1:0;
+      const b=this.attack==='b'||this.attack==='both'?1:0;
+      this.batches.push({l,b});this.pending+=l+b;
+    }
+    this.phase='ko'; this.elapsed=0; this.attack=null; this.hit=false;
+    this.winner=this.hp.l===0 && this.hp.b===0 ? 'draw' : (this.hp.l===0?'b':'l');
+    if(this.winner!=='draw') this.wins[this.winner]++;
+    // Unlanded GOD punches remain votes for the next round.
+    for(const punch of this.godAttacks){
+      if(!punch.hit && punch.count){
+        this.batches.push({l:0,b:0,[punch.side]:punch.count});
+        this.pending+=punch.count;
+      }
+    }
+    this.godAttacks=[];
+  }
+  advanceGod(dt) {
+    if(this.phase==='ko') return;
+    for(const side of ['l','b']){
+      if(!this.god[side]) continue;
+      let count=0;
+      for(let i=this.head;i<this.batches.length;i++){
+        count+=this.batches[i][side]; this.batches[i][side]=0;
+      }
+      if(count){
+        this.pending-=count;
+        this.godAttacks.push({side,count,elapsed:0,hit:false});
+      }
+    }
+    while(this.head<this.batches.length && !this.batches[this.head].l && !this.batches[this.head].b) this.head++;
+    if(this.head>128){this.batches=this.batches.slice(this.head);this.head=0;}
+    let landedAny=false;
+    for(const punch of this.godAttacks){
+      punch.elapsed+=dt;
+      if(!punch.hit && punch.elapsed>=HIT_MS){
+        const target=punch.side==='l'?'b':'l';
+        if(this.shieldActive[target]){
+          this.godBlockedHits[target]+=punch.count;
+          this.delivered+=punch.count;punch.count=0;punch.hit=true;
+          continue;
+        }
+        const landed=Math.min(punch.count,Math.ceil(this.hp[target]/DAMAGE));
+        this.hp[target]=Math.max(0,this.hp[target]-landed*DAMAGE);
+        this.delivered+=landed;
+        landedAny ||= landed>0;
+        punch.count-=landed;
+        punch.hit=punch.count===0;
+      }
+    }
+    if(landedAny) this.enterKO();
+    this.godAttacks=this.godAttacks.filter(p=>p.elapsed<ATTACK_MS);
   }
   enqueue(l, b, manual = false) {
     if (![l,b].every(n=>Number.isSafeInteger(n)&&n>=0)) throw new Error('Contagem inválida');
@@ -44,6 +113,7 @@ export class Fight {
     }
   }
   next() {
+    while(this.head<this.batches.length && !this.batches[this.head].l && !this.batches[this.head].b) this.head++;
     const batch=this.batches[this.head];
     if (!batch) return null;
     // Dois comentários disponíveis no mesmo lote: ataques simultâneos.
@@ -61,7 +131,14 @@ export class Fight {
     }
     return side;
   }
-  advance(dt) {
+  advance(dt, {pauseNormal=false}={}) {
+    if (!Number.isFinite(dt)||dt<0) throw new Error('Tempo inválido');
+    const wasKO=this.phase==='ko';
+    this.advanceGod(dt);
+    if(!wasKO && this.phase==='ko') return;
+    if(!pauseNormal || this.phase==='ko') this.advanceNormal(dt);
+  }
+  advanceNormal(dt) {
     if (!Number.isFinite(dt)||dt<0) throw new Error('Tempo inválido');
     while (true) {
       if (this.phase==='ready') {
@@ -101,9 +178,7 @@ export class Fight {
       if (this.elapsed<duration) return;
       if (this.phase==='attack') {
         if (!this.hp.l||!this.hp.b) {
-          this.phase='ko';
-          this.winner=this.hp.l===0 && this.hp.b===0 ? 'draw' : (this.hp.l===0?'b':'l');
-          if(this.winner!=='draw')this.wins[this.winner]++;
+          this.enterKO();
         } else this.phase='ready';
         this.attack=null;
       } else {

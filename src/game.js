@@ -401,7 +401,7 @@ let statusRound=0;
 let statusAttack=null;
 let lastHud='';
 
-let specialEffect=null;
+let specialEffects=[];
 
 const BOLSA_DAMAGE=25;
 const BOLSA_COOLDOWN_MS=1400;
@@ -618,9 +618,8 @@ function fighter(side,time){
 
   let losing=false;
 
-  const sp=specialEffect?.side===side
-    ?specialEffect
-    :null;
+  const sp=specialEffects.findLast(effect=>effect.side===side);
+  const godPunch=game.godAttacks.findLast(punch=>punch.side===side);
 
   if(sp){
     const t=Math.max(
@@ -655,13 +654,13 @@ function fighter(side,time){
       losing=true;
     }
 
-  }else if(game.phase==='attack'){
+  }else if(game.phase==='attack' || godPunch){
     const t=Math.min(
       1,
-      game.elapsed/ATTACK_MS
+      (godPunch?.elapsed ?? game.elapsed)/ATTACK_MS
     );
 
-    if(game.attack===side || game.attack==='both'){
+    if(godPunch || game.attack===side || game.attack==='both'){
       const reach=side==='l'
         ?205
         :160;
@@ -695,7 +694,7 @@ x+=dashDirection*reach*Math.max(
           :Math.sin(t*Math.PI*4)*.018
       );
 
-    }else if(game.hit){
+    }else if(game.hit && !game.god[side]){
       x+=(side==='l' ? -1 : 1)*(
         reduceMotion
           ?3
@@ -910,75 +909,9 @@ function paint(time){
     ctx.restore();
   }
 
-  // Hadouken azul.
-  if(
-    specialEffect?.type==='hadouken'
-  ){
-    const t=Math.min(
-      1,
-      (
-        time-specialEffect.start
-      )/specialEffect.duration
-    );
-
-    if(t>=.12){
-      const progress=(
-        t-.12
-      )/.88;
-
-      // O projétil nasce na luva do Bolsonaro,
-      // independentemente da posição dele na arena.
-      const x=specialEffect.originX-105-progress*570;
-
-      ctx.save();
-
-      ctx.translate(
-        x,
-        290
-      );
-
-      ctx.scale(-1,1);
-
-      ctx.drawImage(
-        images.hadouken,
-        -125,
-        -80,
-        250,
-        160
-      );
-
-      ctx.restore();
-    }
-  }
-// Hadouken vermelho do Lula.
-if(
-  specialEffect?.type==='lulaHadouken'
-){
-  const t=Math.min(
-    1,
-    (time-specialEffect.start)/specialEffect.duration
-  );
-
-  if(t>=0.12){
-    const progress=(t-0.12)/0.88;
-
-    // Sai do Lula e vai para a direita.
-    const x=specialEffect.originX+100+progress*520;
-
-    ctx.save();
-
-    ctx.translate(x,290);
-
-    ctx.drawImage(
-      images.lulaHadouken,
-      -125,-80,250,160
-    );
-
-    ctx.restore();
-  }
-}
-  drawBolsaPancada(time);
-  drawTaok(time);
+  for(const sp of specialEffects) drawSpecial(time,sp);
+  drawBolsaImpact(time);
+  drawTaokImpact(time);
   drawShields(time);
   ctx.restore();
 
@@ -1013,6 +946,78 @@ if(
       192
     );
   }
+}
+
+function drawSpecial(time,sp){
+  // Hadouken azul.
+  if(
+    sp?.type==='hadouken'
+  ){
+    const t=Math.min(
+      1,
+      (
+        time-sp.start
+      )/sp.duration
+    );
+
+    if(t>=.12){
+      const progress=(
+        t-.12
+      )/.88;
+
+      // O projétil nasce na luva do Bolsonaro,
+      // independentemente da posição dele na arena.
+      const x=sp.originX-105-progress*570;
+
+      ctx.save();
+
+      ctx.translate(
+        x,
+        290
+      );
+
+      ctx.scale(-1,1);
+
+      ctx.drawImage(
+        images.hadouken,
+        -125,
+        -80,
+        250,
+        160
+      );
+
+      ctx.restore();
+    }
+  }
+// Hadouken vermelho do Lula.
+if(
+  sp?.type==='lulaHadouken'
+){
+  const t=Math.min(
+    1,
+    (time-sp.start)/sp.duration
+  );
+
+  if(t>=0.12){
+    const progress=(t-0.12)/0.88;
+
+    // Sai do Lula e vai para a direita.
+    const x=sp.originX+100+progress*520;
+
+    ctx.save();
+
+    ctx.translate(x,290);
+
+    ctx.drawImage(
+      images.lulaHadouken,
+      -125,-80,250,160
+    );
+
+    ctx.restore();
+  }
+}
+  drawBolsaPancada(time,sp);
+  drawTaok(time,sp);
 }
 
 // ========================================
@@ -1276,7 +1281,7 @@ function updateFightAudio(now){
 
     if(
       game.phase==='ready' &&
-      !specialEffect &&
+      specialEffects.length===0 &&
       !lulaKnockback &&
       !bolsonaroKnockback
     ){
@@ -1299,7 +1304,7 @@ function updateFightAudio(now){
     voteTotal>previousVoteTotal &&
     now>=nextVoteCall &&
     game.phase==='ready' &&
-    !specialEffect
+    specialEffects.length===0
   ){
     const options=[
       'lulaVotos',
@@ -1557,30 +1562,43 @@ function drawVictoryScreen(now){
 // BOLSA PANCADA — E
 // ========================================
 
+// GOD bypasses only this fighter's action gates; life and KO remain authoritative.
+function canStartSpecial(side, now, readyAt=0, bolsa=false){
+  if(!ready || debatePauseStart || game.phase==='ko' || game.hp.l<=0 || game.hp.b<=0) return false;
+  if(game.god[side]) return true;
+  return game.phase==='ready' && specialEffects.length===0 &&
+    !lulaKnockback && (bolsa || !bolsonaroKnockback) && now>=readyAt;
+}
+
+function setGod(side,enabled){
+  game.setGod(side,enabled);
+  if(enabled){
+    if(side==='l'){lulaKnockback=null;bolsaReadyAt=0;}
+    else {bolsonaroKnockback=null;taokReadyAt=0;}
+  }
+  updateGodControls();
+  updateBolsaButton(performance.now());
+  updateTaokButton(performance.now());
+}
+
+function updateGodControls(){
+  for(const side of ['l','b']){
+    const button=$(side==='l'?'godL':'godB');
+    if(!button) continue;
+    const active=game.god[side];
+    button.setAttribute('aria-pressed',String(active));
+    button.textContent=(side==='l'?'R':'U')+' · GOD '+(active?'ATIVO':'OFF');
+    button.title=names[side]+': '+(active?'desativar':'ativar')+' GOD — sem recarga ou stun; recebe dano normal';
+    button.setAttribute('aria-label',names[side]+' — GOD '+(active?'ativo, desativar':'desligado, ativar'));
+  }
+}
+
 function startBolsaPancada(){
   const now=performance.now();
-  if(
-    !ready ||
-    game.phase!=='ready' ||
-    specialEffect ||
-    lulaKnockback ||
-    game.hp.l<=0 ||
-    game.hp.b<=0 ||
-    now<bolsaReadyAt
-  ){
-    return;
-  }
-
-  bolsaReadyAt=now+BOLSA_COOLDOWN_MS;
-  specialEffect={
-    type:'bolsaPancada',
-    side:'l',
-    start:now,
-    duration:BOLSA_DURATION_MS,
-    round:game.round,
-    x:bolsonaroX,
-    hit:false
-  };
+  if(!canStartSpecial('l',now,bolsaReadyAt,true)) return;
+  bolsaReadyAt=game.god.l?0:now+BOLSA_COOLDOWN_MS;
+  specialEffects.push({type:'bolsaPancada',side:'l',start:now,
+    duration:BOLSA_DURATION_MS,round:game.round,x:bolsonaroX,hit:false});
   $('message').textContent='LULA — BOLSA PANCADA!';
   playSound('lulaBolsa');
   updateBolsaButton(now);
@@ -1589,68 +1607,57 @@ function startBolsaPancada(){
 function updateBolsaButton(now){
   const button=$('specialL');
   if(!button) return;
-  const seconds=Math.ceil(Math.max(0,bolsaReadyAt-now)/1000);
-  button.disabled=(
-    !ready || game.phase!=='ready' || !!specialEffect ||
-    !!lulaKnockback || game.hp.l<=0 || game.hp.b<=0 || seconds>0
-  );
-  const label=seconds>0
-    ?'BOLSA PANCADA · '+seconds+'s'
-    :'BOLSA PANCADA';
+  const seconds=game.god.l?0:Math.ceil(Math.max(0,bolsaReadyAt-now)/1000);
+  button.disabled=!canStartSpecial('l',now,bolsaReadyAt,true);
+  const label=seconds>0?'BOLSA PANCADA · '+seconds+'s':'BOLSA PANCADA';
   const span=button.querySelector('span');
   if(span && span.textContent!==label) span.textContent=label;
-  button.title=seconds>0
-    ?'Recarregando: '+seconds+'s'
-    :'E — Bolsa Pancada (25 HP; recarga de 1,4 segundos)';
+  button.title=game.god.l?'E — Bolsa Pancada (GOD: sem recarga)':
+    seconds>0?'Recarregando: '+seconds+'s':'E — Bolsa Pancada (25 HP; recarga de 1,4 segundos)';
 }
 
-function updateBolsaPancada(now){
-  // Nenhum efeito de um round anterior pode atingir o próximo.
-  if(bolsaRound!==game.round){
-    bolsaRound=game.round;
-    bolsaImpact=null;
-    if(specialEffect?.type==='bolsaPancada') specialEffect=null;
-  }
-  if(bolsaImpact && now-bolsaImpact.start>=420) bolsaImpact=null;
-
-  const sp=specialEffect;
-  if(sp?.type!=='bolsaPancada') return;
-  if(
-    game.phase==='ko' || sp.round!==game.round ||
-    game.hp.l<=0 || (game.hp.b<=0 && !sp.hit)
-  ){
-    specialEffect=null;
-    return;
-  }
-
-  if(!sp.hit && now-sp.start>=BOLSA_SUMMON_MS+BOLSA_FALL_MS){
-    sp.hit=true;
-    if(shieldOn('b',now))shieldImpact('b',now);
-    else game.hp.b=Math.max(0,game.hp.b-BOLSA_DAMAGE);
-    bolsaImpact={start:now,x:sp.x};
-    const from=bolsonaroX;
-    const to=Math.min(BOLSONARO_WALL_X,from+KNOCKBACK_DISTANCE);
-    bolsonaroKnockback={start:now,duration:600,from,to};
-    bolsonaroX=to;
-    if(shieldOn('b',now)){bolsonaroKnockback=null;bolsonaroX=from;shieldImpact('b',now);}
-    if(!shieldOn('b',now))playSound('bolsonaroDano');
-
-    // O mesmo estado de K.O. usado pelos outros golpes mantém
-    // áudio de vitória, placar e avanço automático de rounds.
-    if(game.hp.b===0){
-      game.phase='ko';
-      game.attack=null;
-      game.hit=false;
-      game.winner='l';
-      game.wins.l++;
-      game.elapsed=0;
-      specialEffect=null;
+function applySpecialHit(sp,now){
+  const target=sp.side==='l'?'b':'l';
+  const from=target==='l'?lulaX:bolsonaroX;
+  const damage=sp.type==='bolsaPancada'?BOLSA_DAMAGE:sp.type==='taok'?TAOK_DAMAGE:HADOUKEN_DAMAGE;
+  if(sp.type==='bolsaPancada') bolsaImpact={start:now,x:sp.x};
+  if(sp.type==='taok') taokImpact={start:now,x:from};
+  if(shieldOn(target,now)){shieldImpact(target,now);return;}
+  game.hp[target]=Math.max(0,game.hp[target]-damage);
+  // Suppress damage reactions only on the GOD recipient, never the damage.
+  if(!game.god[target]){
+    if(target==='l'){
+      const to=Math.max(LULA_WALL_X,from-KNOCKBACK_DISTANCE);
+      lulaKnockback={start:now,duration:600,from,to};lulaX=to;
+    }else{
+      const to=Math.min(BOLSONARO_WALL_X,from+KNOCKBACK_DISTANCE);
+      bolsonaroKnockback={start:now,duration:600,from,to};bolsonaroX=to;
     }
   }
+  playSound(target==='l'?'lulaDano':'bolsonaroDano');
 }
 
-function drawBolsaPancada(now){
-  const sp=specialEffect;
+function updateSpecialEffects(now){
+  if(lulaKnockback && now-lulaKnockback.start>=lulaKnockback.duration) lulaKnockback=null;
+  if(bolsonaroKnockback && now-bolsonaroKnockback.start>=bolsonaroKnockback.duration) bolsonaroKnockback=null;
+  if(bolsaRound!==game.round){bolsaRound=game.round;bolsaImpact=null;}
+  if(taokRound!==game.round){taokRound=game.round;taokImpact=null;}
+  if(bolsaImpact && now-bolsaImpact.start>=420) bolsaImpact=null;
+  if(taokImpact && now-taokImpact.start>=420) taokImpact=null;
+  if(game.phase==='ko'){specialEffects=[];return;}
+  let landed=false;
+  for(const sp of specialEffects){
+    if(sp.round!==game.round) continue;
+    const impactAt=sp.type==='bolsaPancada'?BOLSA_SUMMON_MS+BOLSA_FALL_MS:
+      sp.type==='taok'?750:sp.duration*.55;
+    if(!sp.hit && now-sp.start>=impactAt){sp.hit=true;applySpecialHit(sp,now);landed=true;}
+  }
+  if(landed) game.enterKO();
+  specialEffects=specialEffects.filter(sp=>game.phase!=='ko' &&
+    sp.round===game.round && now-sp.start<sp.duration);
+}
+
+function drawBolsaPancada(now,sp){
   if(sp?.type==='bolsaPancada'){
     const elapsed=now-sp.start;
     if(elapsed>=180 && !sp.hit){
@@ -1669,6 +1676,9 @@ function drawBolsaPancada(now){
       ctx.drawImage(images.bolsaGlove,sp.x-width/2,bottom-height,width,height);
     }
   }
+}
+
+function drawBolsaImpact(now){
   if(!bolsaImpact)return;
   const age=now-bolsaImpact.start;
   const t=Math.min(1,age/420);
@@ -1692,14 +1702,10 @@ function drawBolsaPancada(now){
 
 function startTaok(){
   const now=performance.now();
-  if(!ready || game.phase!=='ready' || specialEffect ||
-     lulaKnockback || bolsonaroKnockback ||
-     game.hp.l<=0 || game.hp.b<=0 || now<taokReadyAt)return;
-  taokReadyAt=now+TAOK_COOLDOWN_MS;
-  specialEffect={
-    type:'taok',side:'b',start:now,duration:TAOK_DURATION_MS,
-    originX:bolsonaroX,round:game.round,hit:false
-  };
+  if(!canStartSpecial('b',now,taokReadyAt)) return;
+  taokReadyAt=game.god.b?0:now+TAOK_COOLDOWN_MS;
+  specialEffects.push({type:'taok',side:'b',start:now,duration:TAOK_DURATION_MS,
+    originX:bolsonaroX,round:game.round,hit:false});
   $('message').textContent='BOLSONARO — TÁ OK!';
   // Voz exclusiva do megafone, independente do Hadouken azul.
   playSound('bolsonaroTaok');
@@ -1709,51 +1715,16 @@ function startTaok(){
 function updateTaokButton(now){
   const button=$('specialB');
   if(!button)return;
-  const seconds=Math.ceil(Math.max(0,taokReadyAt-now)/1000);
-  button.disabled=!ready || game.phase!=='ready' || !!specialEffect ||
-    !!lulaKnockback || !!bolsonaroKnockback ||
-    game.hp.l<=0 || game.hp.b<=0 || seconds>0;
+  const seconds=game.god.b?0:Math.ceil(Math.max(0,taokReadyAt-now)/1000);
+  button.disabled=!canStartSpecial('b',now,taokReadyAt);
   const span=button.querySelector('span');
-  if(span)span.textContent=seconds>0?'TÁ OK! · '+seconds+'s':'TÁ OK!';
-  button.title=seconds>0?'Recarga: '+seconds+'s':'P — TÁ OK! (25 HP; 1,4s)';
+  const label=seconds>0?'TÁ OK! · '+seconds+'s':'TÁ OK!';
+  if(span && span.textContent!==label)span.textContent=label;
+  button.title=game.god.b?'P — TÁ OK! (GOD: sem recarga)':
+    seconds>0?'Recarga: '+seconds+'s':'P — TÁ OK! (25 HP; 1,4s)';
 }
 
-function updateTaok(now){
-  if(taokRound!==game.round){
-    taokRound=game.round;
-    taokImpact=null;
-    if(specialEffect?.type==='taok')specialEffect=null;
-  }
-  if(taokImpact && now-taokImpact.start>=420)taokImpact=null;
-  const sp=specialEffect;
-  if(sp?.type!=='taok')return;
-  if(game.phase==='ko' || sp.round!==game.round ||
-     game.hp.l<=0 || game.hp.b<=0){
-    specialEffect=null;
-    return;
-  }
-  if(!sp.hit && now-sp.start>=750){
-    sp.hit=true;
-    const from=lulaX;
-    const to=Math.max(LULA_WALL_X,from-KNOCKBACK_DISTANCE);
-    lulaKnockback={start:now,duration:600,from,to};
-    lulaX=to;
-    if(shieldOn('l',now)){lulaKnockback=null;lulaX=from;shieldImpact('l',now);}
-    taokImpact={start:now,x:from};
-    if(shieldOn('l',now))shieldImpact('l',now);
-    else game.hp.l=Math.max(0,game.hp.l-TAOK_DAMAGE);
-    if(!shieldOn('l',now))playSound('lulaDano');
-    if(game.hp.l===0){
-      game.phase='ko';game.attack=null;game.hit=false;
-      game.winner='b';game.wins.b++;game.elapsed=0;
-      // Preserva o efeito do impacto durante o início do K.O.
-      specialEffect=null;
-    }
-  }
-}
-
-function drawTaok(now){
-  const sp=specialEffect;
+function drawTaok(now,sp){
   if(sp?.type==='taok'){
     const elapsed=now-sp.start;
     if(elapsed>=320 && elapsed<850){
@@ -1767,6 +1738,9 @@ function drawTaok(now){
       ctx.restore();
     }
   }
+}
+
+function drawTaokImpact(now){
   if(taokImpact){
     const elapsed=now-taokImpact.start;
     const p=Math.min(1,elapsed/420);
@@ -1954,7 +1928,7 @@ window.addEventListener('streetvote:debate-end',()=>{
     if(shieldUntil[side]>0)shieldUntil[side]+=elapsed;
     if(shieldImpactAt[side]>0)shieldImpactAt[side]+=elapsed;
   }
-  if(specialEffect)specialEffect.start+=elapsed;
+  for(const sp of specialEffects)sp.start+=elapsed;
   if(lulaKnockback)lulaKnockback.start+=elapsed;
   if(bolsonaroKnockback)bolsonaroKnockback.start+=elapsed;
   if(bolsaImpact?.start)bolsaImpact.start+=elapsed;
@@ -1981,114 +1955,20 @@ function frame(now){
   game.shieldActive.b=shieldOn('b',now);
   updateShieldButtons(now);
 
-  // Fim do knockback.
-  if(
-    lulaKnockback &&
-    now-lulaKnockback.start>=
-      lulaKnockback.duration
-  ){
-    lulaKnockback=null;
-  }
-
-  if(bolsonaroKnockback && now-bolsonaroKnockback.start>=bolsonaroKnockback.duration){
-    bolsonaroKnockback=null;
-  }
-
-  updateBolsaPancada(now);
-  updateTaok(now);
-
-  // Atualização dos especiais.
-  if(specialEffect){
-    const t=(
-      now-specialEffect.start
-    )/specialEffect.duration;
-
-    if(
-      specialEffect.type==='hadouken' &&
-      !specialEffect.hit &&
-      t>=0.55
-    ){
-      specialEffect.hit=true;
-
-      const from=lulaX;
-
-      const to=Math.max(
-        LULA_WALL_X,
-        from-KNOCKBACK_DISTANCE
-      );
-
-      lulaKnockback={
-        start:now,
-        duration:600,
-        from,
-        to
-      };
-
-      lulaX=to;
-      if(shieldOn('l',now)){lulaKnockback=null;lulaX=from;shieldImpact('l',now);}
-
-      if(!shieldOn('l',now))game.hp.l=Math.max(
-        0,
-        game.hp.l-HADOUKEN_DAMAGE
-      );
-
-      // Reação ao Hadouken é ocasional,
-      // para não cortar o grito do golpe.
-      if(!shieldOn('l',now))playSound('lulaDano');
-
-      if(game.hp.l===0){
-        game.phase='ko';
-        game.attack=null;
-        game.winner='b';
-        game.wins.b++;
-        game.elapsed=0;
-      }
-    }
-
-    if(
-      specialEffect?.type==='lulaHadouken' &&
-      !specialEffect.hit &&
-      t>=0.55
-    ){
-      specialEffect.hit=true;
-      const from=bolsonaroX;
-      const to=Math.min(BOLSONARO_WALL_X,from+KNOCKBACK_DISTANCE);
-      bolsonaroKnockback={start:now,duration:600,from,to};
-      bolsonaroX=to;
-      if(shieldOn('b',now)){bolsonaroKnockback=null;bolsonaroX=from;shieldImpact('b',now);}
-      if(!shieldOn('b',now))game.hp.b=Math.max(0,game.hp.b-HADOUKEN_DAMAGE);
-      if(!shieldOn('b',now))playSound('bolsonaroDano');
-      if(game.hp.b===0){
-        game.phase='ko';
-        game.attack=null;
-        game.hit=false;
-        game.winner='l';
-        game.wins.l++;
-        game.elapsed=0;
-      }
-    }
-
-    if(t>=1){
-      specialEffect=null;
-    }
-  }
-
-  // A fila de votos continua
-  // durante os especiais.
-  if(
-    ready &&
-    !specialEffect
-  ){
-    const beforeHit=game.hit;
-    const beforePhase=game.phase;
-    const beforeAttack=game.attack;
-    game.advance(dt);
-    // Detecta o golpe normal bloqueado, mesmo quando a vida não muda.
+  updateSpecialEffects(now);
+  if(ready){
+    const beforeHit=game.hit, beforePhase=game.phase, beforeAttack=game.attack;
+    const blockedBefore={...game.godBlockedHits};
+    game.advance(dt,{pauseNormal:specialEffects.length>0});
     if(game.hit && (!beforeHit || beforePhase!=='attack')){
       const attacking=game.attack||beforeAttack;
       if((attacking==='b'||attacking==='both')&&shieldOn('l',now))shieldImpact('l',now);
       if((attacking==='l'||attacking==='both')&&shieldOn('b',now))shieldImpact('b',now);
     }
+    for(const side of ['l','b']){
+      if(game.godBlockedHits[side]>blockedBefore[side])shieldImpact(side,now);
+    }
+    if(game.phase==='ko') specialEffects=[];
   }
 
 updateFightAudio(now);
@@ -2139,62 +2019,27 @@ $('attackB').onclick=()=>{
 };
 
 // W - Hadouken vermelho do Lula.
-$('shoryukenL').onclick=()=>{
-  if(
-    !ready ||
-    game.phase!=='ready' ||
-    specialEffect ||
-    lulaKnockback ||
-    bolsonaroKnockback
-  ){
-    return;
-  }
-
-  specialEffect={
-    type:'lulaHadouken',
-    side:'l',
-    start:performance.now(),
-    duration:850,
-    originX:lulaX,
-    hit:false,
-    round:game.round
-  };
-
-  // Apenas 35% de chance de falar.
-  playSound('lulaHadouken');
-};
+function startHadouken(side){
+  const now=performance.now();
+  if(!canStartSpecial(side,now)) return;
+  specialEffects.push({type:side==='l'?'lulaHadouken':'hadouken',side,
+    start:now,duration:850,originX:side==='l'?lulaX:bolsonaroX,
+    hit:false,round:game.round});
+  playSound(side==='l'?'lulaHadouken':'bolsonaroEspecial');
+}
+$('shoryukenL').onclick=()=>startHadouken('l');
 
 // E - Bolsa Pancada do Lula.
 $('specialL').onclick=startBolsaPancada;
 
 // O - Hadouken do Bolsonaro.
-$('hadoukenB').onclick=()=>{
-  if(
-    !ready ||
-    game.phase!=='ready' ||
-    specialEffect ||
-    lulaKnockback ||
-    bolsonaroKnockback
-  ){
-    return;
-  }
-
-  specialEffect={
-    type:'hadouken',
-    side:'b',
-    start:performance.now(),
-    duration:850,
-    hit:false,
-    originX:bolsonaroX,
-    round:game.round
-  };
-
-  // SEMPRE fala no Hadouken.
-  playSound('bolsonaroEspecial');
-};
+$('hadoukenB').onclick=()=>startHadouken('b');
 
 // P - Especial TÁ OK! do Bolsonaro.
 $('specialB').onclick=startTaok;
+$('godL').onclick=()=>setGod('l',!game.god.l);
+$('godB').onclick=()=>setGod('b',!game.god.b);
+updateGodControls();
 
 // ========================================
 // ATALHOS DO TECLADO
@@ -2229,7 +2074,9 @@ document.addEventListener(
       e:'specialL',
       i:'attackB',
       o:'hadoukenB',
-      p:'specialB'
+      p:'specialB',
+      r:'godL',
+      u:'godB'
     };
 
     const id=shortcuts[
@@ -2249,12 +2096,13 @@ document.addEventListener(
 
 function resetLocalFight(){
   game.reset();
+  updateGodControls();
 
   lulaX=290;
   lulaKnockback=null;
   bolsonaroX=670;
   bolsonaroKnockback=null;
-  specialEffect=null;
+  specialEffects=[];
   bolsaImpact=null;
   bolsaReadyAt=0;
   shieldUntil.l=0;shieldUntil.b=0;
