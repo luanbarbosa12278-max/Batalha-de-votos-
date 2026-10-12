@@ -85,3 +85,29 @@ main {
     font-size: 20px;
   }
 }
+
+/* ===== Arcade mobile / fullscreen ===== */
+.mobile-arcade-bar{display:flex;align-items:center;justify-content:center;gap:16px;margin:14px 0;color:#ffce65;font:bold 11px monospace}
+#arcadeFullscreen{background:#f4b83e;color:#131824;border:2px solid #fff0a4;font-weight:900;min-height:48px}
+.arcade-topbar,.arcade-touch-controls{display:none}
+#arcadeArena:fullscreen,#arcadeArena.arcade-fallback-fullscreen{background:#080e1b;width:100vw;height:100dvh;max-width:none;display:flex;flex-direction:column;align-items:stretch;justify-content:center;padding:0;margin:0;overflow:hidden;gap:0}
+#arcadeArena:fullscreen>.fight-controls,#arcadeArena.arcade-fallback-fullscreen>.fight-controls{display:none!important}
+#arcadeArena:fullscreen>.cabinet,#arcadeArena.arcade-fallback-fullscreen>.cabinet{width:100%;max-width:none;min-width:0;margin:auto 0;position:relative;display:flex;flex-direction:column;justify-content:center;flex:1;overflow:hidden}
+#arcadeArena:fullscreen .hud,#arcadeArena.arcade-fallback-fullscreen .hud{flex:none;padding:5px 12px;z-index:3}
+#arcadeArena:fullscreen .stage,#arcadeArena.arcade-fallback-fullscreen .stage{width:100%;min-height:0;flex:1;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#080e1b}
+#arcadeArena:fullscreen canvas,#arcadeArena.arcade-fallback-fullscreen canvas{width:auto;max-width:100%;height:auto;max-height:100%;object-fit:contain;aspect-ratio:16/9}
+#arcadeArena:fullscreen .ticker,#arcadeArena.arcade-fallback-fullscreen .ticker{padding:4px 10px;min-height:26px;flex:none;font-size:10px}
+#arcadeArena:fullscreen .arcade-topbar,#arcadeArena.arcade-fallback-fullscreen .arcade-topbar{display:flex;position:absolute;top:4px;left:50%;transform:translateX(-50%);gap:8px;z-index:20}
+.arcade-topbar button{min-height:35px;padding:7px 12px;border:2px solid #f8c657;background:#18263ce8;color:#fff4c4;font:900 12px monospace;border-radius:8px}
+#arcadeArena:fullscreen .arcade-touch-controls,#arcadeArena.arcade-fallback-fullscreen .arcade-touch-controls{display:flex;flex-direction:column;align-items:center;gap:6px;position:absolute;bottom:34px;right:12px;z-index:15;pointer-events:none}
+.arcade-fighter-tag{font:900 11px monospace;color:#fff;background:#10182bc9;padding:5px 10px;border:1px solid #ffce65;border-radius:8px}
+.arcade-actions{display:flex;align-items:end;gap:9px;pointer-events:auto}
+.arcade-action{width:78px;height:78px;min-height:0;padding:6px 3px;border:3px solid #fff6a2;border-radius:50%;background:linear-gradient(150deg,#a32e3b,#5a1627);box-shadow:0 3px 0 #2b1019,0 0 18px #000b;color:white;font-size:26px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;touch-action:manipulation;user-select:none}
+.arcade-action span{font:900 9px/1.1 monospace;max-width:72px;overflow-wrap:anywhere;text-align:center}
+.arcade-power{background:linear-gradient(150deg,#2963ad,#172d65)}
+.arcade-special{background:linear-gradient(150deg,#ad7420,#714016)}
+.arcade-action:disabled{opacity:.38}
+body.arcade-playing{overflow:hidden}
+#arcadeArena.arcade-fallback-fullscreen{position:fixed;inset:0;z-index:999999}
+@media(max-width:700px){.mobile-arcade-bar{flex-wrap:wrap}.arcade-action{width:64px;height:64px;font-size:21px}.arcade-action span{font-size:8px}.arcade-actions{gap:6px}#arcadeArena:fullscreen .arcade-touch-controls,#arcadeArena.arcade-fallback-fullscreen .arcade-touch-controls{right:7px;bottom:29px}#arcadeArena:fullscreen .arcade-topbar,#arcadeArena.arcade-fallback-fullscreen .arcade-topbar{top:2px}#arcadeArena:fullscreen .hud,#arcadeArena.arcade-fallback-fullscreen .hud{padding-top:32px}}
+@media(orientation:portrait){#arcadeArena:fullscreen .stage,#arcadeArena.arcade-fallback-fullscreen .stage{flex:0 1 auto}#arcadeArena:fullscreen .arcade-touch-controls,#arcadeArena.arcade-fallback-fullscreen .arcade-touch-controls{bottom:13%;right:50%;transform:translateX(50%)}#arcadeArena:fullscreen .arcade-topbar,#arcadeArena.arcade-fallback-fullscreen .arcade-topbar{top:10px}}
