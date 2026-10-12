@@ -1377,7 +1377,7 @@
         <button id="arcadeSwitch" type="button" aria-label="Trocar lutador">⇄ BOLSONARO</button>
       </div>
       <div class="stage">
-        <span class="arcade-version" aria-label="Versão do jogo">v1.5.4</span>
+        <span class="arcade-version" aria-label="Versão do jogo">v1.5.5</span>
         <canvas
           id="game"
           width="960"
@@ -2111,6 +2111,28 @@
  #arcadeArena.arcade-fallback-fullscreen .arcade-topbar button{font-size:6px!important;padding:6px 7px!important;}
 }
 </style>
+
+<style id="arcade-controls-below-hud-v155">
+/* Botões de sistema flutuam na ARENA, logo abaixo da HUD. */
+#arcadeArena:fullscreen .hud,
+#arcadeArena.arcade-fallback-fullscreen .hud{
+ padding-top:3px!important;
+}
+#arcadeArena:fullscreen .arcade-topbar,
+#arcadeArena.arcade-fallback-fullscreen .arcade-topbar{
+ top:var(--arcade-controls-top,125px)!important;
+ bottom:auto!important;
+}
+#arcadeArena:fullscreen .arcade-fighter-tag,
+#arcadeArena.arcade-fallback-fullscreen .arcade-fighter-tag{
+ top:var(--arcade-controls-top,125px)!important;
+ bottom:auto!important;
+}
+@media (orientation:landscape) and (max-height:500px){
+ #arcadeArena:fullscreen .hud,
+ #arcadeArena.arcade-fallback-fullscreen .hud{padding-top:2px!important;}
+}
+</style>
 <!-- SCRIPT ORIGINAL DO JOGO -->
 <script type="module" src="./src/game.js"></script>
 
@@ -2126,9 +2148,18 @@
   let side='l';
   let fallback=false;
   const actions={l:{punch:'attackL',power:'shoryukenL',special:'specialL'},b:{punch:'attackB',power:'hadoukenB',special:'specialB'}};
+  function positionTopControls(){
+    const hud=arena.querySelector('.hud');
+    if(!hud)return;
+    const bottom=hud.getBoundingClientRect().bottom;
+    arena.style.setProperty('--arcade-controls-top',Math.ceil(bottom+8)+'px');
+  }
+  window.addEventListener('resize',positionTopControls);
+  if(window.ResizeObserver){new ResizeObserver(positionTopControls).observe(arena.querySelector('.hud'));}
   function render(){
     arena.classList.toggle('arcade-fallback-fullscreen',fallback);
     const active=!!document.fullscreenElement||fallback;
+    requestAnimationFrame(positionTopControls);
     document.body.classList.toggle('arcade-playing',active);
     full.textContent=active?'✕ SAIR DA TELA CHEIA':'⛶ TELA CHEIA';
     tag.textContent=side==='l'?'🔴 LULA':'🟢 BOLSONARO';
