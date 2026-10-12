@@ -1632,7 +1632,7 @@ function updateBolsaPancada(now){
     const to=Math.min(BOLSONARO_WALL_X,from+KNOCKBACK_DISTANCE);
     bolsonaroKnockback={start:now,duration:600,from,to};
     bolsonaroX=to;
-    if(shieldOn('b',now)){bolsonaroKnockback=null;bolsonaroX=from;}
+    if(shieldOn('b',now)){bolsonaroKnockback=null;bolsonaroX=from;shieldImpact('b',now);}
     if(!shieldOn('b',now))playSound('bolsonaroDano');
 
     // O mesmo estado de K.O. usado pelos outros golpes mantém
@@ -1738,7 +1738,7 @@ function updateTaok(now){
     const to=Math.max(LULA_WALL_X,from-KNOCKBACK_DISTANCE);
     lulaKnockback={start:now,duration:600,from,to};
     lulaX=to;
-    if(shieldOn('l',now)){lulaKnockback=null;lulaX=from;}
+    if(shieldOn('l',now)){lulaKnockback=null;lulaX=from;shieldImpact('l',now);}
     taokImpact={start:now,x:from};
     if(shieldOn('l',now))shieldImpact('l',now);
     else game.hp.l=Math.max(0,game.hp.l-TAOK_DAMAGE);
@@ -1852,8 +1852,10 @@ function drawShields(now){
       ctx.imageSmoothingEnabled=false;
       // Abertura transparente alinhada ao corpo, sem cobrir o personagem.
       // Brilho sutil ao ativar, impacto mais visível e fade de saída.
-      const activationGlow=reduceMotion?0:Math.max(0,1-elapsed/380);
-      ctx.globalAlpha*=Math.min(.78,.54+activationGlow*.12+hit*.19);
+      // Fora do impacto fica translúcido; no impacto atinge 100% de opacidade.
+      // O brilho permanece no máximo por um instante e volta suavemente.
+      const impactOpacity=hit>0 ? (hit>.65 ? 1 : .54+(hit/.65)*.46) : .54;
+      ctx.globalAlpha*=impactOpacity;
 
       ctx.drawImage(shieldArt,-154-wobble/2,-248-wobble/2,308+wobble,434+wobble);
       ctx.globalAlpha=fade;
@@ -2049,7 +2051,16 @@ function frame(now){
     ready &&
     !specialEffect
   ){
+    const beforeHit=game.hit;
+    const beforePhase=game.phase;
+    const beforeAttack=game.attack;
     game.advance(dt);
+    // Detecta o golpe normal bloqueado, mesmo quando a vida não muda.
+    if(game.hit && (!beforeHit || beforePhase!=='attack')){
+      const attacking=game.attack||beforeAttack;
+      if((attacking==='b'||attacking==='both')&&shieldOn('l',now))shieldImpact('l',now);
+      if((attacking==='l'||attacking==='both')&&shieldOn('b',now))shieldImpact('b',now);
+    }
   }
 
 updateFightAudio(now);
