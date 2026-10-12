@@ -811,10 +811,16 @@ x+=dashDirection*reach*Math.max(
   }
 
   if(!knockbackBlink){
+    // As poses do Bolsa Pancada têm enquadramentos mais largos.
+    // Amplia apenas o Lula durante o especial, mantendo os pés
+    // alinhados ao chão e sem mudar os outros golpes.
+    const bolsaScale=side==='l' && sp?.type==='bolsaPancada' ? 1.3 : 1;
     ctx.drawImage(
       sprite,
-      -140,
-      -240
+      -140*bolsaScale,
+      16-256*bolsaScale,
+      280*bolsaScale,
+      256*bolsaScale
     );
   }
 
