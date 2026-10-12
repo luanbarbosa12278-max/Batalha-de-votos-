@@ -1913,6 +1913,13 @@ function drawShields(now){
 // LOOP PRINCIPAL
 // ========================================
 
+// Finalizacao do debate: hit kill somente apos a descarga, nunca ao pular.
+window.addEventListener('streetvote:debate-hitkill',()=>{
+  if(game.phase==='ko')return;
+  game.hp.b=0;
+  game.enterKO();
+  updateHUD();
+});
 let debatePauseStart=0;
 window.addEventListener('streetvote:debate-start',()=>{
   if(debatePauseStart)return;
