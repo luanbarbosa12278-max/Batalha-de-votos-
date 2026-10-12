@@ -68,6 +68,20 @@ export class Fight {
         if (!side) return;
         this.phase='attack'; this.attack=side; this.elapsed=0; this.hit=false; this.bothAttack=side==='both';
       }
+      // Se o rival atacar antes do impacto, os dois golpes acertam juntos.
+      if(this.phase==='attack' && !this.hit && this.attack!=='both'){
+        const other=this.attack==='l'?'b':'l';
+        const batch=this.batches[this.head];
+        if(batch && batch[other]>0){
+          batch[other]--; this.pending--;
+          if(!batch.l&&!batch.b){
+            this.head++;
+            if(this.head>128){this.batches=this.batches.slice(this.head);this.head=0;}
+          }
+          this.attack='both';
+          this.bothAttack=true;
+        }
+      }
       const duration=this.phase==='ko'?KO_MS:ATTACK_MS;
       const step=Math.min(dt,duration-this.elapsed);
       this.elapsed+=step; dt-=step;
