@@ -847,7 +847,33 @@ function paint(time){
       ctx.restore();
     }
   }
+// Hadouken vermelho do Lula.
+if(
+  specialEffect?.type==='lulaHadouken'
+){
+  const t=Math.min(
+    1,
+    (time-specialEffect.start)/specialEffect.duration
+  );
 
+  if(t>=0.12){
+    const progress=(t-0.12)/0.88;
+
+    // Sai do Lula e vai para a direita.
+    const x=lulaX+100+progress*520;
+
+    ctx.save();
+
+    ctx.translate(x,290);
+
+    ctx.drawImage(
+      images.lulaHadouken,
+      -125,-80,250,160
+    );
+
+    ctx.restore();
+  }
+}
   drawBolsaPancada(time);
   ctx.restore();
 
