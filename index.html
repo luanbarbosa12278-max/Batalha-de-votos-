@@ -1667,7 +1667,7 @@ body:not(.arcade-playing) textarea {
         <button id="arcadeSwitch" type="button" aria-label="Trocar lutador">⇄ BOLSONARO</button>
       </div>
       <div class="stage">
-        <span class="arcade-version" aria-label="Versão do jogo">v1.5.30</span>
+        <span class="arcade-version" aria-label="Versão do jogo">v1.5.31</span>
         <canvas
           id="game"
           width="960"
@@ -2553,7 +2553,7 @@ if(running&&serial===id)stop();
 }
 launch.addEventListener('click',start);overlay.querySelector('#debateSkip').addEventListener('click',stop);
 window.streetVoteDebate=start;window.streetVoteSkipDebate=stop;
-document.addEventListener('keydown',e=>{if(running){if(e.key==='Escape'){e.preventDefault();e.stopImmediatePropagation();stop()}else if(e.key!=='Tab'){e.preventDefault();e.stopImmediatePropagation()}return}if(e.key.toLowerCase()==='d'&&!e.repeat&&!e.ctrlKey&&!e.altKey&&!e.metaKey&&!e.target.closest('input,textarea,select,[contenteditable="true"]'))){e.preventDefault();start()}},true);
+document.addEventListener('keydown',e=>{if(running){if(e.key==='Escape'){e.preventDefault();e.stopImmediatePropagation();stop()}else if(e.key!=='Tab'){e.preventDefault();e.stopImmediatePropagation()}return}if(e.key.toLowerCase()==='d'&&!e.repeat&&!e.ctrlKey&&!e.altKey&&!e.metaKey&&!e.target.closest('input,textarea,select,[contenteditable="true"]')){e.preventDefault();start()}},true);
 arena.addEventListener('click',e=>{if(running&&!e.target.closest('#debateSkip')){e.preventDefault();e.stopImmediatePropagation()}},true);
 })();
 </script></body>
