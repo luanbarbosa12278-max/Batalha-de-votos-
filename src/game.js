@@ -817,7 +817,12 @@ x+=dashDirection*reach*Math.max(
     // A pose com o braço estendido ocupa mais altura no PNG e a
     // normalização padrão (180px) faz o corpo parecer miniatura.
     // Mantém a escala fixa durante TODAS as etapas do especial.
-    const bolsaScale=side==='l' && sp?.type==='bolsaPancada' ? 1.7 : 1;
+    const bolsaAge=sp?.type==='bolsaPancada'?time-sp.start:0;
+    // A pose final tem proporções normais; as poses de braço erguido
+    // precisam de compensação moderada pelo espaço extra acima da cabeça.
+    const bolsaScale=side==='l' && sp?.type==='bolsaPancada'
+      ? (bolsaAge<190?1.25:bolsaAge<790?1.38:1.0)
+      : 1;
     ctx.drawImage(
       sprite,
       -140*bolsaScale,
