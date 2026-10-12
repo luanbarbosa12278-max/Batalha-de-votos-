@@ -425,6 +425,12 @@ const KNOCKBACK_DISTANCE=95;
 const LULA_WALL_X=100;
 const BOLSONARO_WALL_X=860;
 const HADOUKEN_DAMAGE=20;
+const TAOK_DAMAGE=25;
+const TAOK_COOLDOWN_MS=5000;
+const TAOK_DURATION_MS=1100;
+let taokReadyAt=0;
+let taokImpact=null;
+let taokRound=game.round;
 
 let lulaX=290;
 let lulaKnockback=null;
@@ -498,6 +504,12 @@ async function loadAssets(){
 lulaVictory:
   './assets/fighters/lula-victory.png',
 
+taokPrepare:'./assets/fighters/bolsonaro-taok-preparo.png',
+      taokShout:'./assets/fighters/bolsonaro-taok-grito.png',
+      taokFinal:'./assets/fighters/bolsonaro-taok-final.png',
+      taokWave:'./assets/fighters/taok-onda.png',
+      taokBurst:'./assets/fighters/taok-impacto.png',
+
 bolsonaroVictory:
   './assets/fighters/bolsonaro-victory.png'
   };
@@ -510,7 +522,9 @@ bolsonaroVictory:
           images[key]=(
             key==='arena' ||
             key==='hadouken' ||
-            key==='lulaHadouken'
+            key==='lulaHadouken' ||
+            key==='taokWave' ||
+            key==='taokBurst'
           )
             ?img
             :normalizeSprite(img,{cropOnly:key==='bolsaGlove'});
@@ -539,7 +553,8 @@ bolsonaroVictory:
       'attackB',
       'shoryukenL',
       'specialL',
-      'hadoukenB'
+      'hadoukenB',
+      'specialB'
     ]){
       const button=$(id);
 
@@ -602,7 +617,10 @@ function fighter(side,time){
       )
     );
 
-    if(sp.type==='lulaHadouken'){
+    if(sp.type==='taok'){
+      const age=time-sp.start;
+      sprite=age<200?images.taokPrepare:age<850?images.taokShout:images.taokFinal;
+    }else if(sp.type==='lulaHadouken'){
       sprite=images.lulaHadoukenPose;
 
     }else if(sp.type==='hadouken'){
@@ -814,8 +832,9 @@ function paint(time){
 
   ctx.save();
   // Tremor curto em passos inteiros para preservar o visual pixelado.
-  if(bolsaImpact && !reduceMotion){
-    const elapsed=time-bolsaImpact.start;
+  const shakeImpact=(taokImpact && time-taokImpact.start<320)?taokImpact:bolsaImpact;
+  if(shakeImpact && !reduceMotion){
+    const elapsed=time-shakeImpact.start;
     const strength=8*Math.max(0,1-elapsed/220);
     ctx.translate(
       Math.round(Math.sin(elapsed*.18)*strength),
@@ -942,6 +961,7 @@ if(
   }
 }
   drawBolsaPancada(time);
+  drawTaok(time);
   ctx.restore();
 
   // Tela de K.O.
@@ -1649,6 +1669,94 @@ function drawBolsaPancada(now){
   ctx.restore();
 }
 
+
+function startTaok(){
+  const now=performance.now();
+  if(!ready || game.phase!=='ready' || specialEffect ||
+     lulaKnockback || bolsonaroKnockback ||
+     game.hp.l<=0 || game.hp.b<=0 || now<taokReadyAt)return;
+  taokReadyAt=now+TAOK_COOLDOWN_MS;
+  specialEffect={
+    type:'taok',side:'b',start:now,duration:TAOK_DURATION_MS,
+    originX:bolsonaroX,round:game.round,hit:false
+  };
+  $('message').textContent='BOLSONARO — TÁ OK!';
+  // Aproveita o grupo de efeitos existente, sem exigir um MP3 novo.
+  playSound('bolsonaroEspecial');
+  updateTaokButton(now);
+}
+
+function updateTaokButton(now){
+  const button=$('specialB');
+  if(!button)return;
+  const seconds=Math.ceil(Math.max(0,taokReadyAt-now)/1000);
+  button.disabled=!ready || game.phase!=='ready' || !!specialEffect ||
+    !!lulaKnockback || !!bolsonaroKnockback ||
+    game.hp.l<=0 || game.hp.b<=0 || seconds>0;
+  const span=button.querySelector('span');
+  if(span)span.textContent=seconds>0?'TÁ OK! · '+seconds+'s':'TÁ OK!';
+  button.title=seconds>0?'Recarga: '+seconds+'s':'P — TÁ OK! (25 HP; 5s)';
+}
+
+function updateTaok(now){
+  if(taokRound!==game.round){
+    taokRound=game.round;
+    taokImpact=null;
+    if(specialEffect?.type==='taok')specialEffect=null;
+  }
+  if(taokImpact && now-taokImpact.start>=420)taokImpact=null;
+  const sp=specialEffect;
+  if(sp?.type!=='taok')return;
+  if(game.phase==='ko' || sp.round!==game.round ||
+     game.hp.l<=0 || game.hp.b<=0){
+    specialEffect=null;
+    return;
+  }
+  if(!sp.hit && now-sp.start>=750){
+    sp.hit=true;
+    const from=lulaX;
+    const to=Math.max(LULA_WALL_X,from-KNOCKBACK_DISTANCE);
+    lulaKnockback={start:now,duration:600,from,to};
+    lulaX=to;
+    taokImpact={start:now,x:from};
+    game.hp.l=Math.max(0,game.hp.l-TAOK_DAMAGE);
+    playSound('lulaDano');
+    if(game.hp.l===0){
+      game.phase='ko';game.attack=null;game.hit=false;
+      game.winner='b';game.wins.b++;game.elapsed=0;
+      // Preserva o efeito do impacto durante o início do K.O.
+      specialEffect=null;
+    }
+  }
+}
+
+function drawTaok(now){
+  const sp=specialEffect;
+  if(sp?.type==='taok'){
+    const elapsed=now-sp.start;
+    if(elapsed>=320 && elapsed<850){
+      const progress=Math.min(1,(elapsed-320)/430);
+      const x=sp.originX-110-progress*(sp.originX-LULA_WALL_X-15);
+      const w=310,h=145;
+      ctx.save();
+      ctx.imageSmoothingEnabled=false;
+      ctx.drawImage(images.taokWave,Math.round(x-w/2),255-h/2,w,h);
+      ctx.restore();
+    }
+  }
+  if(taokImpact){
+    const elapsed=now-taokImpact.start;
+    const p=Math.min(1,elapsed/420);
+    ctx.save();
+    ctx.globalAlpha=1-p;
+    const size=195+Math.round(p*110);
+    ctx.drawImage(images.taokBurst,
+      Math.round(taokImpact.x-size/2),
+      Math.round(315-size/2),size,size);
+    ctx.restore();
+  }
+}
+
 // ========================================
 // LOOP PRINCIPAL
 // ========================================
@@ -1677,6 +1785,7 @@ function frame(now){
   }
 
   updateBolsaPancada(now);
+  updateTaok(now);
 
   // Atualização dos especiais.
   if(specialEffect){
@@ -1766,6 +1875,7 @@ paint(now);
 drawVictoryScreen(now);
 updateHUD();
 updateBolsaButton(now);
+updateTaokButton(now);
 
   requestAnimationFrame(frame);
 }
@@ -1862,6 +1972,9 @@ $('hadoukenB').onclick=()=>{
   playSound('bolsonaroEspecial');
 };
 
+// P - Especial TÁ OK! do Bolsonaro.
+$('specialB').onclick=startTaok;
+
 // ========================================
 // ATALHOS DO TECLADO
 // ========================================
@@ -1894,7 +2007,8 @@ document.addEventListener(
       w:'shoryukenL',
       e:'specialL',
       i:'attackB',
-      o:'hadoukenB'
+      o:'hadoukenB',
+      p:'specialB'
     };
 
     const id=shortcuts[
@@ -1923,7 +2037,11 @@ function resetLocalFight(){
   bolsaImpact=null;
   bolsaReadyAt=0;
   bolsaRound=game.round;
+  taokReadyAt=0;
+  taokImpact=null;
+  taokRound=game.round;
   updateBolsaButton(performance.now());
+  updateTaokButton(performance.now());
 
   statusRound=0;
   statusAttack=null;
