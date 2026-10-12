@@ -447,6 +447,9 @@ async function loadAssets(){
       hadouken:
         './assets/fighters/hadouken-blue.png',
 
+      lulaHadouken:
+  './assets/fighters/hadouken-red.png',
+
       shoryuken:
         './assets/fighters/lula-shoryuken.png',
 
