@@ -10,7 +10,7 @@
   <title>Street Vote Fighter | Arcade ao vivo</title>
 
   <!-- CSS ORIGINAL DO JOGO -->
-  <link rel="stylesheet" href="./src/style.css">
+  <link rel="stylesheet" href="./src/style.css?v=fullscreen-fix-3">
 
   <!-- FONTE PIXEL ART -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1723,6 +1723,13 @@
 })();
 </script>
 
+
+<style id="fullscreen-floor-fix">
+/* Forca tamanho real do canvas dentro da area visivel, inclusive Android paisagem */
+#arcadeArena:fullscreen .stage, #arcadeArena.arcade-fallback-fullscreen .stage {position:relative!important; min-height:0!important; flex:1 1 0!important; overflow:hidden!important;}
+#arcadeArena:fullscreen #game, #arcadeArena.arcade-fallback-fullscreen #game {position:absolute!important; inset:0!important; width:100%!important; height:100%!important; max-width:100%!important; max-height:100%!important; aspect-ratio:auto!important; object-fit:contain!important; image-rendering:pixelated!important;}
+#arcadeArena:fullscreen .cabinet, #arcadeArena.arcade-fallback-fullscreen .cabinet {min-height:0!important;}
+</style>
 <!-- SCRIPT ORIGINAL DO JOGO -->
 <script type="module" src="./src/game.js"></script>
 
