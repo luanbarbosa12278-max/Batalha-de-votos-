@@ -1297,6 +1297,64 @@
   z-index:2!important;
 }
 </style>
+
+<style id="svf-brasil-arcade-polish-v1510">
+/* Polimento visual: somente interface. Não modifica canvas, hitboxes ou lógica. */
+:root { --br-verde:#18a96c; --br-amarelo:#ffd447; --br-azul:#2872c7; --br-escuro:#07152a; }
+body:not(.arcade-playing) .masthead {
+  border-bottom:4px solid var(--br-amarelo)!important;
+  background:linear-gradient(90deg,#102a2b 0%,#11233a 50%,#183524 100%)!important;
+  box-shadow:0 5px 0 #07101b,0 9px 0 #167c51!important;
+}
+body:not(.arcade-playing) .brand {
+  color:#ffe178!important;
+  text-shadow:3px 3px 0 #07101b,5px 5px 0 #137849!important;
+}
+body:not(.arcade-playing) .edition {
+  color:#f8e4a1!important;
+}
+body:not(.arcade-playing) .intro .eyebrow {
+  color:#ffe178!important;
+  text-shadow:2px 2px 0 #102f29;
+}
+body:not(.arcade-playing) .intro h1 {
+  filter:drop-shadow(0 5px 0 #08653e);
+}
+body:not(.arcade-playing) .cabinet {
+  box-shadow:0 0 0 3px #ffd447,0 0 0 7px #13784c,9px 11px 0 #030b15!important;
+}
+body:not(.arcade-playing) .ticker {
+  background:repeating-linear-gradient(90deg,#132e36 0 24px,#163c3c 24px 48px)!important;
+  border-top:4px solid #ffd447!important;
+}
+body:not(.arcade-playing) .fight-controls button:not(:disabled) {
+  transition:filter .12s ease,box-shadow .12s ease!important;
+  box-shadow:inset 3px 3px 0 #ffffff35,inset -4px -4px 0 #0008,4px 4px 0 #080e18!important;
+}
+body:not(.arcade-playing) .fight-controls button:not(:disabled):hover {
+  filter:brightness(1.14) saturate(1.12);
+}
+body:not(.arcade-playing) .fight-controls button:not(:disabled):active {
+  box-shadow:inset 3px 3px 0 #0008,1px 1px 0 #080e18!important;
+}
+#arcadeArena button:focus-visible,
+button:focus-visible,
+a:focus-visible {
+  outline:3px solid #ffeb6c!important;
+  outline-offset:4px!important;
+}
+body:not(.arcade-playing) .scoreboard {
+  border-color:#ffd447;
+}
+@media (max-width:700px) {
+  body:not(.arcade-playing) .masthead {padding-inline:10px!important}
+  body:not(.arcade-playing) .brand {font-size:clamp(13px,4vw,22px)!important}
+  body:not(.arcade-playing) .intro h1 {filter:drop-shadow(0 3px 0 #08653e)}
+}
+@media (prefers-reduced-motion:reduce) {
+  body:not(.arcade-playing) .fight-controls button {transition:none!important}
+}
+</style>
 </head>
 
 <body>
@@ -1412,7 +1470,7 @@
         <button id="arcadeSwitch" type="button" aria-label="Trocar lutador">⇄ BOLSONARO</button>
       </div>
       <div class="stage">
-        <span class="arcade-version" aria-label="Versão do jogo">v1.5.9</span>
+        <span class="arcade-version" aria-label="Versão do jogo">v1.5.10</span>
         <canvas
           id="game"
           width="960"
