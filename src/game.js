@@ -982,6 +982,17 @@ if(
 // HUD E PLACAR
 // ========================================
 
+// HP anterior exclusivo dos efeitos visuais do HUD.
+const previousHudHP={l:game.hp.l,b:game.hp.b};
+for(const side of ['l','b']){
+  const panel=$('hp'+(side==='l'?'L':'B'))?.closest('.player');
+  if(panel){
+    panel.addEventListener('animationend',event=>{
+      if(event.animationName==='hud-impact')panel.classList.remove('damage-hit');
+    });
+  }
+}
+
 function updateHUD(){
   const key=[
     game.hp.l,
@@ -1003,8 +1014,23 @@ function updateHUD(){
       ['l','L'],
       ['b','B']
     ]){
+      const hp=Math.max(0,Math.min(100,game.hp[side]));
+      const lifeLabel=$('life'+id);
+      if(lifeLabel)lifeLabel.textContent='HP '+Math.round(hp)+'/100';
+
+      // Pisca e treme somente ao perder HP, não ao reiniciar o round.
+      if(hp<previousHudHP[side]){
+        const panel=$('hp'+id).closest('.player');
+        if(panel){
+          panel.classList.remove('damage-hit');
+          void panel.offsetWidth;
+          panel.classList.add('damage-hit');
+        }
+      }
+      previousHudHP[side]=hp;
+
       $('hp'+id).style.width=
-        game.hp[side]+'%';
+        hp+'%';
 
       $('hp'+id)
         .parentElement
