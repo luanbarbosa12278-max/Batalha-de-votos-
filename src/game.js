@@ -526,7 +526,8 @@ bolsonaroVictory:
     try{
       images.lulaHadoukenPose=normalizeSprite(await loadImage('./assets/fighters/lula-hadouken.png'));
     }catch(error){
-      images.lulaHadoukenPose=images.l;
+      // Enquanto a nova pose não for enviada, usa a pose de soco.
+      images.lulaHadoukenPose=images.lulaPunch || images.l;
     }
 
     ready=true;
