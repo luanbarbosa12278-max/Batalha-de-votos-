@@ -1514,6 +1514,21 @@ body:not(.arcade-playing) textarea {
 }
 @media(prefers-reduced-motion:reduce){.shield-live.shield-on{animation:none!important}}
 </style>
+<style id="svf-final-polish-v1526">
+/* Acabamento arcade final: feedback claro sem comprometer a arena. */
+.shield-live{transition:filter .16s ease,transform .12s ease,box-shadow .16s ease!important}
+.shield-live:active{transform:translate(2px,2px)!important;filter:brightness(1.35)!important}
+.shield-live:focus-visible,.arcade-action:focus-visible{outline:3px solid #fff4a1!important;outline-offset:3px!important}
+.shield-live.shield-on{box-shadow:inset 2px 2px #ffffff70,0 0 0 2px #fff8,0 0 15px #75e9ff99!important}
+.shield-b.shield-on{box-shadow:inset 2px 2px #ffffff70,0 0 0 2px #fff8,0 0 15px #ffdd6499!important}
+#arcadeArena:fullscreen .arcade-action:not(:disabled),
+#arcadeArena.arcade-fallback-fullscreen .arcade-action:not(:disabled){transition:filter .12s ease,transform .1s ease!important}
+#arcadeArena:fullscreen .arcade-action:not(:disabled):active,
+#arcadeArena.arcade-fallback-fullscreen .arcade-action:not(:disabled):active{filter:brightness(1.28) saturate(1.15)!important}
+@media(prefers-reduced-motion:reduce){
+ .shield-live,.arcade-action{transition:none!important}
+}
+</style>
 </head>
 
 <body>
@@ -1633,7 +1648,7 @@ body:not(.arcade-playing) textarea {
         <button id="arcadeSwitch" type="button" aria-label="Trocar lutador">⇄ BOLSONARO</button>
       </div>
       <div class="stage">
-        <span class="arcade-version" aria-label="Versão do jogo">v1.5.25</span>
+        <span class="arcade-version" aria-label="Versão do jogo">v1.5.26</span>
         <canvas
           id="game"
           width="960"
