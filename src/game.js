@@ -1851,7 +1851,9 @@ function drawShields(now){
       ctx.scale(impactScale,impactScale);
       ctx.imageSmoothingEnabled=false;
       // Abertura transparente alinhada ao corpo, sem cobrir o personagem.
+      ctx.globalAlpha*=0.58; // Arte translúcida: personagem continua bem visível.
       ctx.drawImage(shieldArt,-154-wobble/2,-248-wobble/2,308+wobble,434+wobble);
+      ctx.globalAlpha=fade;
       if(hit>0){
         ctx.strokeStyle='rgba(255,255,255,'+(hit*.85)+')';
         ctx.lineWidth=4;
