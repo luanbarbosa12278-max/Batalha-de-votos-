@@ -1262,6 +1262,30 @@
     @media(max-width:560px){.hud .fighter-profile{gap:5px}.hud .portrait{width:32px;height:32px;flex-basis:32px;border-width:2px;outline-width:1px}.hud .health{height:15px!important;padding:2px!important;border-width:2px!important;outline-width:1px}.hud .life-count{font-size:6px}.hud .player .name{font-size:7px!important}.hud{gap:5px!important;padding:10px 7px!important}}
     @media(prefers-reduced-motion:reduce){.hud .player.damage-hit,.hud .player.damage-hit .portrait{animation:none}}
   </style>
+
+<style id="arcade-side-art-fix">
+/* Artes apenas nos espaços laterais vazios; o canvas cobre o ringue. */
+#arcadeArena:fullscreen .stage::before,
+#arcadeArena:fullscreen .stage::after,
+#arcadeArena.arcade-fallback-fullscreen .stage::before,
+#arcadeArena.arcade-fallback-fullscreen .stage::after {
+  content:"";
+  position:absolute;
+  top:0;
+  bottom:0;
+  width:12%;
+  pointer-events:none;
+  opacity:.55;
+  background-position:center;
+  background-size:cover;
+  background-repeat:no-repeat;
+  image-rendering:pixelated;
+}
+#arcadeArena:fullscreen .stage::before,
+#arcadeArena.arcade-fallback-fullscreen .stage::before {left:0;background-image:linear-gradient(#080d2399,#080d2399),url('./assets/fighters/fundo-huehue.png');}
+#arcadeArena:fullscreen .stage::after,
+#arcadeArena.arcade-fallback-fullscreen .stage::after {right:0;background-image:linear-gradient(#080d2399,#080d2399),url('./assets/fighters/fundo-ronaldinho.png');}
+</style>
 </head>
 
 <body>
