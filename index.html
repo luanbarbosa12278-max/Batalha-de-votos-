@@ -1542,6 +1542,27 @@ body:not(.arcade-playing) textarea {
 #debateSubtitle{position:absolute;bottom:3%;left:5%;width:90%;box-sizing:border-box;text-align:center;background:#07142be9;border:3px solid #8ceeff;box-shadow:4px 4px #0008;padding:clamp(7px,1.6vw,16px);font-size:clamp(9px,1.45vw,17px);line-height:1.6;z-index:4;overflow-wrap:anywhere}
 #debateSpeaker{color:#ffe27b;margin-bottom:7px}#debateProgress{position:absolute;bottom:0;left:0;width:0;height:4px;background:#ffdc59;z-index:7}
 @media(max-width:650px){#debateLaunch{padding:6px;font-size:9px}#debateSubtitle{bottom:1%;padding:6px}}
+
+/* Debate cinematografico v1.5.34 */
+#debateOverlay{isolation:isolate;animation:debateFadeIn .32s ease-out both}
+#debateScene{animation:debateBackdrop 16s ease-in-out infinite alternate}
+#debateScene:after{background:linear-gradient(180deg,#06142655 0%,transparent 24%,transparent 49%,#00142da8 100%)}
+.debateCharacter{bottom:12%;height:66%;width:34%;transition:transform .28s cubic-bezier(.2,.8,.2,1),filter .28s ease,opacity .2s ease;transform-origin:center bottom;will-change:transform;filter:drop-shadow(5px 7px 2px #06132b9c)}
+#debateLula{left:5%;right:auto}#debateBolsonaro{right:5%;left:auto}
+#debateOverlay[data-speaker="l"] #debateLula,#debateOverlay[data-speaker="b"] #debateBolsonaro{transform:translateY(-1.5%) scale(1.065);filter:drop-shadow(0 0 9px #ffe17a99) drop-shadow(5px 7px 2px #06132b)}
+#debateOverlay[data-speaker="l"] #debateBolsonaro,#debateOverlay[data-speaker="b"] #debateLula{filter:brightness(.82) drop-shadow(5px 7px 2px #06132b)}
+#debateHeader{top:4%;font-size:clamp(9px,1.6vw,17px);letter-spacing:.08em;max-width:65%;overflow:hidden;text-overflow:ellipsis;text-align:center}
+#debateSubtitle{bottom:2.8%;left:6%;width:88%;min-height:19%;display:flex;flex-direction:column;align-items:center;justify-content:center;border:2px solid #8ceeff;border-radius:3px;background:linear-gradient(180deg,#091b37f5,#071125f7);box-shadow:0 0 0 3px #07142b,0 8px 24px #0009;padding:clamp(8px,1.4vw,15px);font-size:clamp(9px,1.35vw,15px);line-height:1.65;text-shadow:2px 2px #000;transition:border-color .2s ease}
+#debateOverlay[data-speaker="l"] #debateSubtitle{border-color:#ff7d78}#debateOverlay[data-speaker="b"] #debateSubtitle{border-color:#80e4ff}
+#debateSpeaker{font-size:clamp(9px,1.2vw,13px);margin-bottom:clamp(5px,.9vw,10px)}
+#debateText{max-width:95%;text-wrap:balance}
+#debateProgress{height:5px;background:linear-gradient(90deg,#ffdd5e,#ff7b52);box-shadow:0 -1px 5px #ffd66c80;transition:width .08s linear}
+#debateSkip{top:3%;right:2%;border-color:#ffe184;background:#071b39f0;border-radius:3px;box-shadow:3px 3px #050e20;min-height:32px;touch-action:manipulation}
+#debateSkip:focus-visible{outline:3px solid #fff;outline-offset:3px}
+@keyframes debateFadeIn{from{opacity:0}to{opacity:1}}
+@keyframes debateBackdrop{from{transform:scale(1)}to{transform:scale(1.025)}}
+@media(max-width:650px){#debateHeader{top:3%;left:41%;max-width:55%;font-size:9px}#debateSkip{font-size:10px;padding:5px;right:1.5%;top:2%}.debateCharacter{height:64%;width:39%;bottom:17%}#debateLula{left:0}#debateBolsonaro{right:0}#debateSubtitle{bottom:1.5%;left:3%;width:94%;min-height:23%;font-size:clamp(8px,2vw,11px);padding:6px}#debateSpeaker{font-size:9px;margin-bottom:4px}}
+@media(prefers-reduced-motion:reduce){#debateOverlay,#debateScene{animation:none}.debateCharacter,#debateSubtitle{transition:none}}
 </style><style id="svf-debate-visible-v1530">
 .mobile-arcade-bar{display:flex!important;flex-wrap:wrap!important;align-items:center!important;justify-content:center!important;gap:10px!important}
 .mobile-arcade-bar #debateLaunch{display:inline-flex!important;align-items:center;justify-content:center;visibility:visible!important;opacity:1!important;position:relative!important;margin:0!important;min-height:42px;background:#123a70!important;color:#fff3a3!important;border:3px solid #ffdc59!important;box-shadow:3px 3px #09152b!important;font:700 clamp(10px,2.4vw,13px) 'Press Start 2P',monospace!important}
@@ -1667,7 +1688,7 @@ body:not(.arcade-playing) textarea {
         <button id="arcadeSwitch" type="button" aria-label="Trocar lutador">⇄ BOLSONARO</button>
       </div>
       <div class="stage">
-        <span class="arcade-version" aria-label="Versão do jogo">v1.5.33</span>
+        <span class="arcade-version" aria-label="Versão do jogo">v1.5.34</span>
         <canvas
           id="game"
           width="960"
@@ -2541,26 +2562,70 @@ const sprites={l:{idle:'lula-debate-idle.png',talk:'lula-debate-falando.png',que
 const actors={l:overlay.querySelector('#debateLula'),b:overlay.querySelector('#debateBolsonaro')};
 function pose(side,kind){const img=actors[side],name=sprites[side][kind]||sprites[side].idle;if(img)img.src='./assets/fighters/'+name}
 function idle(){pose('l','idle');pose('b','idle')}
-let running=false,serial=0,voice=null,finishAudio=null;
-function stop(){if(!running)return;running=false;serial++;if(voice){voice.pause();voice=null}if(finishAudio){finishAudio();finishAudio=null}overlay.hidden=true;overlay.dataset.speaker='';idle();window.dispatchEvent(new Event('streetvote:debate-end'));launch.focus({preventScroll:true})}
+let running=false,serial=0,voice=null,finishAudio=null,progressFrame=0,previousFocus=null;
+const speakerEl=overlay.querySelector('#debateSpeaker'),textEl=overlay.querySelector('#debateText'),progressEl=overlay.querySelector('#debateProgress'),skip=overlay.querySelector('#debateSkip');
+const audioPath='./assets/fighters/audio/';
+const clips=lines.map((line)=>{const audio=new Audio(audioPath+line[2]);audio.preload='auto';audio.volume=.95;return audio});
+function cancelProgress(){if(progressFrame){cancelAnimationFrame(progressFrame);progressFrame=0}}
+function stop(){
+ if(!running)return;
+ running=false;serial++;cancelProgress();
+ if(voice){voice.pause();voice.currentTime=0;voice=null}
+ if(finishAudio){const finish=finishAudio;finishAudio=null;finish()}
+ overlay.hidden=true;overlay.dataset.speaker='';idle();progressEl.style.width='0%';
+ window.dispatchEvent(new Event('streetvote:debate-end'));
+ if(previousFocus?.isConnected)previousFocus.focus({preventScroll:true});else launch.focus({preventScroll:true});
+ previousFocus=null;
+}
+function animateProgress(audio,index,token){
+ cancelProgress();const base=index/lines.length,step=1/lines.length;
+ function tick(){if(!running||serial!==token)return;
+ const duration=Number.isFinite(audio.duration)&&audio.duration>0?audio.duration:Math.max(2.5,lines[index][1].length*.095);
+ const ratio=Math.min(1,Math.max(0,audio.currentTime/duration));
+ progressEl.style.width=((base+ratio*step)*100).toFixed(2)+'%';
+ progressFrame=requestAnimationFrame(tick);
+ }
+ tick();
+}
+function playLine(audio,caption,token){
+ return new Promise(resolve=>{
+ let done=false,timeout=0;
+ const finish=()=>{if(done)return;done=true;clearTimeout(timeout);audio.removeEventListener('ended',finish);audio.removeEventListener('error',finish);if(finishAudio===finish)finishAudio=null;resolve()};
+ finishAudio=finish;
+ audio.addEventListener('ended',finish);audio.addEventListener('error',finish);
+ const fallbackMs=Math.max(2800,Math.min(22000,caption.length*145));
+ const arm=()=>{clearTimeout(timeout);const maxMs=Number.isFinite(audio.duration)&&audio.duration>0?Math.min(45000,Math.max(fallbackMs,audio.duration*1000+1800)):fallbackMs;timeout=setTimeout(finish,maxMs)};
+ arm();audio.addEventListener('loadedmetadata',arm,{once:true});
+ audio.currentTime=0;
+ audio.play().then(()=>{if(running&&serial===token)animateProgress(audio,lines.findIndex(l=>l[2]===audio.src.split('/').pop()),token)}).catch(()=>{clearTimeout(timeout);timeout=setTimeout(finish,Math.min(3800,fallbackMs))});
+ });
+}
 async function start(){
-if(running)return;running=true;const id=++serial;overlay.hidden=false;window.dispatchEvent(new Event('streetvote:debate-start'));overlay.querySelector('#debateSkip').focus({preventScroll:true});
-for(let i=0;i<lines.length&&running&&serial===id;i++){
-const [side,caption,file]=lines[i];overlay.dataset.speaker=side;
-idle();
-const mood=side==='l'?(i===2||i===4?'shout':i===0||i===7?'question':'talk'):(i===3||i===5?'retort':i===6?'ironic':'talk');
-pose(side,mood);
-overlay.querySelector('#debateSpeaker').textContent=side==='l'?'🔴 LULA':'🟢 BOLSONARO';
-overlay.querySelector('#debateText').textContent=caption;overlay.querySelector('#debateProgress').style.width=(i/lines.length*100)+'%';
-const audio=new Audio('./assets/fighters/audio/'+file);voice=audio;audio.volume=.95;
-await new Promise(resolve=>{let finished=false;let timer;const done=()=>{if(finished)return;finished=true;clearTimeout(timer);finishAudio=null;resolve()};finishAudio=done;audio.addEventListener('ended',done,{once:true});audio.addEventListener('error',done,{once:true});timer=setTimeout(done,Math.max(2200,Math.min(10000,caption.length*100)));audio.play().catch(done)});
-if(!running||serial!==id)break;voice=null;
+ if(running)return;
+ running=true;const token=++serial;previousFocus=document.activeElement;
+ overlay.hidden=false;overlay.dataset.speaker='';idle();progressEl.style.width='0%';
+ window.dispatchEvent(new Event('streetvote:debate-start'));
+ skip.focus({preventScroll:true});
+ for(let i=0;i<lines.length&&running&&serial===token;i++){
+  const [side,caption]=lines[i];const audio=clips[i];voice=audio;
+  overlay.dataset.speaker=side;idle();
+  const mood=side==='l'?(i===2||i===4?'shout':i===0||i===7?'question':'talk'):(i===3||i===5?'retort':i===6?'ironic':'talk');
+  pose(side,mood);
+  speakerEl.textContent=side==='l'?'🔴 LULA':'🔵 BOLSONARO';textEl.textContent=caption;
+  progressEl.style.width=(i/lines.length*100)+'%';
+  await playLine(audio,caption,token);
+  cancelProgress();if(!running||serial!==token)break;
+  voice=null;progressEl.style.width=((i+1)/lines.length*100)+'%';
+  if(i<lines.length-1)await new Promise(resolve=>setTimeout(resolve,220));
+ }
+ if(running&&serial===token)stop();
 }
-if(running&&serial===id)stop();
-}
-launch.addEventListener('click',start);overlay.querySelector('#debateSkip').addEventListener('click',stop);
+launch.addEventListener('click',start);skip.addEventListener('click',stop);
 window.streetVoteDebate=start;window.streetVoteSkipDebate=stop;
-document.addEventListener('keydown',e=>{if(running){if(e.key==='Escape'){e.preventDefault();e.stopImmediatePropagation();stop()}else if(e.key!=='Tab'){e.preventDefault();e.stopImmediatePropagation()}return}if(e.key.toLowerCase()==='d'&&!e.repeat&&!e.ctrlKey&&!e.altKey&&!e.metaKey&&!e.target.closest('input,textarea,select,[contenteditable="true"]')){e.preventDefault();start()}},true);
+document.addEventListener('keydown',e=>{
+ if(running){if(e.key==='Escape'){e.preventDefault();e.stopImmediatePropagation();stop()}else if(e.key!=='Tab'){e.preventDefault();e.stopImmediatePropagation()}return}
+ if(e.key.toLowerCase()==='d'&&!e.repeat&&!e.ctrlKey&&!e.altKey&&!e.metaKey&&!e.target.closest('input,textarea,select,[contenteditable="true"]')){e.preventDefault();start()}
+},true);
 arena.addEventListener('click',e=>{if(running&&!e.target.closest('#debateSkip')){e.preventDefault();e.stopImmediatePropagation()}},true);
 })();
 </script></body>
