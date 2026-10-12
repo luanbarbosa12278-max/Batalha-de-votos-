@@ -10,6 +10,7 @@ export class Fight {
   constructor() { this.reset(); }
   reset() {
     this.hp = {l:MAX_HP,b:MAX_HP};
+    this.shieldActive={l:false,b:false};
     this.wins = {l:0,b:0};
     this.votes = {l:0,b:0};
     this.manual = {l:0,b:0};
@@ -87,12 +88,12 @@ export class Fight {
       this.elapsed+=step; dt-=step;
       if (this.phase==='attack'&&!this.hit&&this.elapsed>=HIT_MS) {
         if(this.attack==='both'){
-          this.hp.l=Math.max(0,this.hp.l-DAMAGE);
-          this.hp.b=Math.max(0,this.hp.b-DAMAGE);
+          if(!this.shieldActive.l)this.hp.l=Math.max(0,this.hp.l-DAMAGE);
+          if(!this.shieldActive.b)this.hp.b=Math.max(0,this.hp.b-DAMAGE);
           this.delivered+=2;
         }else{
           const defender=this.attack==='l'?'b':'l';
-          this.hp[defender]=Math.max(0,this.hp[defender]-DAMAGE);
+          if(!this.shieldActive[defender])this.hp[defender]=Math.max(0,this.hp[defender]-DAMAGE);
           this.delivered++;
         }
         this.hit=true;
