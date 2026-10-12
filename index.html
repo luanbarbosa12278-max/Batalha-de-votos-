@@ -1233,6 +1233,32 @@
         transition-duration: .01ms !important;
       }
     }
+
+    /* HUD ARCADE 16-BIT */
+    .hud{background:repeating-linear-gradient(0deg,#12182b 0 4px,#171f37 4px 8px)!important;border-bottom:5px solid #080b16!important}
+    .hud .player{position:relative;min-width:0}
+    .hud .fighter-profile{display:flex;align-items:center;gap:8px;min-width:0}
+    .hud .player-b .fighter-profile{flex-direction:row-reverse}
+    .hud .portrait{flex:0 0 46px;width:46px;height:46px;position:relative;overflow:hidden;border:3px solid #050810;outline:2px solid #a57835;box-shadow:3px 3px 0 #0009;background:linear-gradient(135deg,#3b1b31,#121b32);image-rendering:pixelated}
+    .hud .player-b .portrait{background:linear-gradient(135deg,#173c48,#17203c)}
+    .hud .portrait img{display:block;position:absolute;width:230%;height:auto;max-width:none;left:50%;top:-6%;transform:translateX(-50%);image-rendering:pixelated}
+    .hud .player-b .portrait img{width:220%;top:-7%}
+    .hud .fighter-vitals{flex:1;min-width:0}
+    .hud .health{height:21px!important;margin:5px 0 4px!important;padding:3px!important;transform:none!important;position:relative;overflow:hidden;border:3px solid #060910!important;outline:2px solid #8d6d40;background:#361927!important;box-shadow:inset 0 3px 0 #0008,3px 3px 0 #0008}
+    .hud .health::after{content:"";position:absolute;inset:3px;pointer-events:none;background:repeating-linear-gradient(90deg,transparent 0,transparent calc(10% - 2px),#090b18b8 calc(10% - 2px),#090b18b8 10%);z-index:2}
+    .hud #hpL,.hud #hpB{height:100%;transition:width .18s steps(10,end)!important;box-shadow:inset 0 3px 0 #ffffff55,inset 0 -3px 0 #0007}
+    .hud #hpL{background:linear-gradient(180deg,#ffb0a0 0 26%,#f04a5e 26% 70%,#a81e3a 70%)!important}
+    .hud #hpB{background:linear-gradient(180deg,#c2faff 0 26%,#42c9ff 26% 70%,#1961bd 70%)!important}
+    .hud .life-count{display:block;font-family:var(--pixel-font),monospace;font-size:8px;color:#ffe49a;text-shadow:2px 2px #000}
+    .hud .player-b .life-count{text-align:right}
+    .hud .player.damage-hit{animation:hud-impact .36s steps(2,end)}
+    .hud .player.damage-hit .portrait{animation:portrait-impact .36s steps(2,end)}
+    .hud .player.damage-hit .health{outline-color:#fff4b0;box-shadow:0 0 0 3px #ffef8d,3px 3px 0 #0008}
+    .hud .player.damage-hit .life-count{color:#fff}
+    @keyframes hud-impact{0%,35%{filter:brightness(2);transform:translateX(-3px)}18%,55%{filter:brightness(1);transform:translateX(3px)}100%{filter:none;transform:none}}
+    @keyframes portrait-impact{0%,50%{background:#fff3c0;outline-color:#fff}100%{outline-color:#a57835}}
+    @media(max-width:560px){.hud .fighter-profile{gap:5px}.hud .portrait{width:32px;height:32px;flex-basis:32px;border-width:2px;outline-width:1px}.hud .health{height:15px!important;padding:2px!important;border-width:2px!important;outline-width:1px}.hud .life-count{font-size:6px}.hud .player .name{font-size:7px!important}.hud{gap:5px!important;padding:10px 7px!important}}
+    @media(prefers-reduced-motion:reduce){.hud .player.damage-hit,.hud .player.damage-hit .portrait{animation:none}}
   </style>
 </head>
 
@@ -1302,15 +1328,12 @@
             <b>13</b>
           </div>
 
-          <div
-            class="health"
-            role="progressbar"
-            aria-label="Vida de Lula"
-            aria-valuemin="0"
-            aria-valuemax="100"
-            aria-valuenow="100"
-          >
-            <div id="hpL"></div>
+          <div class="fighter-profile">
+            <div class="portrait" aria-hidden="true"><img src="./assets/fighters/lula-idle.png" alt=""></div>
+            <div class="fighter-vitals">
+              <div class="health" role="progressbar" aria-label="Vida de Lula" aria-valuemin="0" aria-valuemax="100" aria-valuenow="100"><div id="hpL"></div></div>
+              <span class="life-count" id="lifeL">HP 100/100</span>
+            </div>
           </div>
 
           <small id="winsL">0 ROUNDS</small>
@@ -1328,15 +1351,12 @@
             <span>BOLSONARO · P2</span>
           </div>
 
-          <div
-            class="health"
-            role="progressbar"
-            aria-label="Vida de Bolsonaro"
-            aria-valuemin="0"
-            aria-valuemax="100"
-            aria-valuenow="100"
-          >
-            <div id="hpB"></div>
+          <div class="fighter-profile">
+            <div class="portrait" aria-hidden="true"><img src="./assets/fighters/bolsonaro-idle.png" alt=""></div>
+            <div class="fighter-vitals">
+              <div class="health" role="progressbar" aria-label="Vida de Bolsonaro" aria-valuemin="0" aria-valuemax="100" aria-valuenow="100"><div id="hpB"></div></div>
+              <span class="life-count" id="lifeB">HP 100/100</span>
+            </div>
           </div>
 
           <small id="winsB">0 ROUNDS</small>
