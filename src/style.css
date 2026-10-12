@@ -155,3 +155,60 @@ body.arcade-playing{overflow:hidden}
   #arcadeArena:fullscreen .arcade-topbar button,
   #arcadeArena.arcade-fallback-fullscreen .arcade-topbar button{min-height:30px!important;font-size:10px!important}
 }
+
+/* Street Vote Fighter: botoes pixel-art de fliperama */
+.arcade-action{
+  position:relative;
+  isolation:isolate;
+  border-radius:5px!important;
+  border:3px solid #100f23!important;
+  outline:2px solid #ffe8a0;
+  outline-offset:-7px;
+  color:#fff9e9;
+  text-shadow:2px 2px 0 #100f23;
+  background:linear-gradient(180deg,#ff8896 0 16%,#f0435d 16% 49%,#bc2343 49% 75%,#71132b 75% 100%)!important;
+  box-shadow:inset 4px 4px 0 #ffc1bd, inset -4px -4px 0 #58102b,0 5px 0 #100f23,0 8px 0 #e3aa4b,0 10px 0 #0c0c1a!important;
+  font-family:'Press Start 2P',monospace!important;
+  transition:transform .08s steps(2,end),filter .08s steps(2,end);
+}
+.arcade-action::before{
+  content:"";position:absolute;inset:8px;border:2px dashed #ffffff35;
+  border-radius:1px;pointer-events:none;z-index:-1;
+}
+.arcade-action span{
+  font-family:'Press Start 2P',monospace!important;
+  font-weight:400!important;
+  font-size:7px!important;line-height:1.45!important;
+  text-shadow:1px 2px #111322;
+  max-width:90%;overflow-wrap:anywhere;
+}
+.arcade-power{
+  outline-color:#9af5ff!important;
+  background:linear-gradient(180deg,#9ae9ff 0 16%,#298ed5 16% 49%,#2354a6 49% 75%,#18275c 75% 100%)!important;
+  box-shadow:inset 4px 4px 0 #c1faff,inset -4px -4px 0 #111d56,0 5px 0 #10142d,0 8px 0 #39c4e6,0 10px 0 #0c0c1a!important;
+}
+.arcade-special{
+  outline-color:#fff3a2!important;
+  background:linear-gradient(180deg,#fff3a2 0 16%,#ffbf40 16% 49%,#d78025 49% 75%,#7b3d1b 75% 100%)!important;
+  box-shadow:inset 4px 4px 0 #fff7bd,inset -4px -4px 0 #65320c,0 5px 0 #362014,0 8px 0 #f3c659,0 10px 0 #0c0c1a!important;
+}
+.arcade-action:active:enabled{transform:translateY(4px)!important;filter:brightness(1.15);box-shadow:inset 3px 3px 0 #0006,0 1px 0 #151528!important}
+.arcade-action:disabled{opacity:.5;filter:grayscale(.45)}
+.arcade-fighter-tag{
+  border:3px solid #efb94f!important;border-radius:2px!important;
+  box-shadow:3px 3px 0 #0a0a15,inset 0 0 0 2px #fff3a0;
+  background:#14203eeb!important;
+  font-family:'Press Start 2P',monospace!important;
+  font-size:8px!important;
+  line-height:1.5;
+}
+.arcade-topbar button{
+  border-radius:2px!important;border:3px solid #0b1124!important;
+  outline:2px solid #efc764;
+  background:linear-gradient(#344c76 0 35%,#1b2b4e 35% 100%)!important;
+  box-shadow:3px 4px 0 #090d19!important;
+  font-family:'Press Start 2P',monospace!important;
+  font-size:9px!important;
+  text-shadow:1px 2px #0b1020;
+}
+.arcade-topbar button:active{transform:translateY(2px);box-shadow:1px 1px 0 #090d19!important}
