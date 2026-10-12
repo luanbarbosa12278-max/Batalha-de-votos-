@@ -1500,6 +1500,20 @@ body:not(.arcade-playing) textarea {
  }
 }
 </style>
+
+<style id="svf-live-shields-v1516">
+.shield-live-controls{display:flex;align-items:center;justify-content:center;gap:6px;pointer-events:auto}
+.shield-live{cursor:pointer!important;touch-action:manipulation;border:2px solid #ccefff!important;border-radius:4px!important;background:linear-gradient(180deg,#25617d,#10273f)!important;color:#fff!important;font-family:"Press Start 2P",monospace!important;font-size:clamp(6px,.7vw,9px)!important;line-height:1.5!important;padding:8px 7px!important;box-shadow:inset 2px 2px #ffffff55,2px 3px #050e22!important;white-space:nowrap}
+.shield-b{border-color:#ffe5a0!important;background:linear-gradient(180deg,#96701c,#423015)!important}
+.shield-live.shield-on{animation:shield-glow .6s ease-in-out infinite alternate!important;border-color:#fff!important}
+@keyframes shield-glow{from{filter:brightness(1)}to{filter:brightness(1.5)}}
+#arcadeArena:fullscreen .arcade-topbar,#arcadeArena.arcade-fallback-fullscreen .arcade-topbar{gap:6px!important;flex-wrap:wrap!important}
+#arcadeArena:fullscreen .shield-live,#arcadeArena.arcade-fallback-fullscreen .shield-live{font-size:clamp(5px,.65vw,8px)!important;padding:5px 6px!important}
+@media(max-height:390px) and (orientation:landscape){
+ #arcadeArena:fullscreen .shield-live,#arcadeArena.arcade-fallback-fullscreen .shield-live{padding:3px 5px!important;font-size:5px!important}
+}
+@media(prefers-reduced-motion:reduce){.shield-live.shield-on{animation:none!important}}
+</style>
 </head>
 
 <body>
@@ -1611,11 +1625,15 @@ body:not(.arcade-playing) textarea {
       </div>
 
       <div class="arcade-topbar">
+        <div class="shield-live-controls" aria-label="Escudos da live">
+          <button type="button" id="shieldL" class="shield-live shield-l" title="Ativar escudo do Lula por 5 segundos (tecla 1)">🛡 LULA +5s</button>
+          <button type="button" id="shieldB" class="shield-live shield-b" title="Ativar escudo do Bolsonaro por 5 segundos (tecla 2)">🛡 BOLSO +5s</button>
+        </div>
         <button id="arcadeExit" type="button" aria-label="Sair da tela cheia">✕ SAIR</button>
         <button id="arcadeSwitch" type="button" aria-label="Trocar lutador">⇄ BOLSONARO</button>
       </div>
       <div class="stage">
-        <span class="arcade-version" aria-label="Versão do jogo">v1.5.15</span>
+        <span class="arcade-version" aria-label="Versão do jogo">v1.5.16</span>
         <canvas
           id="game"
           width="960"
