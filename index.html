@@ -1296,7 +1296,13 @@
   </section>
 
   <!-- ARENA E CONTROLES -->
-  <div class="fight-layout">
+
+    <!-- Modo arcade mobile: controles espelhados dos botoes originais -->
+    <div class="mobile-arcade-bar">
+      <button id="arcadeFullscreen" type="button" aria-label="Entrar no modo tela cheia">⛶ TELA CHEIA</button>
+      <span>📱 CONTROLES MOBILE</span>
+    </div>
+  <div class="fight-layout" id="arcadeArena">
 
     <!-- LULA -->
     <aside
@@ -1333,8 +1339,8 @@
           <div class="fighter-profile">
             <div class="portrait" aria-hidden="true"><img src="./assets/fighters/lula-idle.png" alt=""></div>
             <div class="fighter-vitals">
-              <div class="health" role="progressbar" aria-label="Vida de Lula" aria-valuemin="0" aria-valuemax="100" aria-valuenow="100"><div id="hpL"></div></div>
-              <span class="life-count" id="lifeL">HP 100/100</span>
+              <div class="health" role="progressbar" aria-label="Vida de Lula" aria-valuemin="0" aria-valuemax="500" aria-valuenow="500"><div id="hpL"></div></div>
+              <span class="life-count" id="lifeL">HP 500/500</span>
             </div>
           </div>
 
@@ -1356,8 +1362,8 @@
           <div class="fighter-profile">
             <div class="portrait" aria-hidden="true"><img src="./assets/fighters/bolsonaro-idle.png" alt=""></div>
             <div class="fighter-vitals">
-              <div class="health" role="progressbar" aria-label="Vida de Bolsonaro" aria-valuemin="0" aria-valuemax="100" aria-valuenow="100"><div id="hpB"></div></div>
-              <span class="life-count" id="lifeB">HP 100/100</span>
+              <div class="health" role="progressbar" aria-label="Vida de Bolsonaro" aria-valuemin="0" aria-valuemax="500" aria-valuenow="500"><div id="hpB"></div></div>
+              <span class="life-count" id="lifeB">HP 500/500</span>
             </div>
           </div>
 
@@ -1366,6 +1372,10 @@
 
       </div>
 
+      <div class="arcade-topbar">
+        <button id="arcadeExit" type="button" aria-label="Sair da tela cheia">✕ SAIR</button>
+        <button id="arcadeSwitch" type="button" aria-label="Trocar lutador">⇄ BOLSONARO</button>
+      </div>
       <div class="stage">
         <canvas
           id="game"
@@ -1381,6 +1391,14 @@
         </div>
       </div>
 
+      <div class="arcade-touch-controls" aria-label="Controles de luta mobile">
+        <div class="arcade-fighter-tag" id="arcadeFighterTag">🔴 LULA</div>
+        <div class="arcade-actions">
+          <button type="button" class="arcade-action arcade-punch" data-action="punch">👊<span>SOCO</span></button>
+          <button type="button" class="arcade-action arcade-power" data-action="power">⚡<span>HADOUKEN</span></button>
+          <button type="button" class="arcade-action arcade-special" data-action="special">★<span>BOLSA PANCADA</span></button>
+        </div>
+      </div>
       <div class="ticker">
         <span id="message" aria-live="polite">
           Preparando os lutadores
@@ -1708,5 +1726,57 @@
 <!-- SCRIPT ORIGINAL DO JOGO -->
 <script type="module" src="./src/game.js"></script>
 
+
+<script>
+(() => {
+  const arena=document.getElementById('arcadeArena');
+  const full=document.getElementById('arcadeFullscreen');
+  const exit=document.getElementById('arcadeExit');
+  const swap=document.getElementById('arcadeSwitch');
+  const tag=document.getElementById('arcadeFighterTag');
+  const buttons=[...document.querySelectorAll('.arcade-action')];
+  let side='l';
+  let fallback=false;
+  const actions={l:{punch:'attackL',power:'shoryukenL',special:'specialL'},b:{punch:'attackB',power:'hadoukenB',special:'specialB'}};
+  function render(){
+    arena.classList.toggle('arcade-fallback-fullscreen',fallback);
+    const active=!!document.fullscreenElement||fallback;
+    document.body.classList.toggle('arcade-playing',active);
+    full.textContent=active?'✕ SAIR DA TELA CHEIA':'⛶ TELA CHEIA';
+    tag.textContent=side==='l'?'🔴 LULA':'🟢 BOLSONARO';
+    swap.textContent=side==='l'?'⇄ BOLSONARO':'⇄ LULA';
+    buttons.forEach(b=>{
+      const source=document.getElementById(actions[side][b.dataset.action]);
+      b.disabled=!source||source.disabled;
+      const label=source?.querySelector('span')?.textContent||b.dataset.action.toUpperCase();
+      b.querySelector('span').textContent=label;
+    });
+  }
+  async function toggle(){
+    if(document.fullscreenElement){await document.exitFullscreen();}
+    else if(fallback){fallback=false;render();}
+    else {
+      try{if(!arena.requestFullscreen)throw Error('fullscreen indisponivel');await arena.requestFullscreen();}
+      catch(e){fallback=true;render();}
+    }
+  }
+  full.addEventListener('click',toggle);
+  exit.addEventListener('click',toggle);
+  swap.addEventListener('click',()=>{side=side==='l'?'b':'l';render();});
+  buttons.forEach(b=>b.addEventListener('click',()=>{
+    const source=document.getElementById(actions[side][b.dataset.action]);
+    if(source&&!source.disabled)source.click();
+    render();
+  }));
+  document.addEventListener('fullscreenchange',render);
+  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&fallback){fallback=false;render();}});
+  const observer=new MutationObserver(render);
+  ['attackL','shoryukenL','specialL','attackB','hadoukenB','specialB'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el)observer.observe(el,{attributes:true,attributeFilter:['disabled'],subtree:true,childList:true,characterData:true});
+  });
+  render();
+})();
+</script>
 </body>
 </html>
