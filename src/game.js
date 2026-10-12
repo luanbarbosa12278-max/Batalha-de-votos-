@@ -1939,7 +1939,35 @@ function drawShields(now){
 // LOOP PRINCIPAL
 // ========================================
 
+let debatePauseStart=0;
+window.addEventListener('streetvote:debate-start',()=>{
+  if(debatePauseStart)return;
+  debatePauseStart=performance.now();
+  stopVoice();
+});
+window.addEventListener('streetvote:debate-end',()=>{
+  if(!debatePauseStart)return;
+  const elapsed=performance.now()-debatePauseStart;
+  debatePauseStart=0;
+  previousTime=0;
+  for(const side of ['l','b']){
+    if(shieldUntil[side]>0)shieldUntil[side]+=elapsed;
+    if(shieldImpactAt[side]>0)shieldImpactAt[side]+=elapsed;
+  }
+  if(specialEffect)specialEffect.start+=elapsed;
+  if(lulaKnockback)lulaKnockback.start+=elapsed;
+  if(bolsonaroKnockback)bolsonaroKnockback.start+=elapsed;
+  if(bolsaImpact?.start)bolsaImpact.start+=elapsed;
+  if(taokImpact?.start)taokImpact.start+=elapsed;
+  if(bolsaReadyAt>0)bolsaReadyAt+=elapsed;
+  if(taokReadyAt>0)taokReadyAt+=elapsed;
+});
 function frame(now){
+  if(debatePauseStart){
+    previousTime=now;
+    requestAnimationFrame(frame);
+    return;
+  }
   const dt=previousTime
     ?Math.min(
       100,
