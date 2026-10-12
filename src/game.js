@@ -821,7 +821,7 @@ x+=dashDirection*reach*Math.max(
     // A pose final tem proporções normais; as poses de braço erguido
     // precisam de compensação moderada pelo espaço extra acima da cabeça.
     const bolsaScale=side==='l' && sp?.type==='bolsaPancada'
-      ? (bolsaAge<190?1.25:bolsaAge<790?1.38:1.0)
+      ? (bolsaAge<190?1.18:bolsaAge<790?1.30:0.98)
       : 1;
     ctx.drawImage(
       sprite,
