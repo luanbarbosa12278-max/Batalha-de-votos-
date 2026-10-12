@@ -1629,7 +1629,8 @@ function updateBolsaPancada(now){
     const to=Math.min(BOLSONARO_WALL_X,from+KNOCKBACK_DISTANCE);
     bolsonaroKnockback={start:now,duration:600,from,to};
     bolsonaroX=to;
-    playSound('bolsonaroDano');
+    if(shieldOn('b',now)){bolsonaroKnockback=null;bolsonaroX=from;}
+    if(!shieldOn('b',now))playSound('bolsonaroDano');
 
     // O mesmo estado de K.O. usado pelos outros golpes mantém
     // áudio de vitória, placar e avanço automático de rounds.
@@ -1734,9 +1735,10 @@ function updateTaok(now){
     const to=Math.max(LULA_WALL_X,from-KNOCKBACK_DISTANCE);
     lulaKnockback={start:now,duration:600,from,to};
     lulaX=to;
+    if(shieldOn('l',now)){lulaKnockback=null;lulaX=from;}
     taokImpact={start:now,x:from};
     if(!shieldOn('l',now))game.hp.l=Math.max(0,game.hp.l-TAOK_DAMAGE);
-    playSound('lulaDano');
+    if(!shieldOn('l',now))playSound('lulaDano');
     if(game.hp.l===0){
       game.phase='ko';game.attack=null;game.hit=false;
       game.winner='b';game.wins.b++;game.elapsed=0;
@@ -1789,6 +1791,8 @@ function activateShield(side){
   game.shieldActive[side]=true;
   updateShieldButtons(now);
 }
+// Interface para futura integração de presentes/eventos da live.
+window.streetVoteShield=side=>{if(side==='l'||side==='b')activateShield(side);};
 function updateShieldButtons(now){
   for(const side of ['l','b']){
     const button=$('shield'+(side==='l'?'L':'B'));
@@ -1893,6 +1897,7 @@ function frame(now){
       };
 
       lulaX=to;
+      if(shieldOn('l',now)){lulaKnockback=null;lulaX=from;}
 
       if(!shieldOn('l',now))game.hp.l=Math.max(
         0,
@@ -1901,7 +1906,7 @@ function frame(now){
 
       // Reação ao Hadouken é ocasional,
       // para não cortar o grito do golpe.
-      playSound('lulaDano');
+      if(!shieldOn('l',now))playSound('lulaDano');
 
       if(game.hp.l===0){
         game.phase='ko';
@@ -1922,8 +1927,9 @@ function frame(now){
       const to=Math.min(BOLSONARO_WALL_X,from+KNOCKBACK_DISTANCE);
       bolsonaroKnockback={start:now,duration:600,from,to};
       bolsonaroX=to;
+      if(shieldOn('b',now)){bolsonaroKnockback=null;bolsonaroX=from;}
       if(!shieldOn('b',now))game.hp.b=Math.max(0,game.hp.b-HADOUKEN_DAMAGE);
-      playSound('bolsonaroDano');
+      if(!shieldOn('b',now))playSound('bolsonaroDano');
       if(game.hp.b===0){
         game.phase='ko';
         game.attack=null;
