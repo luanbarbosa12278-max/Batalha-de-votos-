@@ -592,10 +592,12 @@ function fighter(side,time){
         ?(1-t)/.32
         :1;
 
-      x+=facing*reach*Math.max(
-        0,
-        Math.min(approach,retreat)
-      );
+      const dashDirection=side==='l' ? 1 : -1;
+
+x+=dashDirection*reach*Math.max(
+  0,
+  Math.min(approach,retreat)
+);
 
       // Sprites de soco específicos.
       if(side==='l'){
