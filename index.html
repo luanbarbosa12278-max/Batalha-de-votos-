@@ -10,7 +10,7 @@
   <title>Street Vote Fighter | Arcade ao vivo</title>
 
   <!-- CSS ORIGINAL DO JOGO -->
-  <link rel="stylesheet" href="./src/style.css?v=fullscreen-fix-3">
+  <link rel="stylesheet" href="./src/style.css?v=1.6.0">
 
   <!-- FONTE PIXEL ART -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1655,7 +1655,7 @@ body:not(.arcade-playing) textarea {
         <span>SHORYUKEN</span>
       </button>
 
-      <button id="specialL" type="button" title="E — Bolsa Pancada (25 HP; recarga de 5 segundos)" disabled>
+      <button id="specialL" type="button" title="E — Bolsa Pancada (25 HP; recarga de 1,4 segundos)" disabled>
         <kbd>E</kbd>
         <span>BOLSA PANCADA</span>
       </button>
@@ -1681,6 +1681,7 @@ body:not(.arcade-playing) textarea {
           </div>
 
           <small id="winsL">0 ROUNDS</small>
+          <button id="godL" class="god-toggle" type="button" aria-pressed="false" aria-label="Lula — GOD desligado, ativar">R · GOD OFF</button>
         </div>
 
         <div class="round">
@@ -1704,6 +1705,7 @@ body:not(.arcade-playing) textarea {
           </div>
 
           <small id="winsB">0 ROUNDS</small>
+          <button id="godB" class="god-toggle" type="button" aria-pressed="false" aria-label="Bolsonaro — GOD desligado, ativar">U · GOD OFF</button>
         </div>
 
       </div>
@@ -1717,7 +1719,7 @@ body:not(.arcade-playing) textarea {
         <button id="arcadeSwitch" type="button" aria-label="Trocar lutador">⇄ BOLSONARO</button>
       </div>
       <div class="stage">
-        <span class="arcade-version" aria-label="Versão do jogo">v1.5.37</span>
+        <span class="arcade-version" aria-label="Versão do jogo">v1.6.0</span>
         <canvas
           id="game"
           width="960"
@@ -1767,7 +1769,7 @@ body:not(.arcade-playing) textarea {
         <span>HADOUKEN</span>
       </button>
 
-      <button id="specialB" type="button" title="P — TÁ OK! (25 HP; recarga de 5 segundos)" disabled>
+      <button id="specialB" type="button" title="P — TÁ OK! (25 HP; recarga de 1,4 segundos)" disabled>
         <kbd>P</kbd>
         <span>TÁ OK!</span>
       </button>
@@ -2474,7 +2476,7 @@ body:not(.arcade-playing) textarea {
 }
 </style>
 <!-- SCRIPT ORIGINAL DO JOGO -->
-<script type="module" src="./src/game.js"></script>
+<script type="module" src="./src/game.js?v=1.6.0"></script>
 
 
 <script>

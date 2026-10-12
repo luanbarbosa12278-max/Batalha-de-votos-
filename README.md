@@ -65,3 +65,7 @@ node tests/browser.mjs
 Testes cobrem contagem repetida, 1.200 golpes e rounds, fila durante K.O., equilíbrio de dano, linha de base, mudança de conta, contagem inválida, reset, configuração autenticada simulada, limpeza do campo de senha, erro de imagem, viewport desktop/celular e ausência de erros JavaScript. Chromium é automatizado; Safari/iOS e live real ainda exigem teste manual.
 
 GitHub Pages: HTML/CSS/JS e PNG estáticos com caminhos relativos, sem build necessário. Após revisão e integração, o fluxo de publicação existente pode servir os arquivos normalmente.
+
+## Modo GOD (v1.6.0)
+
+R alterna GOD de Lula; U alterna GOD de Bolsonaro. Os botões no HUD também funcionam por toque em tela cheia. Veja [controles, regras e testes](docs/god-v1.6.0.md).
