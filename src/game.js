@@ -977,6 +977,7 @@ if(
 }
   drawBolsaPancada(time);
   drawTaok(time);
+  drawShields(time);
   ctx.restore();
 
   // Tela de K.O.
@@ -1622,7 +1623,7 @@ function updateBolsaPancada(now){
 
   if(!sp.hit && now-sp.start>=BOLSA_SUMMON_MS+BOLSA_FALL_MS){
     sp.hit=true;
-    game.hp.b=Math.max(0,game.hp.b-BOLSA_DAMAGE);
+    if(!shieldOn('b',now))game.hp.b=Math.max(0,game.hp.b-BOLSA_DAMAGE);
     bolsaImpact={start:now,x:sp.x};
     const from=bolsonaroX;
     const to=Math.min(BOLSONARO_WALL_X,from+KNOCKBACK_DISTANCE);
@@ -1734,7 +1735,7 @@ function updateTaok(now){
     lulaKnockback={start:now,duration:600,from,to};
     lulaX=to;
     taokImpact={start:now,x:from};
-    game.hp.l=Math.max(0,game.hp.l-TAOK_DAMAGE);
+    if(!shieldOn('l',now))game.hp.l=Math.max(0,game.hp.l-TAOK_DAMAGE);
     playSound('lulaDano');
     if(game.hp.l===0){
       game.phase='ko';game.attack=null;game.hit=false;
@@ -1773,6 +1774,63 @@ function drawTaok(now){
   }
 }
 
+
+// Escudos independentes para interações da live (5 segundos cada).
+const SHIELD_DURATION_MS=5000;
+const shieldUntil={l:0,b:0};
+let shieldRound=game.round;
+function shieldOn(side,now=performance.now()){
+  return game.phase!=='ko' && now<shieldUntil[side];
+}
+function activateShield(side){
+  if(!ready || game.phase==='ko')return;
+  const now=performance.now();
+  shieldUntil[side]=now+SHIELD_DURATION_MS;
+  game.shieldActive[side]=true;
+  updateShieldButtons(now);
+}
+function updateShieldButtons(now){
+  for(const side of ['l','b']){
+    const button=$('shield'+(side==='l'?'L':'B'));
+    if(!button)continue;
+    const remaining=Math.max(0,shieldUntil[side]-now);
+    button.classList.toggle('shield-on',remaining>0);
+    button.textContent=(side==='l'?'🛡 LULA':'🛡 BOLSO')+
+      (remaining>0?' '+(remaining/1000).toFixed(1)+'s':' +5s');
+    button.setAttribute('aria-pressed',String(remaining>0));
+  }
+}
+$('shieldL')?.addEventListener('click',()=>activateShield('l'));
+$('shieldB')?.addEventListener('click',()=>activateShield('b'));
+document.addEventListener('keydown',event=>{
+  if(event.repeat||event.ctrlKey||event.altKey||event.metaKey)return;
+  if(event.target instanceof Element && event.target.closest('input,textarea,select,[contenteditable="true"]'))return;
+  if(event.code==='Digit1'){event.preventDefault();activateShield('l');}
+  if(event.code==='Digit2'){event.preventDefault();activateShield('b');}
+});
+function drawShields(now){
+  for(const side of ['l','b']){
+    if(!shieldOn(side,now))continue;
+    const x=side==='l'?lulaX+5:bolsonaroX-5;
+    const pulse=reduceMotion?0:Math.sin(now/125)*3;
+    ctx.save();
+    ctx.translate(x,320);
+    ctx.fillStyle=side==='l'?'rgba(85,184,255,.13)':'rgba(255,210,76,.13)';
+    ctx.strokeStyle=side==='l'?'#6ae4ff':'#ffe278';
+    ctx.lineWidth=5;
+    ctx.setLineDash([13,6]);
+    ctx.beginPath();
+    ctx.ellipse(0,0,102+pulse,168+pulse,0,0,Math.PI*2);
+    ctx.fill();ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.strokeStyle='#ffffffb8';ctx.lineWidth=2;
+    ctx.beginPath();ctx.ellipse(0,0,110+pulse,176+pulse,0,0,Math.PI*2);ctx.stroke();
+    ctx.fillStyle='#fff';ctx.font='bold 17px monospace';
+    ctx.textAlign='center';ctx.fillText('🛡 '+Math.ceil((shieldUntil[side]-now)/1000)+'s',0,-187);
+    ctx.restore();
+  }
+}
+
 // ========================================
 // LOOP PRINCIPAL
 // ========================================
@@ -1786,6 +1844,10 @@ function frame(now){
     :0;
 
   previousTime=now;
+  if(shieldRound!==game.round){shieldRound=game.round;shieldUntil.l=0;shieldUntil.b=0;}
+  game.shieldActive.l=shieldOn('l',now);
+  game.shieldActive.b=shieldOn('b',now);
+  updateShieldButtons(now);
 
   // Fim do knockback.
   if(
@@ -1832,7 +1894,7 @@ function frame(now){
 
       lulaX=to;
 
-      game.hp.l=Math.max(
+      if(!shieldOn('l',now))game.hp.l=Math.max(
         0,
         game.hp.l-HADOUKEN_DAMAGE
       );
@@ -1860,7 +1922,7 @@ function frame(now){
       const to=Math.min(BOLSONARO_WALL_X,from+KNOCKBACK_DISTANCE);
       bolsonaroKnockback={start:now,duration:600,from,to};
       bolsonaroX=to;
-      game.hp.b=Math.max(0,game.hp.b-HADOUKEN_DAMAGE);
+      if(!shieldOn('b',now))game.hp.b=Math.max(0,game.hp.b-HADOUKEN_DAMAGE);
       playSound('bolsonaroDano');
       if(game.hp.b===0){
         game.phase='ko';
@@ -2052,6 +2114,10 @@ function resetLocalFight(){
   specialEffect=null;
   bolsaImpact=null;
   bolsaReadyAt=0;
+  shieldUntil.l=0;shieldUntil.b=0;
+  game.shieldActive.l=false;game.shieldActive.b=false;
+  shieldRound=game.round;
+  updateShieldButtons(performance.now());
   bolsaRound=game.round;
   taokReadyAt=0;
   taokImpact=null;
