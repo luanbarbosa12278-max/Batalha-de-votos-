@@ -486,11 +486,15 @@ async function loadAssets(){
       shoryuken:
         './assets/fighters/lula-shoryuken.png',
 
-      bolsaPose:
-        './assets/fighters/lula-bolsa-pancada.png',
+      bolsaPose:'./assets/fighters/lula-bolsa-pancada.png',
+      bolsaPrepare:'./assets/fighters/lula-bolsa-preparo.png',
+      bolsaSummon:'./assets/fighters/lula-bolsa-invocacao.png',
+      bolsaFinal:'./assets/fighters/lula-bolsa-final.png',
+      bolsaShadow:'./assets/fighters/bolsa-sombra.png',
+      bolsaExplosion:'./assets/fighters/bolsa-explosao.png',
 
       bolsaGlove:
-        './assets/fighters/bolsa-pancada-glove.png',
+        './assets/fighters/bolsa-luva-gigante.png',
 
       knockback:
         './assets/fighters/lula-knockback.png',
@@ -524,6 +528,7 @@ bolsonaroVictory:
             key==='hadouken' ||
             key==='lulaHadouken' ||
             key==='taokWave' ||
+            key==='bolsaShadow' || key==='bolsaExplosion' ||
             key==='taokBurst'
           )
             ?img
@@ -626,7 +631,8 @@ function fighter(side,time){
     }else if(sp.type==='hadouken'){
       sprite=images.hadoukenPose;
     }else if(sp.type==='bolsaPancada'){
-      sprite=images.bolsaPose;
+      const age=time-sp.start;
+      sprite=age<190?images.bolsaPrepare:age<790?images.bolsaSummon:images.bolsaFinal;
     }
 
   }else if(game.phase==='ko'){
@@ -1560,7 +1566,7 @@ function startBolsaPancada(){
     start:now,
     duration:BOLSA_DURATION_MS,
     round:game.round,
-    x:670,
+    x:bolsonaroX,
     hit:false
   };
   $('message').textContent='LULA — BOLSA PANCADA!';
@@ -1608,6 +1614,11 @@ function updateBolsaPancada(now){
     sp.hit=true;
     game.hp.b=Math.max(0,game.hp.b-BOLSA_DAMAGE);
     bolsaImpact={start:now,x:sp.x};
+    const from=bolsonaroX;
+    const to=Math.min(BOLSONARO_WALL_X,from+KNOCKBACK_DISTANCE);
+    bolsonaroKnockback={start:now,duration:600,from,to};
+    bolsonaroX=to;
+    playSound('bolsonaroDano');
 
     // O mesmo estado de K.O. usado pelos outros golpes mantém
     // áudio de vitória, placar e avanço automático de rounds.
@@ -1627,48 +1638,42 @@ function drawBolsaPancada(now){
   const sp=specialEffect;
   if(sp?.type==='bolsaPancada'){
     const elapsed=now-sp.start;
+    if(elapsed>=180 && !sp.hit){
+      const pulse=reduceMotion?0:Math.sin(elapsed/65)*0.07;
+      const w=270*(1+pulse),h=68*(1+pulse);
+      ctx.save();
+      ctx.globalAlpha=.88;
+      ctx.drawImage(images.bolsaShadow,sp.x-w/2,449-h/2,w,h);
+      ctx.restore();
+    }
     if(elapsed>=BOLSA_SUMMON_MS && !sp.hit){
       const t=Math.min(1,(elapsed-BOLSA_SUMMON_MS)/BOLSA_FALL_MS);
-      const height=175;
+      const height=245;
       const width=height*images.bolsaGlove.width/images.bolsaGlove.height;
-      // O X fica fixo sobre Bolsonaro; a aceleração é só vertical.
-      const y=-height+(300+height)*t*t;
-      ctx.drawImage(images.bolsaGlove,sp.x-width/2,y-height,width,height);
+      const bottom=-25+477*t*t;
+      ctx.drawImage(images.bolsaGlove,sp.x-width/2,bottom-height,width,height);
     }
   }
-
-  if(!bolsaImpact) return;
+  if(!bolsaImpact)return;
   const age=now-bolsaImpact.start;
   const t=Math.min(1,age/420);
   ctx.save();
+  ctx.imageSmoothingEnabled=false;
   ctx.globalAlpha=1-t;
-
-  // Estilhaços quadrados no ponto de contato.
+  const size=270+110*t;
+  ctx.drawImage(images.bolsaExplosion,bolsaImpact.x-size/2,305-size/2,size,size);
   for(let i=0;i<16;i++){
-    const angle=i*Math.PI/8;
-    const distance=18+t*88;
-    const size=i%2?8:12;
+    const angle=i*Math.PI/8,distance=24+t*105,px=i%2?8:12;
     ctx.fillStyle=i%3===0?'#fff8da':'#ffce65';
-    ctx.fillRect(
-      Math.round(bolsaImpact.x+Math.cos(angle)*distance),
-      Math.round(300+Math.sin(angle)*distance),size,size
-    );
+    ctx.fillRect(Math.round(bolsaImpact.x+Math.cos(angle)*distance),Math.round(310+Math.sin(angle)*distance),px,px);
   }
-
-  // Poeira se espalhando junto ao chão.
   for(let i=0;i<12;i++){
-    const direction=i%2?1:-1;
-    const distance=(12+i*5)*(1+t*2);
+    const direction=i%2?1:-1,distance=(12+i*5)*(1+t*2);
     ctx.fillStyle=i%2?'#c9ac83':'#8d775f';
-    ctx.fillRect(
-      Math.round(bolsaImpact.x+direction*distance),
-      Math.round(482-Math.sin(t*Math.PI)*(12+i*3)),
-      12+i%3*4,8+i%3*4
-    );
+    ctx.fillRect(Math.round(bolsaImpact.x+direction*distance),Math.round(482-Math.sin(t*Math.PI)*(12+i*3)),12+i%3*4,8+i%3*4);
   }
   ctx.restore();
 }
-
 
 function startTaok(){
   const now=performance.now();
