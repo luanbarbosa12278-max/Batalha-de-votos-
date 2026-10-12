@@ -775,11 +775,11 @@ x+=dashDirection*reach*Math.max(
     );
   }
 
-  // Durante o Hadouken vermelho, Bolsonaro cai quase deitado,
-  // preservando o sprite pixel-art existente da pasta fighters.
+  // Mantém a pose de queda do Bolsonaro inclinada,
+  // sem a rotação extra que o deixava completamente deitado.
   if(side==='b' && bolsonaroKnockback){
-    ctx.translate(0,-40);
-    ctx.rotate(1.05);
+    ctx.translate(0,-18);
+    ctx.rotate(0.15);
   }
 
   if(!knockbackBlink){
