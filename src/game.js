@@ -628,7 +628,7 @@ function fighter(side,time){
       game.elapsed/ATTACK_MS
     );
 
-    if(game.attack===side){
+    if(game.attack===side || game.attack==='both'){
       const reach=side==='l'
         ?205
         :160;
@@ -847,12 +847,11 @@ function paint(time){
     ctx.strokeStyle='#ffe9a5';
     ctx.lineWidth=4;
 
-    const x=game.attack==='l'
-      ?609
-      :356;
+    const impactXs=game.attack==='both' ? [lulaX+200,bolsonaroX-200] : [game.attack==='l' ? lulaX+300 : bolsonaroX-300];
 
     const y=337;
 
+    for(const x of impactXs){
     for(let i=0;i<8;i++){
       const a=i*Math.PI/4;
 
@@ -869,6 +868,7 @@ function paint(time){
       );
 
       ctx.stroke();
+    }
     }
 
     ctx.restore();
@@ -970,8 +970,7 @@ if(
     ctx.font='bold 14px monospace';
 
     ctx.fillText(
-      names[game.winner]+
-      ' VENCEU O ROUND',
+      (game.winner==='draw' ? 'EMPATE!' : names[game.winner]+' VENCEU O ROUND'),
       480,
       192
     );
@@ -1069,16 +1068,14 @@ function updateHUD(){
   if(game.phase==='ko'){
     $('message').textContent=
       'K.O. — '+
-      names[game.winner]+
-      ' VENCEU!';
+      (game.winner==='draw' ? 'EMPATE!' : names[game.winner]+' VENCEU!');
 
   }else if(
     game.attack &&
     game.attack!==statusAttack
   ){
     $('message').textContent=
-      names[game.attack]+
-      ' ATACA!';
+      (game.attack==='both' ? 'ATAQUE SIMULTÂNEO!' : names[game.attack]+' ATACA!');
 
   }else if(
     game.round!==statusRound
@@ -1169,11 +1166,12 @@ function updateFightAudio(now){
     attacking &&
     previousAttack!==attacking
   ){
-    playSound(
-      attacking==='l'
-        ?'lulaSoco'
-        :'bolsonaroSoco'
-    );
+    if(attacking==='both'){
+      playSound('lulaSoco');
+      playSound('bolsonaroSoco');
+    }else{
+      playSound(attacking==='l' ? 'lulaSoco' : 'bolsonaroSoco');
+    }
   }
 
   previousAttack=attacking;
@@ -1199,11 +1197,7 @@ function updateFightAudio(now){
     if(
       previousWinner!==game.winner
     ){
-      playSound(
-        game.winner==='l'
-          ?'lulaVitoria'
-          :'bolsonaroVitoria'
-      );
+      if(game.winner!=='draw')playSound(game.winner==='l' ? 'lulaVitoria' : 'bolsonaroVitoria');
 
       previousWinner=game.winner;
     }
