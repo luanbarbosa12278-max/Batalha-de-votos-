@@ -399,10 +399,13 @@ let bolsaRound=game.round;
 
 const KNOCKBACK_DISTANCE=95;
 const LULA_WALL_X=100;
+const BOLSONARO_WALL_X=860;
 const HADOUKEN_DAMAGE=20;
 
 let lulaX=290;
 let lulaKnockback=null;
+let bolsonaroX=670;
+let bolsonaroKnockback=null;
 
 const names={
   l:'LULA',
@@ -479,13 +482,21 @@ bolsonaroVictory:
 
           images[key]=(
             key==='arena' ||
-            key==='hadouken'
+            key==='hadouken' ||
+            key==='lulaHadouken'
           )
             ?img
             :normalizeSprite(img,{cropOnly:key==='bolsaGlove'});
         }
       )
     );
+
+    // Pose opcional: mantém o jogo funcionando se ainda não existir.
+    try{
+      images.lulaHadoukenPose=normalizeSprite(await loadImage('./assets/fighters/lula-hadouken.png'));
+    }catch(error){
+      images.lulaHadoukenPose=images.l;
+    }
 
     ready=true;
 
@@ -503,6 +514,13 @@ bolsonaroVictory:
       if(button){
         button.disabled=false;
       }
+    }
+
+    const specialButton=$('shoryukenL');
+    if(specialButton){
+      const label=specialButton.querySelector('span');
+      if(label)label.textContent='HADOUKEN';
+      specialButton.title='W — Hadouken vermelho do Lula';
     }
 
     $('message').textContent=
@@ -524,7 +542,7 @@ function fighter(side,time){
 
   const baseX=side==='l'
     ?lulaX
-    :670;
+    :bolsonaroX;
 
   const ground=490;
 
@@ -552,11 +570,8 @@ function fighter(side,time){
       )
     );
 
-    if(sp.type==='shoryuken'){
-      sprite=images.shoryuken;
-
-      x+=85*Math.sin(Math.PI*t);
-      y-=145*Math.sin(Math.PI*t);
+    if(sp.type==='lulaHadouken'){
+      sprite=images.lulaHadoukenPose;
 
     }else if(sp.type==='hadouken'){
       sprite=images.hadoukenPose;
@@ -616,7 +631,7 @@ x+=dashDirection*reach*Math.max(
       );
 
     }else if(game.hit){
-      x-=facing*(
+      x+=(side==='l' ? -1 : 1)*(
         reduceMotion
           ?3
           :Math.sin(
@@ -674,6 +689,15 @@ x+=dashDirection*reach*Math.max(
       Math.floor(
         progress*6/0.65
       )%2===0;
+  }
+
+  if(side==='b' && bolsonaroKnockback){
+    const kb=bolsonaroKnockback;
+    const progress=Math.min(1,Math.max(0,(time-kb.start)/kb.duration));
+    const ease=1-Math.pow(1-progress,3);
+    x=kb.from+(kb.to-kb.from)*ease;
+    y-=65*Math.sin(progress*Math.PI);
+    knockbackBlink=progress<.65 && Math.floor(progress*6/.65)%2===0;
   }
 
   ctx.save();
@@ -860,7 +884,7 @@ if(
     const progress=(t-0.12)/0.88;
 
     // Sai do Lula e vai para a direita.
-    const x=lulaX+100+progress*520;
+    const x=specialEffect.originX+100+progress*520;
 
     ctx.save();
 
@@ -1152,7 +1176,8 @@ function updateFightAudio(now){
     if(
       game.phase==='ready' &&
       !specialEffect &&
-      !lulaKnockback
+      !lulaKnockback &&
+      !bolsonaroKnockback
     ){
       playSound(
         Math.random()<0.5
@@ -1628,6 +1653,10 @@ function frame(now){
     lulaKnockback=null;
   }
 
+  if(bolsonaroKnockback && now-bolsonaroKnockback.start>=bolsonaroKnockback.duration){
+    bolsonaroKnockback=null;
+  }
+
   updateBolsaPancada(now);
 
   // Atualização dos especiais.
@@ -1673,6 +1702,28 @@ function frame(now){
         game.attack=null;
         game.winner='b';
         game.wins.b++;
+        game.elapsed=0;
+      }
+    }
+
+    if(
+      specialEffect?.type==='lulaHadouken' &&
+      !specialEffect.hit &&
+      t>=0.55
+    ){
+      specialEffect.hit=true;
+      const from=bolsonaroX;
+      const to=Math.min(BOLSONARO_WALL_X,from+KNOCKBACK_DISTANCE);
+      bolsonaroKnockback={start:now,duration:600,from,to};
+      bolsonaroX=to;
+      game.hp.b=Math.max(0,game.hp.b-HADOUKEN_DAMAGE);
+      playSound('bolsonaroDano');
+      if(game.hp.b===0){
+        game.phase='ko';
+        game.attack=null;
+        game.hit=false;
+        game.winner='l';
+        game.wins.l++;
         game.elapsed=0;
       }
     }
@@ -1737,21 +1788,26 @@ $('attackB').onclick=()=>{
   );
 };
 
-// W - Shoryuken do Lula.
+// W - Hadouken vermelho do Lula.
 $('shoryukenL').onclick=()=>{
   if(
     !ready ||
     game.phase!=='ready' ||
-    specialEffect
+    specialEffect ||
+    lulaKnockback ||
+    bolsonaroKnockback
   ){
     return;
   }
 
   specialEffect={
-    type:'shoryuken',
+    type:'lulaHadouken',
     side:'l',
     start:performance.now(),
-    duration:850
+    duration:850,
+    originX:lulaX,
+    hit:false,
+    round:game.round
   };
 
   // Apenas 35% de chance de falar.
@@ -1766,7 +1822,9 @@ $('hadoukenB').onclick=()=>{
   if(
     !ready ||
     game.phase!=='ready' ||
-    specialEffect
+    specialEffect ||
+    lulaKnockback ||
+    bolsonaroKnockback
   ){
     return;
   }
@@ -1838,6 +1896,8 @@ function resetLocalFight(){
 
   lulaX=290;
   lulaKnockback=null;
+  bolsonaroX=670;
+  bolsonaroKnockback=null;
   specialEffect=null;
   bolsaImpact=null;
   bolsaReadyAt=0;
