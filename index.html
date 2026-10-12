@@ -1543,7 +1543,7 @@ body:not(.arcade-playing) textarea {
 #debateSpeaker{color:#ffe27b;margin-bottom:7px}#debateProgress{position:absolute;bottom:0;left:0;width:0;height:4px;background:#ffdc59;z-index:7}
 @media(max-width:650px){#debateLaunch{padding:6px;font-size:9px}#debateSubtitle{bottom:1%;padding:6px}}
 
-/* Debate cinematografico v1.5.34 */
+/* Debate cinematografico v1.5.35 */
 #debateOverlay{isolation:isolate;animation:debateFadeIn .32s ease-out both}
 #debateScene{animation:debateBackdrop 16s ease-in-out infinite alternate}
 #debateScene:after{background:linear-gradient(180deg,#06142655 0%,transparent 24%,transparent 49%,#00142da8 100%)}
@@ -1563,6 +1563,14 @@ body:not(.arcade-playing) textarea {
 @keyframes debateBackdrop{from{transform:scale(1)}to{transform:scale(1.025)}}
 @media(max-width:650px){#debateHeader{top:3%;left:41%;max-width:55%;font-size:9px}#debateSkip{font-size:10px;padding:5px;right:1.5%;top:2%}.debateCharacter{height:64%;width:39%;bottom:17%}#debateLula{left:0}#debateBolsonaro{right:0}#debateSubtitle{bottom:1.5%;left:3%;width:94%;min-height:23%;font-size:clamp(8px,2vw,11px);padding:6px}#debateSpeaker{font-size:9px;margin-bottom:4px}}
 @media(prefers-reduced-motion:reduce){#debateOverlay,#debateScene{animation:none}.debateCharacter,#debateSubtitle{transition:none}}
+
+/* Debate monocromatico estilo animacao / quadrinhos v1.5.35 */
+#debateSubtitle{color:#fff!important;background:#050505f5!important;border:3px solid #fff!important;border-radius:0!important;box-shadow:0 0 0 3px #050505,6px 6px 0 #000b!important;text-shadow:2px 2px #000!important;transition:none!important}
+#debateOverlay[data-speaker="l"] #debateSubtitle,#debateOverlay[data-speaker="b"] #debateSubtitle{border-color:#fff!important}
+#debateSpeaker{color:#fff!important;text-shadow:2px 2px #000!important}
+#debateText{color:#fff!important}
+#debateProgress{background:#fff!important;box-shadow:0 -1px 5px #ffffff70!important}
+#debateSkip{background:#000!important;color:#fff!important;border:2px solid #fff!important;box-shadow:3px 3px #000!important}
 </style><style id="svf-debate-visible-v1530">
 .mobile-arcade-bar{display:flex!important;flex-wrap:wrap!important;align-items:center!important;justify-content:center!important;gap:10px!important}
 .mobile-arcade-bar #debateLaunch{display:inline-flex!important;align-items:center;justify-content:center;visibility:visible!important;opacity:1!important;position:relative!important;margin:0!important;min-height:42px;background:#123a70!important;color:#fff3a3!important;border:3px solid #ffdc59!important;box-shadow:3px 3px #09152b!important;font:700 clamp(10px,2.4vw,13px) 'Press Start 2P',monospace!important}
@@ -1688,7 +1696,7 @@ body:not(.arcade-playing) textarea {
         <button id="arcadeSwitch" type="button" aria-label="Trocar lutador">⇄ BOLSONARO</button>
       </div>
       <div class="stage">
-        <span class="arcade-version" aria-label="Versão do jogo">v1.5.34</span>
+        <span class="arcade-version" aria-label="Versão do jogo">v1.5.35</span>
         <canvas
           id="game"
           width="960"
