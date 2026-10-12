@@ -1737,7 +1737,8 @@ function drawTaok(now){
     if(elapsed>=320 && elapsed<850){
       const progress=Math.min(1,(elapsed-320)/430);
       const x=sp.originX-110-progress*(sp.originX-LULA_WALL_X-15);
-      const w=310,h=145;
+      // Projétil mais largo, sem alterar sua altura nem a duração do golpe.
+      const w=440,h=145;
       ctx.save();
       ctx.imageSmoothingEnabled=false;
       ctx.drawImage(images.taokWave,Math.round(x-w/2),255-h/2,w,h);
