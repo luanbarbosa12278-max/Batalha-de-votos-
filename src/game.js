@@ -1829,7 +1829,8 @@ function drawShields(now){
     const remaining=shieldUntil[side]-now;
     const elapsed=SHIELD_DURATION_MS-remaining;
     const p=reduceMotion?0:Math.sin(now/210);
-    const rx=104+p*1.5,ry=158+p*2;
+    const radius=148+p*2;
+    const rx=radius,ry=radius;
     const primary=isLula?'255,66,79':'54,237,122';
     const secondary=isLula?'255,196,62':'255,221,64';
     const tertiary=isLula?'255,122,130':'62,193,255';
@@ -1837,7 +1838,7 @@ function drawShields(now){
     const fade=Math.min(1,remaining/400);
     const hit=Math.max(0,1-(now-shieldImpactAt[side])/340);
     ctx.save();
-    ctx.translate(x,310);
+    ctx.translate(x,292);
     ctx.globalAlpha=fade;
     ctx.scale(.84+.16*activation,.84+.16*activation);
     const ellipse=(x0,y0,r1,r2,begin=0,end=Math.PI*2)=>{
