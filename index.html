@@ -1535,7 +1535,7 @@ body:not(.arcade-playing) textarea {
 #debateScene{position:absolute;inset:0;background:#0785bf url('./assets/fighters/cenario-debate-2022.png') center/100% 100% no-repeat;image-rendering:pixelated}
 #debateScene:after{content:"";position:absolute;inset:0;background:linear-gradient(transparent 55%,#00142dbb)}
 .debateCharacter{position:absolute;bottom:12%;height:60%;width:28%;object-fit:contain;object-position:bottom;image-rendering:pixelated;z-index:2;filter:drop-shadow(4px 5px #07142a)}
-#debateBolsonaro{left:10%}#debateLula{right:10%}
+#debateLula{left:10%;right:auto}#debateBolsonaro{right:10%;left:auto}
 #debateOverlay[data-speaker="b"] #debateBolsonaro,#debateOverlay[data-speaker="l"] #debateLula{transform:scale(1.06);filter:drop-shadow(0 0 10px #ffde67)}
 #debateHeader{position:absolute;top:5%;left:50%;transform:translateX(-50%);z-index:4;white-space:nowrap;color:#ffef91;font-size:clamp(10px,1.6vw,20px);text-shadow:3px 3px #091f3b}
 #debateSkip{position:absolute;top:3%;right:2%;z-index:6;background:#10264fe6;color:white;border:2px solid white;padding:7px;font:700 12px monospace;cursor:pointer}
@@ -1667,7 +1667,7 @@ body:not(.arcade-playing) textarea {
         <button id="arcadeSwitch" type="button" aria-label="Trocar lutador">⇄ BOLSONARO</button>
       </div>
       <div class="stage">
-        <span class="arcade-version" aria-label="Versão do jogo">v1.5.32</span>
+        <span class="arcade-version" aria-label="Versão do jogo">v1.5.33</span>
         <canvas
           id="game"
           width="960"
