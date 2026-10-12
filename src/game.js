@@ -378,7 +378,7 @@ function addPixelOutline(sprite){
   outlined.height=sprite.height;
   const octx=outlined.getContext('2d');
   octx.imageSmoothingEnabled=false;
-  const thickness=3;
+  const thickness=1;
   for(let dy=-thickness;dy<=thickness;dy++){
     for(let dx=-thickness;dx<=thickness;dx++){
       if(dx===0 && dy===0)continue;
@@ -778,8 +778,8 @@ x+=dashDirection*reach*Math.max(
   // Mantém a pose de queda do Bolsonaro inclinada,
   // sem a rotação extra que o deixava completamente deitado.
   if(side==='b' && bolsonaroKnockback){
-    ctx.translate(0,-18);
-    ctx.rotate(0.15);
+    // A imagem nova já tem a inclinação correta: não girar novamente.
+    ctx.translate(0,-8);
   }
 
   if(!knockbackBlink){
