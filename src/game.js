@@ -277,7 +277,69 @@ function playSound(group){
 // NORMALIZAÇÃO DOS SPRITES
 // ========================================
 
-function normalizeSprite(img,{cropOnly=false}={}){
+// Coordenadas na arte original: topo do cabelo, sem contar o braço/efeito.
+// A altura cabeça-sola vira os mesmos 180px do idle; nunca esticar por eixo.
+const LULA_BOLSA_BODY_TOP={bolsaPrepare:317,bolsaSummon:390,bolsaFinal:22};
+
+// Máscara cromática exclusiva do tecido azul saturado dos três PNGs.
+// Neutros, contornos pretos, vermelhos e tons de pele ficam intactos.
+function isBolsaSuitPixel(r,g,b,a){
+  return a>20 && b>=40 && b<=205 && g<=125 &&
+    b-r>=24 && b>g*1.45 && g>=r;
+}
+
+function suitTone(r,g,b){
+  return Math.round(.2126*r+.7152*g+.0722*b);
+}
+
+function lulaSuitPalette(img){
+  const canvas=document.createElement('canvas');
+  canvas.width=img.naturalWidth;
+  canvas.height=img.naturalHeight;
+  const context=canvas.getContext('2d',{willReadFrequently:true});
+  context.drawImage(img,0,0);
+  const {data}=context.getImageData(0,0,canvas.width,canvas.height);
+  const colors=[];
+  for(let i=0;i<data.length;i+=4){
+    const r=data[i],g=data[i+1],b=data[i+2],a=data[i+3];
+    // Tecido azul-marinho do idle; exclui camisa, pele e cabelo.
+    if(a>20 && r>8 && g<=105 && b<=135 && b-r>12 && b>g*1.15 && g>=r){
+      colors.push([r,g,b]);
+    }
+  }
+  colors.sort((a,b)=>suitTone(...a)-suitTone(...b));
+  return colors;
+}
+
+function matchBolsaSuit(imageData,palette){
+  if(!palette.length)return;
+  const {data}=imageData;
+  const histogram=new Uint32Array(256);
+  let count=0;
+  for(let i=0;i<data.length;i+=4){
+    if(isBolsaSuitPixel(data[i],data[i+1],data[i+2],data[i+3])){
+      histogram[suitTone(data[i],data[i+1],data[i+2])]++;
+      count++;
+    }
+  }
+  if(!count)return;
+  // Mapeamento monotônico: conserva a ordem das sombras/luzes e usa RGB
+  // realmente presentes no terno de lula-idle.png, sem filtro global.
+  const ramp=[];
+  let cumulative=0;
+  for(let tone=0;tone<256;tone++){
+    const percentile=(cumulative+histogram[tone]/2)/count;
+    ramp[tone]=palette[Math.min(palette.length-1,Math.floor(percentile*palette.length))];
+    cumulative+=histogram[tone];
+  }
+  for(let i=0;i<data.length;i+=4){
+    if(!isBolsaSuitPixel(data[i],data[i+1],data[i+2],data[i+3]))continue;
+    const color=ramp[suitTone(data[i],data[i+1],data[i+2])];
+    data[i]=color[0];data[i+1]=color[1];data[i+2]=color[2];
+  }
+}
+
+function normalizeSprite(img,{cropOnly=false,bodyTop=null,suitPalette=null}={}){
   const source=document.createElement('canvas');
 
   source.width=img.naturalWidth;
@@ -290,12 +352,17 @@ function normalizeSprite(img,{cropOnly=false}={}){
 
   sctx.drawImage(img,0,0);
 
-  const {data}=sctx.getImageData(
+  const pixels=sctx.getImageData(
     0,
     0,
     source.width,
     source.height
   );
+  const {data}=pixels;
+  if(suitPalette){
+    matchBolsaSuit(pixels,suitPalette);
+    sctx.putImageData(pixels,0,0);
+  }
 
   let minX=source.width;
   let minY=source.height;
@@ -338,18 +405,19 @@ function normalizeSprite(img,{cropOnly=false}={}){
     return crop;
   }
 
-  const scale=Math.min(
+  const scale=bodyTop!==null ? 180/(maxY+1-bodyTop) : Math.min(
     220/cropWidth,
     180/cropHeight
   );
 
-  const w=Math.round(cropWidth*scale);
-  const h=Math.round(cropHeight*scale);
+  // As poses calibradas usam exatamente o mesmo fator nos dois eixos.
+  const w=bodyTop!==null ? cropWidth*scale : Math.round(cropWidth*scale);
+  const h=bodyTop!==null ? cropHeight*scale : Math.round(cropHeight*scale);
 
   const frame=document.createElement('canvas');
 
-  frame.width=280;
-  frame.height=256;
+  frame.width=bodyTop!==null ? Math.max(280,Math.ceil(w)+32) : 280;
+  frame.height=bodyTop!==null ? Math.max(256,Math.ceil(h)+32) : 256;
 
   const fctx=frame.getContext('2d');
 
@@ -361,8 +429,8 @@ function normalizeSprite(img,{cropOnly=false}={}){
     minY,
     cropWidth,
     cropHeight,
-    Math.round((280-w)/2),
-    240-h,
+    bodyTop!==null ? (frame.width-w)/2 : Math.round((280-w)/2),
+    frame.height-16-h,
     w,
     h
   );
@@ -518,10 +586,14 @@ bolsonaroVictory:
   './assets/fighters/bolsonaro-victory.png'
   };
 
+    // O idle deve estar disponível antes de extrair a paleta dos especiais.
+    const lulaIdle=await loadImage(files.l);
+    const suitPalette=lulaSuitPalette(lulaIdle);
     await Promise.all(
       Object.entries(files).map(
         async ([key,path])=>{
-          const img=await loadImage(path);
+          const img=key==='l' ? lulaIdle : await loadImage(path);
+          const bodyTop=LULA_BOLSA_BODY_TOP[key] ?? null;
 
           images[key]=(
             key==='arena' ||
@@ -532,7 +604,10 @@ bolsonaroVictory:
             key==='taokBurst'
           )
             ?img
-            :normalizeSprite(img,{cropOnly:key==='bolsaGlove'});
+            :normalizeSprite(img,{
+              cropOnly:key==='bolsaGlove',bodyTop,
+              suitPalette:bodyTop!==null ? suitPalette : null
+            });
         }
       )
     );
@@ -820,24 +895,12 @@ x+=dashDirection*reach*Math.max(
   }
 
   if(!knockbackBlink){
-    // As poses do Bolsa Pancada têm enquadramentos mais largos.
-    // Amplia apenas o Lula durante o especial, mantendo os pés
-    // alinhados ao chão e sem mudar os outros golpes.
-    // A pose com o braço estendido ocupa mais altura no PNG e a
-    // normalização padrão (180px) faz o corpo parecer miniatura.
-    // Mantém a escala fixa durante TODAS as etapas do especial.
-    const bolsaAge=sp?.type==='bolsaPancada'?time-sp.start:0;
-    // A pose final tem proporções normais; as poses de braço erguido
-    // precisam de compensação moderada pelo espaço extra acima da cabeça.
-    const bolsaScale=side==='l' && sp?.type==='bolsaPancada'
-      ? (bolsaAge<190?1.18:bolsaAge<790?1.30:0.98)
-      : 1;
+    // Quadros maiores acomodam o braço levantado. A âncora continua
+    // no centro dos pés, a 16px da borda inferior, inclusive no idle.
     ctx.drawImage(
       sprite,
-      -140*bolsaScale,
-      16-256*bolsaScale,
-      280*bolsaScale,
-      256*bolsaScale
+      -sprite.width/2,
+      16-sprite.height
     );
   }
 
