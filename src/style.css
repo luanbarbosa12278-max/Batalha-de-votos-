@@ -111,3 +111,47 @@ body.arcade-playing{overflow:hidden}
 #arcadeArena.arcade-fallback-fullscreen{position:fixed;inset:0;z-index:999999}
 @media(max-width:700px){.mobile-arcade-bar{flex-wrap:wrap}.arcade-action{width:64px;height:64px;font-size:21px}.arcade-action span{font-size:8px}.arcade-actions{gap:6px}#arcadeArena:fullscreen .arcade-touch-controls,#arcadeArena.arcade-fallback-fullscreen .arcade-touch-controls{right:7px;bottom:29px}#arcadeArena:fullscreen .arcade-topbar,#arcadeArena.arcade-fallback-fullscreen .arcade-topbar{top:2px}#arcadeArena:fullscreen .hud,#arcadeArena.arcade-fallback-fullscreen .hud{padding-top:32px}}
 @media(orientation:portrait){#arcadeArena:fullscreen .stage,#arcadeArena.arcade-fallback-fullscreen .stage{flex:0 1 auto}#arcadeArena:fullscreen .arcade-touch-controls,#arcadeArena.arcade-fallback-fullscreen .arcade-touch-controls{bottom:13%;right:50%;transform:translateX(50%)}#arcadeArena:fullscreen .arcade-topbar,#arcadeArena.arcade-fallback-fullscreen .arcade-topbar{top:10px}}
+
+/* Correção: controles sempre visíveis no modo paisagem, inclusive Android Chrome */
+#arcadeArena:fullscreen .arcade-touch-controls,
+#arcadeArena.arcade-fallback-fullscreen .arcade-touch-controls{
+  display:flex!important;
+  position:fixed!important;
+  z-index:2147483000!important;
+  visibility:visible!important;
+  opacity:1!important;
+  right:max(12px,env(safe-area-inset-right))!important;
+  bottom:max(16px,env(safe-area-inset-bottom))!important;
+  left:auto!important;
+  top:auto!important;
+  transform:none!important;
+  pointer-events:none;
+}
+#arcadeArena:fullscreen .arcade-actions,
+#arcadeArena.arcade-fallback-fullscreen .arcade-actions{display:flex!important;pointer-events:auto!important}
+#arcadeArena:fullscreen .arcade-action,
+#arcadeArena.arcade-fallback-fullscreen .arcade-action{display:flex!important;visibility:visible!important;pointer-events:auto!important}
+#arcadeArena:fullscreen .arcade-topbar,
+#arcadeArena.arcade-fallback-fullscreen .arcade-topbar{
+  display:flex!important;position:fixed!important;
+  top:max(6px,env(safe-area-inset-top))!important;
+  left:50%!important;transform:translateX(-50%)!important;
+  z-index:2147483001!important;
+}
+#arcadeArena:fullscreen>.cabinet,
+#arcadeArena.arcade-fallback-fullscreen>.cabinet{overflow:visible!important}
+@media (orientation:landscape) and (max-height:600px){
+  #arcadeArena:fullscreen .arcade-touch-controls,
+  #arcadeArena.arcade-fallback-fullscreen .arcade-touch-controls{
+    right:max(8px,env(safe-area-inset-right))!important;
+    bottom:max(8px,env(safe-area-inset-bottom))!important;
+  }
+  #arcadeArena:fullscreen .arcade-action,
+  #arcadeArena.arcade-fallback-fullscreen .arcade-action{width:clamp(54px,11vh,72px)!important;height:clamp(54px,11vh,72px)!important;font-size:19px!important}
+  #arcadeArena:fullscreen .arcade-action span,
+  #arcadeArena.arcade-fallback-fullscreen .arcade-action span{font-size:7px!important}
+  #arcadeArena:fullscreen .arcade-fighter-tag,
+  #arcadeArena.arcade-fallback-fullscreen .arcade-fighter-tag{font-size:9px!important;padding:3px 8px!important}
+  #arcadeArena:fullscreen .arcade-topbar button,
+  #arcadeArena.arcade-fallback-fullscreen .arcade-topbar button{min-height:30px!important;font-size:10px!important}
+}
