@@ -1416,6 +1416,90 @@ body:not(.arcade-playing) textarea {
  height:clamp(24px,3.6vw,46px);
 }
 </style>
+
+<style id="svf-fullscreen-buttons-v1513">
+/* Botões premium arcade 16-bit: somente apresentação no modo tela cheia. */
+#arcadeArena:fullscreen .arcade-action,
+#arcadeArena.arcade-fallback-fullscreen .arcade-action {
+  width:clamp(76px,17vh,116px)!important;
+  height:clamp(76px,17vh,116px)!important;
+  min-height:0!important;
+  padding:5px 4px 6px!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:2px!important;
+  border:4px solid #ffe5a1!important;
+  border-radius:5px!important;
+  background:linear-gradient(155deg,#3c557d 0%,#243656 45%,#111c35 100%)!important;
+  box-shadow:inset 3px 3px 0 #ffffff65,inset -4px -4px 0 #030c1a,0 0 0 3px #0b1121,4px 5px 0 #050912!important;
+  overflow:hidden!important;
+  touch-action:manipulation;
+}
+#arcadeArena:fullscreen .arcade-punch,
+#arcadeArena.arcade-fallback-fullscreen .arcade-punch {
+  background:linear-gradient(155deg,#bf4054,#76263b 56%,#331c32)!important;
+}
+#arcadeArena:fullscreen .arcade-power,
+#arcadeArena.arcade-fallback-fullscreen .arcade-power {
+  background:linear-gradient(155deg,#288ac5,#185d9b 55%,#13294c)!important;
+}
+#arcadeArena:fullscreen .arcade-special,
+#arcadeArena.arcade-fallback-fullscreen .arcade-special {
+  background:linear-gradient(155deg,#d2a02d,#916019 55%,#493013)!important;
+}
+#arcadeArena:fullscreen .arcade-action .attack-icon,
+#arcadeArena.arcade-fallback-fullscreen .arcade-action .attack-icon {
+  width:clamp(49px,10.5vh,78px)!important;
+  height:clamp(49px,10.5vh,78px)!important;
+  max-height:69%!important;
+  object-fit:contain!important;
+  image-rendering:pixelated!important;
+  filter:drop-shadow(2px 3px 0 #080d1f) drop-shadow(0 0 4px #ffdf7870)!important;
+}
+#arcadeArena:fullscreen .arcade-action span,
+#arcadeArena.arcade-fallback-fullscreen .arcade-action span {
+  display:block!important;
+  max-width:100%!important;
+  font-size:clamp(5px,.68vw,8px)!important;
+  line-height:1.45!important;
+  text-align:center!important;
+  overflow-wrap:anywhere!important;
+  color:#fff7d7!important;
+  text-shadow:2px 2px 0 #0a0e1d!important;
+}
+#arcadeArena:fullscreen .arcade-action:active,
+#arcadeArena.arcade-fallback-fullscreen .arcade-action:active {
+  transform:translate(2px,3px)!important;
+  filter:brightness(1.22)!important;
+  box-shadow:inset 4px 4px 0 #0009,0 0 0 3px #0b1121,1px 1px 0 #050912!important;
+}
+#arcadeArena:fullscreen .arcade-action:disabled,
+#arcadeArena.arcade-fallback-fullscreen .arcade-action:disabled {
+  opacity:.62!important;
+  filter:saturate(.65)!important;
+}
+#arcadeArena:fullscreen .arcade-actions,
+#arcadeArena.arcade-fallback-fullscreen .arcade-actions {
+  width:auto!important;
+  max-width:min(48vw,440px)!important;
+  gap:clamp(6px,1.4vw,15px)!important;
+  grid-template-columns:repeat(3,max-content)!important;
+}
+@media (orientation:landscape) and (max-height:390px) {
+ #arcadeArena:fullscreen .arcade-action,
+ #arcadeArena.arcade-fallback-fullscreen .arcade-action {
+   width:clamp(66px,18vh,82px)!important;
+   height:clamp(66px,18vh,82px)!important;
+ }
+ #arcadeArena:fullscreen .arcade-action .attack-icon,
+ #arcadeArena.arcade-fallback-fullscreen .arcade-action .attack-icon {
+   width:clamp(43px,11vh,57px)!important;
+   height:clamp(43px,11vh,57px)!important;
+ }
+}
+</style>
 </head>
 
 <body>
@@ -1531,7 +1615,7 @@ body:not(.arcade-playing) textarea {
         <button id="arcadeSwitch" type="button" aria-label="Trocar lutador">⇄ BOLSONARO</button>
       </div>
       <div class="stage">
-        <span class="arcade-version" aria-label="Versão do jogo">v1.5.12</span>
+        <span class="arcade-version" aria-label="Versão do jogo">v1.5.13</span>
         <canvas
           id="game"
           width="960"
