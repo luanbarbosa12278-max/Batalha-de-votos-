@@ -1841,6 +1841,28 @@ function drawShields(now){
     ctx.translate(x,315);
     ctx.globalAlpha=fade;
     ctx.scale(.84+.16*activation,.84+.16*activation);
+    // Escudos de meme enviados ao GitHub: PNG original, centro transparente.
+    // O desenho procedural abaixo continua como fallback se o arquivo falhar.
+    const shieldArt=images[isLula?'shieldL':'shieldB'];
+    if(shieldArt?.complete && shieldArt.naturalWidth>0){
+      const wobble=reduceMotion?0:Math.sin(now/170)*2;
+      const impactScale=1+hit*.045;
+      ctx.save();
+      ctx.scale(impactScale,impactScale);
+      ctx.imageSmoothingEnabled=false;
+      // Abertura transparente alinhada ao corpo, sem cobrir o personagem.
+      ctx.drawImage(shieldArt,-154-wobble/2,-248-wobble/2,308+wobble,434+wobble);
+      if(hit>0){
+        ctx.strokeStyle='rgba(255,255,255,'+(hit*.85)+')';
+        ctx.lineWidth=4;
+        ctx.beginPath();
+        ctx.ellipse(0,5,145+hit*12,181+hit*12,0,0,Math.PI*2);
+        ctx.stroke();
+      }
+      ctx.restore();
+      ctx.restore();
+      continue;
+    }
     const ellipse=(x0,y0,r1,r2,begin=0,end=Math.PI*2)=>{
       ctx.beginPath();ctx.ellipse(x0,y0,r1,r2,0,begin,end);
     };
