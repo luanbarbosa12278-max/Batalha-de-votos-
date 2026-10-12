@@ -1625,7 +1625,8 @@ function updateBolsaPancada(now){
 
   if(!sp.hit && now-sp.start>=BOLSA_SUMMON_MS+BOLSA_FALL_MS){
     sp.hit=true;
-    if(!shieldOn('b',now))game.hp.b=Math.max(0,game.hp.b-BOLSA_DAMAGE);
+    if(shieldOn('b',now))shieldImpact('b',now);
+    else game.hp.b=Math.max(0,game.hp.b-BOLSA_DAMAGE);
     bolsaImpact={start:now,x:sp.x};
     const from=bolsonaroX;
     const to=Math.min(BOLSONARO_WALL_X,from+KNOCKBACK_DISTANCE);
@@ -1739,7 +1740,8 @@ function updateTaok(now){
     lulaX=to;
     if(shieldOn('l',now)){lulaKnockback=null;lulaX=from;}
     taokImpact={start:now,x:from};
-    if(!shieldOn('l',now))game.hp.l=Math.max(0,game.hp.l-TAOK_DAMAGE);
+    if(shieldOn('l',now))shieldImpact('l',now);
+    else game.hp.l=Math.max(0,game.hp.l-TAOK_DAMAGE);
     if(!shieldOn('l',now))playSound('lulaDano');
     if(game.hp.l===0){
       game.phase='ko';game.attack=null;game.hit=false;
@@ -1814,49 +1816,84 @@ document.addEventListener('keydown',event=>{
   if(event.code==='Digit1'){event.preventDefault();activateShield('l');}
   if(event.code==='Digit2'){event.preventDefault();activateShield('b');}
 });
+// Bolhas premium: centro limpo, energia concentrada nas bordas.
+const shieldImpactAt={l:-1e9,b:-1e9};
+function shieldImpact(side,now=performance.now()){
+  if(shieldOn(side,now))shieldImpactAt[side]=now;
+}
 function drawShields(now){
   for(const side of ['l','b']){
     if(!shieldOn(side,now))continue;
-    const x=side==='l'?lulaX+5:bolsonaroX-5;
+    const isLula=side==='l';
+    const x=isLula?lulaX+5:bolsonaroX-5;
     const remaining=shieldUntil[side]-now;
     const elapsed=SHIELD_DURATION_MS-remaining;
-    const pulse=reduceMotion?0:Math.sin(now/190)*2.5;
-    const rx=105+pulse, ry=160+pulse;
-    const primary=side==='l'?'255,76,76':'71,230,126';
-    const secondary=side==='l'?'255,206,87':'70,200,255';
+    const p=reduceMotion?0:Math.sin(now/210);
+    const rx=104+p*1.5,ry=158+p*2;
+    const primary=isLula?'255,66,79':'54,237,122';
+    const secondary=isLula?'255,196,62':'255,221,64';
+    const tertiary=isLula?'255,122,130':'62,193,255';
+    const activation=reduceMotion?1:Math.min(1,elapsed/230);
+    const fade=Math.min(1,remaining/400);
+    const hit=Math.max(0,1-(now-shieldImpactAt[side])/340);
     ctx.save();
     ctx.translate(x,310);
-    const fade=Math.min(1,remaining/380);
-    const pop=reduceMotion?1:Math.min(1,elapsed/180);
-    ctx.scale(pop,pop);
-    // Bolha translúcida: o lutador permanece nítido e visível.
-    const fill=ctx.createRadialGradient(-rx*.28,-ry*.32,8,0,0,ry);
-    fill.addColorStop(0,'rgba('+secondary+',0.035)');
-    fill.addColorStop(.67,'rgba('+primary+',0.085)');
-    fill.addColorStop(1,'rgba('+primary+',0.18)');
     ctx.globalAlpha=fade;
-    ctx.fillStyle=fill;
-    ctx.beginPath();ctx.ellipse(0,0,rx,ry,0,0,Math.PI*2);ctx.fill();
-    // Contorno luminoso de fliperama, delicado e bem definido.
-    ctx.strokeStyle='rgba('+primary+',0.86)';
-    ctx.lineWidth=4;
-    ctx.beginPath();ctx.ellipse(0,0,rx,ry,0,0,Math.PI*2);ctx.stroke();
-    ctx.strokeStyle='rgba('+secondary+',0.56)';
+    ctx.scale(.84+.16*activation,.84+.16*activation);
+    const ellipse=(x0,y0,r1,r2,begin=0,end=Math.PI*2)=>{
+      ctx.beginPath();ctx.ellipse(x0,y0,r1,r2,0,begin,end);
+    };
+    // Película vítrea extremamente leve para não ocultar o lutador.
+    const glass=ctx.createRadialGradient(-32,-48,12,0,0,ry);
+    glass.addColorStop(0,'rgba(255,255,255,0.005)');
+    glass.addColorStop(.64,'rgba('+tertiary+',0.018)');
+    glass.addColorStop(.84,'rgba('+primary+',0.045)');
+    glass.addColorStop(1,'rgba('+primary+',0.13)');
+    ctx.fillStyle=glass;ellipse(0,0,rx,ry);ctx.fill();
+    // Halo de energia externo com camadas, sem sombra borrada.
+    ctx.strokeStyle='rgba('+primary+','+(.12+hit*.2)+')';
+    ctx.lineWidth=16;ellipse(0,0,rx+2,ry+2);ctx.stroke();
+    ctx.strokeStyle='rgba('+tertiary+',.42)';
+    ctx.lineWidth=9;ellipse(0,0,rx+1,ry+1);ctx.stroke();
+    ctx.strokeStyle='rgba('+primary+',.98)';
+    ctx.lineWidth=4;ellipse(0,0,rx,ry);ctx.stroke();
+    ctx.strokeStyle='rgba('+secondary+',.85)';
+    ctx.lineWidth=2;ellipse(0,0,rx-6,ry-8);ctx.stroke();
+    // Arcos energéticos girando pela superfície, estilo fliperama.
+    for(let i=0;i<4;i++){
+      const start=i*Math.PI/2+(reduceMotion?0:now/1150)*(isLula?1:-1);
+      ctx.strokeStyle='rgba('+(i%2?secondary:tertiary)+',.92)';
+      ctx.lineWidth=i%2?4:3;
+      ellipse(0,0,rx+3,ry+3,start,start+.35+p*.025);ctx.stroke();
+    }
+    // Reflexo de vidro curvo nas bordas, sem cruzar o rosto.
+    ctx.strokeStyle='rgba(255,255,255,.72)';
+    ctx.lineWidth=3;
+    ellipse(0,0,rx-13,ry-17,3.53,4.26);ctx.stroke();
+    ctx.strokeStyle='rgba(255,255,255,.32)';
     ctx.lineWidth=2;
-    ctx.beginPath();ctx.ellipse(0,0,rx-7,ry-7,0,0,Math.PI*2);ctx.stroke();
-    // Reflexos de vidro e energia nas laterais.
-    ctx.strokeStyle='rgba(255,255,255,0.68)';
-    ctx.lineWidth=3;
-    ctx.beginPath();ctx.ellipse(-rx*.13,-ry*.04,rx*.73,ry*.86,-.1,3.4,4.5);ctx.stroke();
-    ctx.strokeStyle='rgba('+secondary+',0.72)';
-    ctx.lineWidth=3;
-    ctx.beginPath();ctx.ellipse(rx*.07,ry*.02,rx*.87,ry*.92,0,-.75,.65);ctx.stroke();
-    // Partículas discretas orbitando a borda da bolha.
-    for(let i=0;i<5;i++){
-      const angle=(i*Math.PI*2/5)+(reduceMotion?0:now/1150)*(side==='l'?1:-1);
-      const px=Math.cos(angle)*rx,py=Math.sin(angle)*ry;
-      ctx.fillStyle=i%2?'rgba(255,255,255,.9)':'rgba('+secondary+',.95)';
-      ctx.fillRect(Math.round(px)-2,Math.round(py)-2,4,4);
+    ellipse(0,0,rx-15,ry-20,5.62,6.08);ctx.stroke();
+    // Pequenos pixels orbitais e estrelas pontuais.
+    for(let i=0;i<9;i++){
+      const t=i*Math.PI*2/9+(reduceMotion?0:now/1700)*(isLula?1:-1);
+      const px=Math.cos(t)*(rx+7),py=Math.sin(t)*(ry+7);
+      const size=i%3===0?5:3;
+      ctx.fillStyle=i%2?'rgb('+secondary+')':'rgb('+tertiary+')';
+      ctx.fillRect(Math.round(px-size/2),Math.round(py-size/2),size,size);
+      if(i%3===0){
+        ctx.fillStyle='rgba(255,255,255,.85)';
+        ctx.fillRect(Math.round(px),Math.round(py)-5,1,11);
+        ctx.fillRect(Math.round(px)-5,Math.round(py),11,1);
+      }
+    }
+    // Explosão curta na ativação e ao bloquear golpes.
+    const burst=Math.max(hit,elapsed<300?1-elapsed/300:0);
+    if(burst>0){
+      ctx.globalAlpha=fade*burst*.75;
+      ctx.strokeStyle='rgb('+secondary+')';ctx.lineWidth=5;
+      ellipse(0,0,rx+8+(1-burst)*18,ry+8+(1-burst)*18);ctx.stroke();
+      ctx.strokeStyle='rgba(255,255,255,.85)';ctx.lineWidth=2;
+      ellipse(0,0,rx+5+(1-burst)*14,ry+5+(1-burst)*14);ctx.stroke();
     }
     ctx.restore();
   }
