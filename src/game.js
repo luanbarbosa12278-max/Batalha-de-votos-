@@ -1,5 +1,5 @@
 
-import {Fight, VoteTracker, ATTACK_MS, HIT_MS} from './engine.js';
+import {Fight, VoteTracker, ATTACK_MS, HIT_MS, MAX_HP} from './engine.js';
 
 const API='https://tiktok-live-servidor.onrender.com';
 const $=id=>document.getElementById(id);
@@ -413,7 +413,7 @@ let lastHud='';
 let specialEffect=null;
 
 const BOLSA_DAMAGE=25;
-const BOLSA_COOLDOWN_MS=5000;
+const BOLSA_COOLDOWN_MS=1400;
 const BOLSA_SUMMON_MS=350;
 const BOLSA_FALL_MS=380;
 const BOLSA_DURATION_MS=1050;
@@ -426,7 +426,7 @@ const LULA_WALL_X=100;
 const BOLSONARO_WALL_X=860;
 const HADOUKEN_DAMAGE=20;
 const TAOK_DAMAGE=25;
-const TAOK_COOLDOWN_MS=5000;
+const TAOK_COOLDOWN_MS=1400;
 const TAOK_DURATION_MS=1100;
 let taokReadyAt=0;
 let taokImpact=null;
@@ -1053,9 +1053,9 @@ function updateHUD(){
       ['l','L'],
       ['b','B']
     ]){
-      const hp=Math.max(0,Math.min(100,game.hp[side]));
+      const hp=Math.max(0,Math.min(MAX_HP,game.hp[side]));
       const lifeLabel=$('life'+id);
-      if(lifeLabel)lifeLabel.textContent='HP '+Math.round(hp)+'/100';
+      if(lifeLabel)lifeLabel.textContent='HP '+Math.round(hp)+'/'+MAX_HP;
 
       // Pisca e treme somente ao perder HP, não ao reiniciar o round.
       if(hp<previousHudHP[side]){
@@ -1069,7 +1069,7 @@ function updateHUD(){
       previousHudHP[side]=hp;
 
       $('hp'+id).style.width=
-        hp+'%';
+        (hp/MAX_HP*100)+'%';
 
       $('hp'+id)
         .parentElement
@@ -1602,7 +1602,7 @@ function updateBolsaButton(now){
   if(span && span.textContent!==label) span.textContent=label;
   button.title=seconds>0
     ?'Recarregando: '+seconds+'s'
-    :'E — Bolsa Pancada (25 HP; recarga de 5 segundos)';
+    :'E — Bolsa Pancada (25 HP; recarga de 1,4 segundos)';
 }
 
 function updateBolsaPancada(now){
@@ -1714,7 +1714,7 @@ function updateTaokButton(now){
     game.hp.l<=0 || game.hp.b<=0 || seconds>0;
   const span=button.querySelector('span');
   if(span)span.textContent=seconds>0?'TÁ OK! · '+seconds+'s':'TÁ OK!';
-  button.title=seconds>0?'Recarga: '+seconds+'s':'P — TÁ OK! (25 HP; 5s)';
+  button.title=seconds>0?'Recarga: '+seconds+'s':'P — TÁ OK! (25 HP; 1,4s)';
 }
 
 function updateTaok(now){
