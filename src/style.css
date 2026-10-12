@@ -212,3 +212,32 @@ body.arcade-playing{overflow:hidden}
   text-shadow:1px 2px #0b1020;
 }
 .arcade-topbar button:active{transform:translateY(2px);box-shadow:1px 1px 0 #090d19!important}
+
+/* Corrige corte do piso em tela cheia: o canvas inteiro deve caber no palco */
+#arcadeArena:fullscreen .stage,
+#arcadeArena.arcade-fallback-fullscreen .stage{
+  min-width:0!important;
+  min-height:0!important;
+  overflow:hidden!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+}
+#arcadeArena:fullscreen .stage canvas,
+#arcadeArena.arcade-fallback-fullscreen .stage canvas{
+  display:block!important;
+  flex:0 1 auto!important;
+  width:100%!important;
+  height:100%!important;
+  min-width:0!important;
+  min-height:0!important;
+  max-width:100%!important;
+  max-height:100%!important;
+  object-fit:contain!important;
+  aspect-ratio:auto!important;
+  image-rendering:pixelated!important;
+}
+#arcadeArena:fullscreen>.cabinet,
+#arcadeArena.arcade-fallback-fullscreen>.cabinet{
+  min-height:0!important;
+}
