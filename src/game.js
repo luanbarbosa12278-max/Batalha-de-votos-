@@ -465,6 +465,9 @@ async function loadAssets(){
       knockback:
         './assets/fighters/lula-knockback.png',
 
+      bolsonaroKnockbackPose:
+        './assets/fighters/bolsonaro-knockback.png',
+
      lulaPunch:
   './assets/fighters/lula-punch.png',
 
@@ -697,6 +700,7 @@ x+=dashDirection*reach*Math.max(
     const ease=1-Math.pow(1-progress,3);
     x=kb.from+(kb.to-kb.from)*ease;
     y-=65*Math.sin(progress*Math.PI);
+    sprite=images.bolsonaroKnockbackPose;
     knockbackBlink=progress<.65 && Math.floor(progress*6/.65)%2===0;
   }
 
@@ -848,8 +852,9 @@ function paint(time){
         t-.12
       )/.88;
 
-      const x=530-
-        progress*570;
+      // O projétil nasce na luva do Bolsonaro,
+      // independentemente da posição dele na arena.
+      const x=specialEffect.originX-105-progress*570;
 
       ctx.save();
 
@@ -1834,7 +1839,9 @@ $('hadoukenB').onclick=()=>{
     side:'b',
     start:performance.now(),
     duration:850,
-    hit:false
+    hit:false,
+    originX:bolsonaroX,
+    round:game.round
   };
 
   // SEMPRE fala no Hadouken.
