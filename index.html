@@ -3,7 +3,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#141522">
   <meta name="description" content="Street Vote Fighter: um jogo arcade brasileiro de luta, humor e interação ao vivo.">
 
@@ -1377,6 +1377,7 @@
         <button id="arcadeSwitch" type="button" aria-label="Trocar lutador">⇄ BOLSONARO</button>
       </div>
       <div class="stage">
+        <span class="arcade-version" aria-label="Versão do jogo">v1.4.0</span>
         <canvas
           id="game"
           width="960"
@@ -1730,6 +1731,18 @@
 #arcadeArena:fullscreen #game, #arcadeArena.arcade-fallback-fullscreen #game {position:absolute!important; inset:0!important; width:100%!important; height:100%!important; max-width:100%!important; max-height:100%!important; aspect-ratio:auto!important; object-fit:contain!important; image-rendering:pixelated!important;}
 #arcadeArena:fullscreen .cabinet, #arcadeArena.arcade-fallback-fullscreen .cabinet {min-height:0!important;}
 </style>
+
+<style id="arcade-immersive-v140">
+/* Versao discreta, sempre presa ao canto da arena. */
+#arcadeArena .stage{position:relative!important}
+#arcadeArena .arcade-version{position:absolute;bottom:8px;left:10px;z-index:8;pointer-events:none;color:#ffffff9c;background:#0a10218a;padding:3px 5px;font:8px/1.3 'Press Start 2P',monospace;letter-spacing:0;text-shadow:1px 1px #000;opacity:.7}
+/* Fullscreen ocupa a tela fisica disponivel, sem margens nem bordas. */
+#arcadeArena:fullscreen,#arcadeArena.arcade-fallback-fullscreen{box-sizing:border-box!important;width:100vw!important;height:100dvh!important;min-height:100dvh!important;max-height:100dvh!important;inset:0!important;margin:0!important;padding:0!important;border:0!important;border-radius:0!important;overflow:hidden!important;background:#080e1b!important}
+#arcadeArena:fullscreen>.cabinet,#arcadeArena.arcade-fallback-fullscreen>.cabinet{box-sizing:border-box!important;width:100%!important;height:100%!important;min-height:0!important;max-height:100%!important;margin:0!important;padding:0!important;border:0!important;border-radius:0!important;box-shadow:none!important;overflow:hidden!important;flex:1 1 0!important}
+#arcadeArena:fullscreen .stage,#arcadeArena.arcade-fallback-fullscreen .stage{width:100%!important;min-height:0!important;flex:1 1 0!important;margin:0!important;padding:0!important;border:0!important}
+#arcadeArena:fullscreen .hud,#arcadeArena.arcade-fallback-fullscreen .hud{margin:0!important}
+#arcadeArena:fullscreen .arcade-version,#arcadeArena.arcade-fallback-fullscreen .arcade-version{left:max(10px,env(safe-area-inset-left))!important;bottom:max(7px,env(safe-area-inset-bottom))!important}
+</style>
 <!-- SCRIPT ORIGINAL DO JOGO -->
 <script type="module" src="./src/game.js"></script>
 
@@ -1763,7 +1776,11 @@
     if(document.fullscreenElement){await document.exitFullscreen();}
     else if(fallback){fallback=false;render();}
     else {
-      try{if(!arena.requestFullscreen)throw Error('fullscreen indisponivel');await arena.requestFullscreen();}
+      try{
+        if(!arena.requestFullscreen)throw Error('fullscreen indisponivel');
+        await arena.requestFullscreen({navigationUI:'hide'});
+        if(screen.orientation?.lock){try{await screen.orientation.lock('landscape');}catch(_){/* alguns navegadores bloqueiam a rotacao */}}
+      }
       catch(e){fallback=true;render();}
     }
   }
