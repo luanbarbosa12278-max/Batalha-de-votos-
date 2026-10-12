@@ -1377,7 +1377,7 @@
         <button id="arcadeSwitch" type="button" aria-label="Trocar lutador">⇄ BOLSONARO</button>
       </div>
       <div class="stage">
-        <span class="arcade-version" aria-label="Versão do jogo">v1.5.3</span>
+        <span class="arcade-version" aria-label="Versão do jogo">v1.5.4</span>
         <canvas
           id="game"
           width="960"
@@ -2070,6 +2070,45 @@
 #arcadeArena.arcade-fallback-fullscreen .arcade-action:active{
  transform:translate(3px,3px)!important;
  box-shadow:inset 2px 2px 0 #0009!important;
+}
+</style>
+
+<style id="arcade-top-controls-v154">
+/* Controles de sistema no topo: sair e alternar à esquerda, lutador à direita. */
+#arcadeArena:fullscreen .arcade-topbar,
+#arcadeArena.arcade-fallback-fullscreen .arcade-topbar{
+ position:fixed!important;top:max(7px,env(safe-area-inset-top))!important;
+ bottom:auto!important;left:max(9px,env(safe-area-inset-left))!important;
+ right:auto!important;transform:none!important;
+ display:flex!important;flex-direction:row!important;align-items:center!important;
+ gap:7px!important;z-index:2147483005!important;
+}
+#arcadeArena:fullscreen .arcade-topbar button,
+#arcadeArena.arcade-fallback-fullscreen .arcade-topbar button{
+ position:static!important;transform:none!important;
+ padding:7px 9px!important;min-height:30px!important;
+ font:clamp(6px,.8vw,9px)/1.4 'Press Start 2P',monospace!important;
+ border-radius:0!important;white-space:nowrap!important;
+}
+#arcadeArena:fullscreen .arcade-fighter-tag,
+#arcadeArena.arcade-fallback-fullscreen .arcade-fighter-tag{
+ position:fixed!important;top:max(7px,env(safe-area-inset-top))!important;
+ right:max(9px,env(safe-area-inset-right))!important;
+ bottom:auto!important;left:auto!important;
+ margin:0!important;min-height:30px!important;
+ display:flex!important;align-items:center!important;justify-content:center!important;
+ padding:6px 10px!important;font-size:clamp(6px,.8vw,9px)!important;
+ z-index:2147483005!important;pointer-events:none!important;
+}
+#arcadeArena:fullscreen .hud,
+#arcadeArena.arcade-fallback-fullscreen .hud{
+ padding-top:clamp(41px,8vh,51px)!important;
+}
+@media (orientation:landscape) and (max-height:500px){
+ #arcadeArena:fullscreen .hud,
+ #arcadeArena.arcade-fallback-fullscreen .hud{padding-top:38px!important;}
+ #arcadeArena:fullscreen .arcade-topbar button,
+ #arcadeArena.arcade-fallback-fullscreen .arcade-topbar button{font-size:6px!important;padding:6px 7px!important;}
 }
 </style>
 <!-- SCRIPT ORIGINAL DO JOGO -->
