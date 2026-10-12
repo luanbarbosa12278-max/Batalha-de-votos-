@@ -1273,7 +1273,7 @@
   position:absolute;
   top:0;
   bottom:0;
-  width:10%;
+  width:var(--arcade-side-gutter,0px);
   pointer-events:none;
   opacity:1;
   background-position:center center;
@@ -1412,7 +1412,7 @@
         <button id="arcadeSwitch" type="button" aria-label="Trocar lutador">⇄ BOLSONARO</button>
       </div>
       <div class="stage">
-        <span class="arcade-version" aria-label="Versão do jogo">v1.5.7</span>
+        <span class="arcade-version" aria-label="Versão do jogo">v1.5.8</span>
         <canvas
           id="game"
           width="960"
@@ -2188,9 +2188,22 @@
     if(!hud)return;
     const bottom=hud.getBoundingClientRect().bottom;
     arena.style.setProperty('--arcade-controls-top',Math.ceil(bottom+8)+'px');
+    // O canvas 960x540 usa object-fit:contain. Calcular exatamente
+    // as faixas pretas geradas por esse enquadramento, sem tocar no ringue.
+    const stage=arena.querySelector('.stage');
+    if(stage){
+      const rect=stage.getBoundingClientRect();
+      const fittedWidth=Math.min(rect.width,rect.height*(960/540));
+      const gutter=Math.max(0,(rect.width-fittedWidth)/2);
+      stage.style.setProperty('--arcade-side-gutter',gutter.toFixed(2)+'px');
+    }
   }
   window.addEventListener('resize',positionTopControls);
-  if(window.ResizeObserver){new ResizeObserver(positionTopControls).observe(arena.querySelector('.hud'));}
+  if(window.ResizeObserver){
+    const resizeObserver=new ResizeObserver(positionTopControls);
+    resizeObserver.observe(arena.querySelector('.hud'));
+    resizeObserver.observe(arena.querySelector('.stage'));
+  }
   function render(){
     arena.classList.toggle('arcade-fallback-fullscreen',fallback);
     const active=!!document.fullscreenElement||fallback;
