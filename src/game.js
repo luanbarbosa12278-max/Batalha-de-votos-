@@ -129,147 +129,63 @@ const soundChances={
 };
 
 const soundCache={};
-
 for(const [group,filenames] of Object.entries(soundGroups)){
   soundCache[group]=filenames.map(filename=>{
     const audio=new Audio(AUDIO_PATH+filename);
-
-    audio.preload='auto';
-    audio.volume=0.8;
-
-    return audio;
+    audio.preload='auto';audio.volume=.72;return audio;
   });
 }
-
-let activeVoice=null;
+const activeVoices=new Set();
+const lastGroupSound=new Map();
+const lastGroupPlayed=new Map();
+const MAX_SIMULTANEOUS_VOICES=7;
 let lastSoundTime=-100000;
 let lastSoundName='';
-
 let audioUnlocked=false;
 let audioMuted=false;
-
 let lastOccasionalVoice=-100000;
 let hadoukenVoiceUntil=0;
-
-// Impede que falas ocasionais se acumulem.
-const OCCASIONAL_COOLDOWN=8000;
-
-// Liberação de áudio após interação do usuário.
-function unlockAudio(){
-  audioUnlocked=true;
-}
-
+const OCCASIONAL_COOLDOWN=1600;
+function unlockAudio(){audioUnlocked=true;}
 document.addEventListener('pointerdown',unlockAudio);
 document.addEventListener('keydown',unlockAudio);
-
 function stopVoice(){
-  if(activeVoice){
-    activeVoice.pause();
-
-    try{
-      activeVoice.currentTime=0;
-    }catch(error){
-      console.warn('Não foi possível reiniciar o áudio:',error);
-    }
-
-    activeVoice=null;
-  }
+  for(const voice of activeVoices){voice.pause();try{voice.currentTime=0;}catch(_){}}
+  activeVoices.clear();
 }
-
-// Reproduz uma fala conforme sua probabilidade.
 function playSound(group){
-  if(audioMuted || !audioUnlocked){
-    return false;
-  }
-
+  if(audioMuted||!audioUnlocked)return false;
   const sounds=soundCache[group];
-
-  if(!sounds || !sounds.length){
-    return false;
-  }
-
+  if(!sounds?.length)return false;
   const now=performance.now();
-
-  const isHadouken=group==='bolsonaroEspecial';
-
-  // Todos os sons, exceto o Hadouken,
-  // são ocasionais.
-  if(!isHadouken){
-    const chance=soundChances[group] ?? 0.30;
-
-    if(Math.random()>chance){
-      return false;
-    }
-
-    // No máximo uma fala ocasional
-    // a cada 8 segundos.
-    if(now-lastOccasionalVoice<OCCASIONAL_COOLDOWN){
-      return false;
-    }
-
-    // Nunca interromper o Hadouken.
-    if(now<hadoukenVoiceUntil){
-      return false;
-    }
-
-    // Não cortar uma fala que ainda está tocando.
-    if(
-      activeVoice &&
-      !activeVoice.paused &&
-      !activeVoice.ended
-    ){
-      return false;
-    }
+  const isSpecial=group==='bolsonaroEspecial'||group==='lulaEspecial';
+  const isHit=['lulaSoco','bolsonaroSoco','lulaDano','bolsonaroDano'].includes(group);
+  const isAmbient=group.includes('Provocacao')||group.includes('Votos')||group==='narradorVotos'||group.includes('PoucaVida');
+  if(!isSpecial&&Math.random()>(soundChances[group]??.3))return false;
+  const cooldown=isSpecial?180:isHit?260:isAmbient?2200:700;
+  if(now-(lastGroupPlayed.get(group)??-100000)<cooldown)return false;
+  if(isAmbient&&now-lastOccasionalVoice<OCCASIONAL_COOLDOWN)return false;
+  const previous=lastGroupSound.get(group);
+  const options=sounds.length>1?sounds.filter(a=>a.src!==previous):sounds;
+  const template=options[Math.floor(Math.random()*options.length)]||sounds[0];
+  const voice=template.cloneNode(true);
+  voice.volume=isSpecial?.75:isHit?.52:isAmbient?.50:.64;
+  voice.playbackRate=isSpecial?1:(.95+Math.random()*.10);
+  if(activeVoices.size>=MAX_SIMULTANEOUS_VOICES){
+    const oldest=activeVoices.values().next().value;
+    if(oldest){oldest.pause();activeVoices.delete(oldest);}
   }
-
-  // Evita repetir a mesma variante duas vezes seguidas.
-  let choices=sounds;
-
-  if(sounds.length>1){
-    choices=sounds.filter(
-      audio=>audio.src!==lastSoundName
-    );
-
-    if(!choices.length){
-      choices=sounds;
-    }
-  }
-
-  const audio=choices[
-    Math.floor(Math.random()*choices.length)
-  ];
-
-  // Hadouken tem prioridade.
-  stopVoice();
-
-  try{
-    audio.currentTime=0;
-  }catch(error){
-    console.warn('Erro ao preparar áudio:',error);
-  }
-
-  activeVoice=audio;
+  activeVoices.add(voice);
+  const cleanup=()=>activeVoices.delete(voice);
+  voice.addEventListener('ended',cleanup,{once:true});
+  voice.addEventListener('error',cleanup,{once:true});
+  voice.play().catch(error=>{cleanup();console.warn('Áudio '+group,error);});
+  lastGroupPlayed.set(group,now);
+  lastGroupSound.set(group,template.src);
+  lastSoundName=template.src;
   lastSoundTime=now;
-  lastSoundName=audio.src;
-
-  if(isHadouken){
-    // Impede outras falas por alguns segundos.
-    hadoukenVoiceUntil=now+4000;
-  }else{
-    lastOccasionalVoice=now;
-  }
-
-  audio.play().catch(error=>{
-    console.warn(
-      'Não foi possível tocar '+group+':',
-      error
-    );
-
-    if(activeVoice===audio){
-      activeVoice=null;
-    }
-  });
-
+  if(isAmbient)lastOccasionalVoice=now;
+  if(group==='bolsonaroEspecial')hadoukenVoiceUntil=now+500;
   return true;
 }
 
