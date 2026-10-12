@@ -1826,8 +1826,8 @@ function drawShields(now){
     ctx.translate(x,320);
     // Moldura original em PNG transparente: personagem continua visível.
     if(sprite?.complete&&sprite.naturalWidth){
-      const width=236+pulse*2;
-      const height=352+pulse*2;
+      const width=330+pulse*2;
+      const height=490+pulse*2;
       ctx.globalAlpha=remaining<550?(.55+.45*Math.max(0,remaining)/550):1;
       ctx.imageSmoothingEnabled=false;
       ctx.drawImage(sprite,-width/2,-height/2,width,height);
