@@ -1851,9 +1851,18 @@ function drawShields(now){
       ctx.scale(impactScale,impactScale);
       ctx.imageSmoothingEnabled=false;
       // Abertura transparente alinhada ao corpo, sem cobrir o personagem.
-      ctx.globalAlpha*=0.58; // Arte translúcida: personagem continua bem visível.
+      // Brilho sutil ao ativar, impacto mais visível e fade de saída.
+      const activationGlow=reduceMotion?0:Math.max(0,1-elapsed/380);
+      ctx.globalAlpha*=Math.min(.78,.54+activationGlow*.12+hit*.19);
+
       ctx.drawImage(shieldArt,-154-wobble/2,-248-wobble/2,308+wobble,434+wobble);
       ctx.globalAlpha=fade;
+      // Contorno de proteção separado da arte, sem cobrir o lutador.
+      ctx.strokeStyle=isLula?'rgba(255,204,79,.38)':'rgba(89,224,255,.38)';
+      ctx.lineWidth=2;
+      ctx.beginPath();
+      ctx.ellipse(0,-12,133,170,0,0,Math.PI*2);
+      ctx.stroke();
       if(hit>0){
         ctx.strokeStyle='rgba(255,255,255,'+(hit*.85)+')';
         ctx.lineWidth=4;
