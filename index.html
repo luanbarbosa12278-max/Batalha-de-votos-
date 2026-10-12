@@ -1667,7 +1667,7 @@ body:not(.arcade-playing) textarea {
         <button id="arcadeSwitch" type="button" aria-label="Trocar lutador">⇄ BOLSONARO</button>
       </div>
       <div class="stage">
-        <span class="arcade-version" aria-label="Versão do jogo">v1.5.31</span>
+        <span class="arcade-version" aria-label="Versão do jogo">v1.5.32</span>
         <canvas
           id="game"
           width="960"
@@ -2525,7 +2525,7 @@ fullscreenLaunch.textContent='🎬 DEBATE';
 arena.appendChild(fullscreenLaunch);
 fullscreenLaunch.addEventListener('click',()=>launch.click());
 const overlay=document.createElement('div');overlay.id='debateOverlay';overlay.hidden=true;overlay.setAttribute('role','dialog');overlay.setAttribute('aria-label','Debate Lendário');
-overlay.innerHTML='<div id="debateScene"></div><img id="debateBolsonaro" class="debateCharacter" alt="" src="./assets/fighters/bolsonaro-idle.png"><img id="debateLula" class="debateCharacter" alt="" src="./assets/fighters/lula-idle.png"><div id="debateHeader">⚡ DEBATE LENDÁRIO ⚡</div><button id="debateSkip" type="button">✕ PULAR</button><div id="debateSubtitle" aria-live="polite"><div id="debateSpeaker"></div><div id="debateText"></div></div><div id="debateProgress"></div>';
+overlay.innerHTML='<div id="debateScene"></div><img id="debateBolsonaro" class="debateCharacter" alt="Bolsonaro no debate" src="./assets/fighters/bolsonaro-debate-idle.png"><img id="debateLula" class="debateCharacter" alt="Lula no debate" src="./assets/fighters/lula-debate-idle.png"><div id="debateHeader">⚡ DEBATE LENDÁRIO ⚡</div><button id="debateSkip" type="button">✕ PULAR</button><div id="debateSubtitle" aria-live="polite"><div id="debateSpeaker"></div><div id="debateText"></div></div><div id="debateProgress"></div>';
 stage.appendChild(overlay);
 const lines=[
 ['l','Eu quero saber por que compraram 35 mil caixas de Viagra para as Forças Armadas!','lula-debate-01.mp3'],
@@ -2537,12 +2537,19 @@ const lines=[
 ['b','Você nunca usou Viagra, Lula?','bolsonaro-debate-04.mp3'],
 ['l','Então por que não disponibiliza esse remédio de graça para o povo brasileiro?','lula-debate-04.mp3']
 ];
+const sprites={l:{idle:'lula-debate-idle.png',talk:'lula-debate-falando.png',question:'lula-debate-questionando.png',shout:'lula-debate-explica.png'},b:{idle:'bolsonaro-debate-idle.png',talk:'bolsonaro-debate-falando.png',retort:'bolsonaro-debate-ja-expliquei.png',ironic:'bolsonaro-debate-ironico.png'}};
+const actors={l:overlay.querySelector('#debateLula'),b:overlay.querySelector('#debateBolsonaro')};
+function pose(side,kind){const img=actors[side],name=sprites[side][kind]||sprites[side].idle;if(img)img.src='./assets/fighters/'+name}
+function idle(){pose('l','idle');pose('b','idle')}
 let running=false,serial=0,voice=null,finishAudio=null;
-function stop(){if(!running)return;running=false;serial++;if(voice){voice.pause();voice=null}if(finishAudio){finishAudio();finishAudio=null}overlay.hidden=true;overlay.dataset.speaker='';window.dispatchEvent(new Event('streetvote:debate-end'));launch.focus({preventScroll:true})}
+function stop(){if(!running)return;running=false;serial++;if(voice){voice.pause();voice=null}if(finishAudio){finishAudio();finishAudio=null}overlay.hidden=true;overlay.dataset.speaker='';idle();window.dispatchEvent(new Event('streetvote:debate-end'));launch.focus({preventScroll:true})}
 async function start(){
 if(running)return;running=true;const id=++serial;overlay.hidden=false;window.dispatchEvent(new Event('streetvote:debate-start'));overlay.querySelector('#debateSkip').focus({preventScroll:true});
 for(let i=0;i<lines.length&&running&&serial===id;i++){
 const [side,caption,file]=lines[i];overlay.dataset.speaker=side;
+idle();
+const mood=side==='l'?(i===2||i===4?'shout':i===0||i===7?'question':'talk'):(i===3||i===5?'retort':i===6?'ironic':'talk');
+pose(side,mood);
 overlay.querySelector('#debateSpeaker').textContent=side==='l'?'🔴 LULA':'🟢 BOLSONARO';
 overlay.querySelector('#debateText').textContent=caption;overlay.querySelector('#debateProgress').style.width=(i/lines.length*100)+'%';
 const audio=new Audio('./assets/fighters/audio/'+file);voice=audio;audio.volume=.95;
