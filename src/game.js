@@ -25,6 +25,10 @@ const AUDIO_PATH='./assets/fighters/audio/';
 
 // Todos os 28 arquivos MP3.
 const soundGroups={
+  lulaBolsa:['lula-bolsa-1.mp3','lula-bolsa-2.mp3','lula-bolsa-3.mp3','lula-bolsa-4.mp3','lula-bolsa-5.mp3'],
+  lulaHadouken:['lula-hadouken-1.mp3','lula-hadouken-2.mp3'],
+  bolsonaroTaok:['bolsonaro-taok-1.mp3','bolsonaro-taok-2.mp3','bolsonaro-taok-3.mp3','bolsonaro-taok-4.mp3'],
+
   lulaSoco:[
     'lula-soco.mp3',
     'lula-soco-2.mp3'
@@ -104,6 +108,9 @@ const soundGroups={
 
 // Probabilidade de reprodução.
 const soundChances={
+  lulaBolsa:1,
+  lulaHadouken:1,
+  bolsonaroTaok:1,
   lulaSoco:0.12,
   bolsonaroSoco:0.12,
 
@@ -158,7 +165,7 @@ function playSound(group){
   const sounds=soundCache[group];
   if(!sounds?.length)return false;
   const now=performance.now();
-  const isSpecial=group==='bolsonaroEspecial'||group==='lulaEspecial';
+  const isSpecial=['bolsonaroEspecial','lulaEspecial','lulaBolsa','lulaHadouken','bolsonaroTaok'].includes(group);
   const isHit=['lulaSoco','bolsonaroSoco','lulaDano','bolsonaroDano'].includes(group);
   const isAmbient=group.includes('Provocacao')||group.includes('Votos')||group==='narradorVotos'||group.includes('PoucaVida');
   if(!isSpecial&&Math.random()>(soundChances[group]??.3))return false;
@@ -1572,6 +1579,7 @@ function startBolsaPancada(){
     hit:false
   };
   $('message').textContent='LULA — BOLSA PANCADA!';
+  playSound('lulaBolsa');
   updateBolsaButton(now);
 }
 
@@ -1688,8 +1696,8 @@ function startTaok(){
     originX:bolsonaroX,round:game.round,hit:false
   };
   $('message').textContent='BOLSONARO — TÁ OK!';
-  // Aproveita o grupo de efeitos existente, sem exigir um MP3 novo.
-  playSound('bolsonaroEspecial');
+  // Voz exclusiva do megafone, independente do Hadouken azul.
+  playSound('bolsonaroTaok');
   updateTaokButton(now);
 }
 
@@ -1948,7 +1956,7 @@ $('shoryukenL').onclick=()=>{
   };
 
   // Apenas 35% de chance de falar.
-  playSound('lulaEspecial');
+  playSound('lulaHadouken');
 };
 
 // E - Bolsa Pancada do Lula.
