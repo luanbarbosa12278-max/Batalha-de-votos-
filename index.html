@@ -1401,7 +1401,7 @@
         <button id="arcadeSwitch" type="button" aria-label="Trocar lutador">⇄ BOLSONARO</button>
       </div>
       <div class="stage">
-        <span class="arcade-version" aria-label="Versão do jogo">v1.5.5</span>
+        <span class="arcade-version" aria-label="Versão do jogo">v1.5.6</span>
         <canvas
           id="game"
           width="960"
@@ -1814,9 +1814,9 @@
   image-rendering:pixelated!important;
 }
 #arcadeArena:fullscreen .ticker,
-#arcadeArena.arcade-fallback-fullscreen .ticker,
+#arcadeArena.arcade-fallback-fullscreen .ticker{display:none!important}
 #arcadeArena:fullscreen .arcade-version,
-#arcadeArena.arcade-fallback-fullscreen .arcade-version{display:none!important}
+#arcadeArena.arcade-fallback-fullscreen .arcade-version{display:block!important;position:absolute!important;bottom:6px!important;left:10px!important;z-index:20!important;opacity:.7!important;font-size:10px!important;pointer-events:none!important}
 #arcadeArena:fullscreen .hud,
 #arcadeArena.arcade-fallback-fullscreen .hud{
   display:grid!important;position:absolute!important;
