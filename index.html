@@ -1355,6 +1355,30 @@ body:not(.arcade-playing) .scoreboard {
   body:not(.arcade-playing) .fight-controls button {transition:none!important}
 }
 </style>
+
+<style id="svf-global-pixel-font-v1511">
+/* Tipografia uniforme no site, sem mudar dimensões da arena nem lógica. */
+html, body, body *:not(svg):not(path):not(canvas),
+body *::before, body *::after,
+button, input, select, textarea, option, kbd, small, strong, em, b {
+  font-family:"Press Start 2P",monospace!important;
+}
+body { font-family:"Press Start 2P",monospace!important; }
+input, textarea, select, button { font-family:"Press Start 2P",monospace!important; }
+body:not(.arcade-playing) p,
+body:not(.arcade-playing) small,
+body:not(.arcade-playing) label {
+  line-height:1.85;
+}
+body:not(.arcade-playing) input,
+body:not(.arcade-playing) select,
+body:not(.arcade-playing) textarea {
+  line-height:1.7;
+}
+@media (max-width:600px) {
+  body:not(.arcade-playing) p {overflow-wrap:anywhere}
+}
+</style>
 </head>
 
 <body>
@@ -1470,7 +1494,7 @@ body:not(.arcade-playing) .scoreboard {
         <button id="arcadeSwitch" type="button" aria-label="Trocar lutador">⇄ BOLSONARO</button>
       </div>
       <div class="stage">
-        <span class="arcade-version" aria-label="Versão do jogo">v1.5.10</span>
+        <span class="arcade-version" aria-label="Versão do jogo">v1.5.11</span>
         <canvas
           id="game"
           width="960"
