@@ -1855,7 +1855,7 @@ function drawShields(now){
       // Fora do impacto fica translúcido; no impacto atinge 100% de opacidade.
       // O brilho permanece no máximo por um instante e volta suavemente.
       const impactOpacity=hit>0 ? (hit>.65 ? 1 : .54+(hit/.65)*.46) : .54;
-      ctx.globalAlpha*=impactOpacity;
+      ctx.globalAlpha=impactOpacity * fade;
 
       ctx.drawImage(shieldArt,-154-wobble/2,-248-wobble/2,308+wobble,434+wobble);
       ctx.globalAlpha=fade;
@@ -1997,7 +1997,7 @@ function frame(now){
       };
 
       lulaX=to;
-      if(shieldOn('l',now)){lulaKnockback=null;lulaX=from;}
+      if(shieldOn('l',now)){lulaKnockback=null;lulaX=from;shieldImpact('l',now);}
 
       if(!shieldOn('l',now))game.hp.l=Math.max(
         0,
@@ -2027,7 +2027,7 @@ function frame(now){
       const to=Math.min(BOLSONARO_WALL_X,from+KNOCKBACK_DISTANCE);
       bolsonaroKnockback={start:now,duration:600,from,to};
       bolsonaroX=to;
-      if(shieldOn('b',now)){bolsonaroKnockback=null;bolsonaroX=from;}
+      if(shieldOn('b',now)){bolsonaroKnockback=null;bolsonaroX=from;shieldImpact('b',now);}
       if(!shieldOn('b',now))game.hp.b=Math.max(0,game.hp.b-HADOUKEN_DAMAGE);
       if(!shieldOn('b',now))playSound('bolsonaroDano');
       if(game.hp.b===0){
