@@ -1823,11 +1823,11 @@ function drawShields(now){
     const pulse=reduceMotion?0:Math.sin(now/135)*3;
     const sprite=images[side==='l'?'shieldL':'shieldB'];
     ctx.save();
-    ctx.translate(x,320);
+    ctx.translate(x,293);
     // Moldura original em PNG transparente: personagem continua visível.
     if(sprite?.complete&&sprite.naturalWidth){
-      const width=330+pulse*2;
-      const height=490+pulse*2;
+      const width=290+pulse*2;
+      const height=405+pulse*2;
       ctx.globalAlpha=remaining<550?(.55+.45*Math.max(0,remaining)/550):1;
       ctx.imageSmoothingEnabled=false;
       ctx.drawImage(sprite,-width/2,-height/2,width,height);
@@ -1850,9 +1850,9 @@ function drawShields(now){
     ctx.lineWidth=4;
     ctx.strokeStyle='#101424';
     const timer='🛡 '+Math.ceil(remaining/1000)+'s';
-    ctx.strokeText(timer,0,-190);
+    ctx.strokeText(timer,0,-174);
     ctx.fillStyle='#fff7c9';
-    ctx.fillText(timer,0,-190);
+    ctx.fillText(timer,0,-174);
     ctx.restore();
   }
 }
