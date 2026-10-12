@@ -519,7 +519,8 @@ bolsonaroVictory:
     );
 
     // Contorno preto pixelado para a pose de queda do Bolsonaro.
-    images.bolsonaroKnockbackPose=addPixelOutline(images.bolsonaroKnockbackPose);
+    // O novo PNG já possui borda preta; não adicionar uma segunda borda.
+    // images.bolsonaroKnockbackPose mantém seu contorno original.
 
     // Pose opcional: mantém o jogo funcionando se ainda não existir.
     try{
@@ -778,8 +779,10 @@ x+=dashDirection*reach*Math.max(
   // Mantém a pose de queda do Bolsonaro inclinada,
   // sem a rotação extra que o deixava completamente deitado.
   if(side==='b' && bolsonaroKnockback){
-    // A imagem nova já tem a inclinação correta: não girar novamente.
+    // Espelha a pose para que a queda acompanhe o empurrão para a direita.
+    // A imagem já está inclinada, então não aplicar rotação adicional.
     ctx.translate(0,-8);
+    ctx.scale(-1,1);
   }
 
   if(!knockbackBlink){
