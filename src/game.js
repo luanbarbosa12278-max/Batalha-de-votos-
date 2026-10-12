@@ -549,6 +549,15 @@ bolsonaroVictory:
       images.lulaHadoukenPose=images.lulaPunch || images.l;
     }
 
+    // Artes opcionais nas laterais da arena: não impedem o jogo de iniciar.
+    await Promise.all([
+      ['sideHue','./assets/fighters/fundo-huehue.png'],
+      ['sideRonaldinho','./assets/fighters/fundo-ronaldinho.png']
+    ].map(async ([key,path])=>{
+      try{ images[key]=await loadImage(path); }
+      catch(error){ images[key]=null; }
+    }));
+
     ready=true;
 
     $('loading').hidden=true;
@@ -866,6 +875,24 @@ function paint(time){
     images.arena,
     0,0,960,540
   );
+
+  // Painéis laterais, dentro da própria arena, sem esticar os retratos.
+  // Mantém o centro do ringue livre para os lutadores.
+  for(const [img,x] of [[images.sideHue,0],[images.sideRonaldinho,850]]){
+    if(!img)continue;
+    const panelW=110,panelH=540;
+    const ratio=Math.max(panelW/img.width,panelH/img.height);
+    const w=img.width*ratio,h=img.height*ratio;
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(x,0,panelW,panelH);
+    ctx.clip();
+    ctx.globalAlpha=0.52;
+    ctx.drawImage(img,x+(panelW-w)/2,(panelH-h)/2,w,h);
+    ctx.fillStyle='rgba(8,11,24,0.26)';
+    ctx.fillRect(x,0,panelW,panelH);
+    ctx.restore();
+  }
 
   if(game.attack==='l'){
     fighter('b',time);
