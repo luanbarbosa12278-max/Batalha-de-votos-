@@ -1377,7 +1377,7 @@
         <button id="arcadeSwitch" type="button" aria-label="Trocar lutador">⇄ BOLSONARO</button>
       </div>
       <div class="stage">
-        <span class="arcade-version" aria-label="Versão do jogo">v1.4.1</span>
+        <span class="arcade-version" aria-label="Versão do jogo">v1.4.2</span>
         <canvas
           id="game"
           width="960"
@@ -1749,7 +1749,7 @@
 #arcadeArena:fullscreen #game,
 #arcadeArena.arcade-fallback-fullscreen #game {
   width:100%!important;height:100%!important;
-  object-fit:fill!important;aspect-ratio:auto!important;
+  object-fit:contain!important;aspect-ratio:auto!important;
   image-rendering:pixelated!important;
 }
 #arcadeArena:fullscreen .stage,
