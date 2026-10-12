@@ -1,8 +1,8 @@
-export const MAX_HP = 100;
+export const MAX_HP = 500;
 export const DAMAGE = 10;
-export const ATTACK_MS = 640;
-export const HIT_MS = 260;
-export const KO_MS = 2400;
+export const ATTACK_MS = 240;
+export const HIT_MS = 100;
+export const KO_MS = 1200;
 
 // Batches preserve every count without allocating one item per comment.
 // Within a polling interval the API gives totals, not event order: alternate sides.
@@ -32,7 +32,15 @@ export class Fight {
     const counts=manual?this.manual:this.votes;
     if (![counts.l+l,counts.b+b].every(Number.isSafeInteger)) throw new Error('Contagem excede o limite numérico');
     counts.l+=l; counts.b+=b;
-    if (l+b) { this.batches.push({l,b}); this.pending+=l+b; }
+    if (l+b) {
+      // Une votos/teclas recebidos no mesmo intervalo para permitir
+      // golpes simultâneos em vez de enfileirar um lado por vez.
+      const tail=this.batches[this.batches.length-1];
+      if(tail && this.head<this.batches.length && (tail.l+tail.b)>0){
+        tail.l+=l; tail.b+=b;
+      }else this.batches.push({l,b});
+      this.pending+=l+b;
+    }
   }
   next() {
     const batch=this.batches[this.head];
