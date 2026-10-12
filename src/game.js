@@ -1820,39 +1820,44 @@ function drawShields(now){
     const x=side==='l'?lulaX+5:bolsonaroX-5;
     const remaining=shieldUntil[side]-now;
     const elapsed=SHIELD_DURATION_MS-remaining;
-    const pulse=reduceMotion?0:Math.sin(now/135)*3;
-    const sprite=images[side==='l'?'shieldL':'shieldB'];
+    const pulse=reduceMotion?0:Math.sin(now/190)*2.5;
+    const rx=105+pulse, ry=160+pulse;
+    const primary=side==='l'?'255,76,76':'71,230,126';
+    const secondary=side==='l'?'255,206,87':'70,200,255';
     ctx.save();
-    ctx.translate(x,293);
-    // Moldura original em PNG transparente: personagem continua visível.
-    if(sprite?.complete&&sprite.naturalWidth){
-      const width=290+pulse*2;
-      const height=405+pulse*2;
-      ctx.globalAlpha=remaining<550?(.55+.45*Math.max(0,remaining)/550):1;
-      ctx.imageSmoothingEnabled=false;
-      ctx.drawImage(sprite,-width/2,-height/2,width,height);
-      // Clarão de ativação, sem encobrir o centro.
-      if(elapsed<260){
-        ctx.globalAlpha=.45*(1-elapsed/260);
-        ctx.drawImage(sprite,-width/2-6,-height/2-9,width+12,height+18);
-      }
-    }else{
-      // Reserva visual se a imagem falhar.
-      ctx.strokeStyle=side==='l'?'#ffd04a':'#62e7ff';
-      ctx.lineWidth=6;
-      ctx.beginPath();
-      ctx.ellipse(0,0,104+pulse,164+pulse,0,0,Math.PI*2);
-      ctx.stroke();
-    }
-    ctx.globalAlpha=1;
-    ctx.font='bold 16px monospace';
-    ctx.textAlign='center';
+    ctx.translate(x,310);
+    const fade=Math.min(1,remaining/380);
+    const pop=reduceMotion?1:Math.min(1,elapsed/180);
+    ctx.scale(pop,pop);
+    // Bolha translúcida: o lutador permanece nítido e visível.
+    const fill=ctx.createRadialGradient(-rx*.28,-ry*.32,8,0,0,ry);
+    fill.addColorStop(0,'rgba('+secondary+',0.035)');
+    fill.addColorStop(.67,'rgba('+primary+',0.085)');
+    fill.addColorStop(1,'rgba('+primary+',0.18)');
+    ctx.globalAlpha=fade;
+    ctx.fillStyle=fill;
+    ctx.beginPath();ctx.ellipse(0,0,rx,ry,0,0,Math.PI*2);ctx.fill();
+    // Contorno luminoso de fliperama, delicado e bem definido.
+    ctx.strokeStyle='rgba('+primary+',0.86)';
     ctx.lineWidth=4;
-    ctx.strokeStyle='#101424';
-    const timer='🛡 '+Math.ceil(remaining/1000)+'s';
-    ctx.strokeText(timer,0,-174);
-    ctx.fillStyle='#fff7c9';
-    ctx.fillText(timer,0,-174);
+    ctx.beginPath();ctx.ellipse(0,0,rx,ry,0,0,Math.PI*2);ctx.stroke();
+    ctx.strokeStyle='rgba('+secondary+',0.56)';
+    ctx.lineWidth=2;
+    ctx.beginPath();ctx.ellipse(0,0,rx-7,ry-7,0,0,Math.PI*2);ctx.stroke();
+    // Reflexos de vidro e energia nas laterais.
+    ctx.strokeStyle='rgba(255,255,255,0.68)';
+    ctx.lineWidth=3;
+    ctx.beginPath();ctx.ellipse(-rx*.13,-ry*.04,rx*.73,ry*.86,-.1,3.4,4.5);ctx.stroke();
+    ctx.strokeStyle='rgba('+secondary+',0.72)';
+    ctx.lineWidth=3;
+    ctx.beginPath();ctx.ellipse(rx*.07,ry*.02,rx*.87,ry*.92,0,-.75,.65);ctx.stroke();
+    // Partículas discretas orbitando a borda da bolha.
+    for(let i=0;i<5;i++){
+      const angle=(i*Math.PI*2/5)+(reduceMotion?0:now/1150)*(side==='l'?1:-1);
+      const px=Math.cos(angle)*rx,py=Math.sin(angle)*ry;
+      ctx.fillStyle=i%2?'rgba(255,255,255,.9)':'rgba('+secondary+',.95)';
+      ctx.fillRect(Math.round(px)-2,Math.round(py)-2,4,4);
+    }
     ctx.restore();
   }
 }
