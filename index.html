@@ -1593,7 +1593,7 @@ body:not(.arcade-playing) textarea {
 #debateSubtitle::selection,#debateSubtitle *::selection{background:#c6a18c;color:#241726}
 @media(max-width:650px){#debateSubtitle{bottom:3%!important;left:3%!important;width:94%!important;min-height:28%!important;max-height:42%!important;padding:7px 27% 7px 10px!important;border-width:3px!important;box-shadow:inset 0 0 0 3px #4a3042,3px 3px 0 #0d101b!important}#debatePortrait{right:0;width:29%;height:145%}#debateSpeaker{font-size:8px!important;margin-bottom:5px!important}#debateText{font-size:clamp(7px,1.9vw,10px)!important;line-height:1.5!important}}
 
-/* v1.6.5: dialogo branco com tipografia preta, estilo pixel art. */
+/* v1.6.6: dialogo branco com tipografia preta, estilo pixel art. */
 #debateSubtitle{background:#fff!important;color:#000!important;border:4px solid #000!important;box-shadow:inset 0 0 0 3px #fff,5px 5px 0 #000!important}
 #debateSpeaker,#debateText{color:#000!important;text-shadow:none!important}
 #debatePortrait{filter:drop-shadow(3px 2px 0 #000)!important}
@@ -1740,7 +1740,7 @@ body.svf-debate-playing #arcadeArena.arcade-fallback-fullscreen .arcade-touch-co
         <button id="arcadeSwitch" type="button" aria-label="Trocar lutador">⇄ BOLSONARO</button>
       </div>
       <div class="stage">
-        <span class="arcade-version" aria-label="Versão do jogo">v1.6.5</span>
+        <span class="arcade-version" aria-label="Versão do jogo">v1.6.6</span>
         <canvas
           id="game"
           width="960"
@@ -2498,11 +2498,11 @@ body.svf-debate-playing #arcadeArena.arcade-fallback-fullscreen .arcade-touch-co
  #arcadeArena.arcade-fallback-fullscreen .hud{padding-top:2px!important;}
 }
 
-/* v1.6.5: manter o acesso a tela cheia durante o debate. */
+/* v1.6.6: manter o acesso a tela cheia durante o debate. */
 body.svf-debate-playing #arcadeFullscreen{visibility:visible!important;pointer-events:auto!important;opacity:1!important;display:inline-flex!important;position:relative!important;z-index:2147483005!important}
 body.svf-debate-playing .mobile-arcade-bar{visibility:visible!important;position:relative!important;z-index:2147483005!important}
 body.svf-debate-playing #arcadeArena:fullscreen #arcadeExit,body.svf-debate-playing #arcadeArena.arcade-fallback-fullscreen #arcadeExit{visibility:visible!important;pointer-events:auto!important;z-index:2147483005!important}
-/* v1.6.5: comandos extras abaixo dos atalhos, fora do canvas. */
+/* v1.6.6: comandos extras abaixo dos atalhos, fora do canvas. */
 .svf-extra-actions{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:10px;margin:12px auto 16px;padding:0 12px;max-width:760px;box-sizing:border-box}
 .svf-extra-actions .shield-live-controls{display:flex!important;flex-wrap:wrap;gap:7px!important}
 .svf-extra-actions #debateLaunch{display:inline-flex!important;align-items:center;justify-content:center;min-height:36px!important;margin:0!important;padding:9px 12px!important;font-size:clamp(8px,1.8vw,11px)!important}
@@ -2512,9 +2512,18 @@ body.svf-debate-playing #arcadeArena:fullscreen #arcadeExit,body.svf-debate-play
 #arcadeArena:fullscreen .svf-extra-actions,#arcadeArena.arcade-fallback-fullscreen .svf-extra-actions{position:fixed!important;right:max(12px,env(safe-area-inset-right) + 10px)!important;bottom:clamp(145px,36vh,194px)!important;left:auto!important;top:auto!important;z-index:2147483003!important;margin:0!important;padding:0!important;display:flex!important;flex-direction:column-reverse!important;align-items:flex-end!important;gap:6px!important;max-width:55vw!important;pointer-events:auto!important}
 #arcadeArena:fullscreen .svf-extra-actions .shield-live,#arcadeArena.arcade-fallback-fullscreen .svf-extra-actions .shield-live{font-size:clamp(5px,1.3vh,8px)!important;padding:6px 5px!important}
 #arcadeArena:fullscreen .svf-extra-actions #debateLaunch,#arcadeArena.arcade-fallback-fullscreen .svf-extra-actions #debateLaunch{font-size:clamp(6px,1.5vh,9px)!important;padding:7px 9px!important;min-height:30px!important}
-/* v1.6.5: botao fullscreen acessivel no proprio overlay do debate. */
+/* v1.6.6: botao fullscreen acessivel no proprio overlay do debate. */
 #debateOverlay #debateFullscreenToggle{position:absolute!important;top:clamp(12px,2vh,24px)!important;left:clamp(12px,2vw,24px)!important;right:auto!important;z-index:2147483006!important;display:block!important;visibility:visible!important;opacity:1!important;pointer-events:auto!important;background:#101b34!important;color:#fff!important;border:3px solid #fff!important;padding:10px 12px!important;font:700 clamp(8px,1.3vw,13px) 'Press Start 2P',monospace!important;box-shadow:3px 3px #000!important;cursor:pointer!important}
 body.svf-debate-playing #debateFullscreenToggle{visibility:visible!important;pointer-events:auto!important}
+
+/* v1.6.6: tela cheia ao lado do debate, fora da area do canvas. */
+.svf-extra-actions #arcadeFullscreen{display:inline-flex!important;visibility:visible!important;pointer-events:auto!important;align-items:center;justify-content:center;position:static!important;transform:none!important;opacity:1!important;min-height:36px!important;margin:0!important;padding:9px 12px!important;font-size:clamp(8px,1.8vw,11px)!important;z-index:2147483005!important}
+.svf-extra-actions{flex-direction:row!important}
+#arcadeArena:fullscreen .svf-extra-actions,#arcadeArena.arcade-fallback-fullscreen .svf-extra-actions{flex-direction:row!important;align-items:center!important;bottom:clamp(145px,36vh,194px)!important;max-width:72vw!important}
+#arcadeArena:fullscreen .svf-extra-actions #arcadeFullscreen,#arcadeArena.arcade-fallback-fullscreen .svf-extra-actions #arcadeFullscreen{font-size:clamp(6px,1.5vh,9px)!important;min-height:30px!important;padding:7px 9px!important}
+body.svf-debate-playing #arcadeFullscreen,body.svf-debate-playing #debateFullscreenToggle{display:inline-flex!important;visibility:visible!important;pointer-events:auto!important;opacity:1!important}
+body.svf-debate-playing #arcadeArena .svf-extra-actions{visibility:visible!important;pointer-events:auto!important;z-index:2147483005!important}
+body.svf-debate-playing #arcadeArena:fullscreen .svf-extra-actions,body.svf-debate-playing #arcadeArena.arcade-fallback-fullscreen .svf-extra-actions{bottom:clamp(145px,36vh,194px)!important}
 </style>
 <!-- SCRIPT ORIGINAL DO JOGO -->
 <script type="module" src="./src/game.js?v=1.6.0"></script>
@@ -2619,7 +2628,7 @@ arena.appendChild(fullscreenLaunch);
 fullscreenLaunch.addEventListener('click',()=>launch.click());
 const extraActions=document.getElementById('svfExtraActions');
 const shieldGroup=arena.querySelector('.shield-live-controls');
-if(extraActions&&shieldGroup){extraActions.appendChild(shieldGroup);extraActions.appendChild(launch);}
+if(extraActions&&shieldGroup){extraActions.appendChild(shieldGroup);extraActions.appendChild(launch);const fullscreenButton=document.getElementById('arcadeFullscreen');if(fullscreenButton)extraActions.appendChild(fullscreenButton);}
 
 const overlay=document.createElement('div');overlay.id='debateOverlay';overlay.hidden=true;overlay.setAttribute('role','dialog');overlay.setAttribute('aria-label','Debate Final');
 overlay.innerHTML='<div id="debateScene"></div><img id="debateBolsonaro" class="debateCharacter" alt="Bolsonaro no debate" src="./assets/fighters/bolsonaro-debate-idle.png"><img id="debateLula" class="debateCharacter" alt="Lula no debate" src="./assets/fighters/lula-debate-idle.png"><div id="debateHeader">DEBATE FINAL</div><button id="debateFullscreenToggle" type="button">⛶ TELA CHEIA</button><button id="debateSkip" type="button">✕ PULAR</button><div id="debateSubtitle" aria-live="polite"><div id="debateSpeaker"></div><div id="debateText"></div><img id="debatePortrait" src="./assets/fighters/lula-debate-idle.png" alt="" aria-hidden="true"></div><div id="debateProgress"></div>';
