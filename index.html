@@ -1739,7 +1739,7 @@ body.svf-debate-playing #arcadeArena.arcade-fallback-fullscreen .arcade-touch-co
         <button id="arcadeSwitch" type="button" aria-label="Trocar lutador">⇄ BOLSONARO</button>
       </div>
       <div class="stage">
-        <span class="arcade-version" aria-label="Versão do jogo">v1.6.12</span>
+        <span class="arcade-version" aria-label="Versão do jogo">v1.6.13</span>
         <canvas
           id="game"
           width="960"
@@ -2516,7 +2516,7 @@ body.svf-debate-playing #arcadeExit{display:none!important;visibility:hidden!imp
 /* v1.6.8: tela cheia permanece na barra original; somente o controle do overlay aparece durante a cena. */
 #debateOverlay #debateFullscreenToggle{position:absolute!important;top:12px!important;left:12px!important;right:auto!important;z-index:2147483006!important;display:inline-flex!important;visibility:visible!important;opacity:1!important;pointer-events:auto!important;background:#101b34!important;color:white!important;border:3px solid white!important;padding:10px 12px!important;font:700 clamp(8px,1.3vw,13px) 'Press Start 2P',monospace!important;box-shadow:3px 3px #000!important;cursor:pointer!important}
 .svf-extra-actions #arcadeFullscreen{display:none!important}
-/* v1.6.12 — harmonização visual dos comandos, sem mudar funções. */
+/* v1.6.13 — harmonização visual dos comandos, sem mudar funções. */
 :root{--svf-ui-gold:#ffd65c;--svf-ui-ink:#0d1628;--svf-ui-border:#f5d06b}
 .mobile-arcade-bar{display:flex!important;align-items:center!important;justify-content:center!important;gap:10px!important;flex-wrap:wrap!important}
 .mobile-arcade-bar #arcadeFullscreen,.mobile-arcade-bar #debateLaunch{
@@ -2549,7 +2549,7 @@ body.svf-debate-playing #arcadeExit{display:none!important;visibility:hidden!imp
 #arcadeArena:fullscreen .svf-extra-actions .shield-live-controls,#arcadeArena.arcade-fallback-fullscreen .svf-extra-actions .shield-live-controls{flex:0 0 auto!important;flex-wrap:nowrap!important}
 #arcadeArena:fullscreen .svf-extra-actions #debateLaunch,#arcadeArena.arcade-fallback-fullscreen .svf-extra-actions #debateLaunch{width:auto!important;min-height:28px!important;flex:0 0 auto!important}
 #debateOverlay #debateFullscreenToggle{border-radius:3px!important;box-shadow:3px 3px #000!important}
-/* v1.6.12 — acabamento coerente em HUD, ataques e comandos extras. */
+/* v1.6.13 — acabamento coerente em HUD, ataques e comandos extras. */
 :root{--svf-edge:#f5d06b;--svf-shadow:#050914;--svf-panel:#111d34}
 .arcade-touch-controls .arcade-action,.svf-extra-actions button,.mobile-arcade-bar button{
  touch-action:manipulation!important;-webkit-tap-highlight-color:transparent;
@@ -2577,15 +2577,39 @@ body.svf-debate-playing #arcadeExit{display:none!important;visibility:hidden!imp
 #arcadeArena:fullscreen .svf-extra-actions .shield-live-controls,#arcadeArena.arcade-fallback-fullscreen .svf-extra-actions .shield-live-controls{width:auto!important}
 #arcadeArena:fullscreen .svf-extra-actions .shield-live,#arcadeArena.arcade-fallback-fullscreen .svf-extra-actions .shield-live{min-height:28px!important}
 @media(prefers-reduced-motion:reduce){.svf-extra-actions button,.mobile-arcade-bar button{transition:none!important}}
-/* v1.6.12: remover apenas o pequeno X SAIR no debate; preservar botao grande de tela cheia. */
+/* v1.6.13: remover apenas o pequeno X SAIR no debate; preservar botao grande de tela cheia. */
 #arcadeArena:has(#debateOverlay:not([hidden])) #arcadeExit,
 body.svf-debate-playing #arcadeArena #arcadeExit,
 #arcadeArena:fullscreen:has(#debateOverlay:not([hidden])) #arcadeExit,
 #arcadeArena.arcade-fallback-fullscreen:has(#debateOverlay:not([hidden])) #arcadeExit{
  display:none!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important;
 }
-/* v1.6.12: remover permanentemente o pequeno botao X SAIR duplicado. */
+/* v1.6.13: remover permanentemente o pequeno botao X SAIR duplicado. */
 #arcadeExit,#arcadeArena #arcadeExit,#arcadeArena:fullscreen #arcadeExit,#arcadeArena.arcade-fallback-fullscreen #arcadeExit{display:none!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important}
+
+/* v1.6.13 — polimento final: debate, legibilidade e controles. */
+#arcadeExit{display:none!important;visibility:hidden!important;pointer-events:none!important}
+#debateOverlay{background:#08192b!important}
+#debateOverlay #debateHeader{text-shadow:2px 2px 0 #081329,4px 4px 0 #081329!important;letter-spacing:.055em!important}
+#debateOverlay #debateSkip,#debateOverlay #debateFullscreenToggle{
+ border-radius:2px!important;box-shadow:3px 4px 0 #050914!important;
+ transition:filter .14s ease,transform .12s ease!important;touch-action:manipulation!important;
+}
+#debateOverlay #debateSkip:active,#debateOverlay #debateFullscreenToggle:active{transform:translate(2px,2px)!important;box-shadow:1px 2px 0 #050914!important}
+#debateOverlay #debateSkip:focus-visible,#debateOverlay #debateFullscreenToggle:focus-visible{outline:3px solid #ffe17b!important;outline-offset:3px!important}
+#debateOverlay #debateSubtitle{box-shadow:5px 6px 0 #07101c!important;line-height:1.5!important}
+#debateOverlay #debateText{overflow-wrap:break-word!important;hyphens:auto!important}
+#debateOverlay .debateCharacter{backface-visibility:hidden;image-rendering:pixelated!important}
+#debateOverlay #debateProgress{transition:width .09s linear!important}
+#arcadeArena .svf-extra-actions button{touch-action:manipulation!important}
+@media(max-width:600px){
+ #debateOverlay #debateHeader{font-size:clamp(9px,2.5vw,15px)!important}
+ #debateOverlay #debateSubtitle{max-height:43%!important;overflow:auto!important}
+}
+@media(prefers-reduced-motion:reduce){
+ #debateOverlay,#debateOverlay #debateScene,#debateOverlay .debateCharacter{animation:none!important;transition:none!important}
+ #debateOverlay #debateProgress{transition:none!important}
+}
 </style>
 <!-- SCRIPT ORIGINAL DO JOGO -->
 <script type="module" src="./src/game.js?v=1.6.0"></script>
