@@ -426,6 +426,8 @@ let taokRound=game.round;
 let lulaX=290;
 let lulaKnockback=null;
 let bolsonaroX=670;
+// Posição real do lutador no canvas para alinhar o cilindro da cutscene.
+window.streetVoteBolsonaroPosition=()=>({x:bolsonaroX});
 let bolsonaroKnockback=null;
 
 const names={
@@ -1601,7 +1603,7 @@ function drawVictoryScreen(now){
 // GOD bypasses only this fighter's action gates; life and KO remain authoritative.
 function canStartSpecial(side, now, readyAt=0, bolsa=false){
   if(!ready || debatePauseStart || game.phase==='ko' || game.hp.l<=0 || game.hp.b<=0) return false;
-  if(game.god[side]) return true;
+  // Sem bypass GOD: respeitar recargas e animacoes.
   return game.phase==='ready' && specialEffects.length===0 &&
     !lulaKnockback && (bolsa || !bolsonaroKnockback) && now>=readyAt;
 }
@@ -1612,7 +1614,7 @@ function setGod(side,enabled){
     if(side==='l'){lulaKnockback=null;bolsaReadyAt=0;}
     else {bolsonaroKnockback=null;taokReadyAt=0;}
   }
-  updateGodControls();
+  // GOD desativado.
   updateBolsaButton(performance.now());
   updateTaokButton(performance.now());
 }
@@ -1632,7 +1634,7 @@ function updateGodControls(){
 function startBolsaPancada(){
   const now=performance.now();
   if(!canStartSpecial('l',now,bolsaReadyAt,true)) return;
-  bolsaReadyAt=game.god.l?0:now+BOLSA_COOLDOWN_MS;
+  bolsaReadyAt=now+BOLSA_COOLDOWN_MS;
   specialEffects.push({type:'bolsaPancada',side:'l',start:now,
     duration:BOLSA_DURATION_MS,round:game.round,x:bolsonaroX,hit:false});
   $('message').textContent='LULA — BOLSA PANCADA!';
@@ -1643,13 +1645,12 @@ function startBolsaPancada(){
 function updateBolsaButton(now){
   const button=$('specialL');
   if(!button) return;
-  const seconds=game.god.l?0:Math.ceil(Math.max(0,bolsaReadyAt-now)/1000);
+  const seconds=Math.ceil(Math.max(0,bolsaReadyAt-now)/1000);
   button.disabled=!canStartSpecial('l',now,bolsaReadyAt,true);
   const label=seconds>0?'BOLSA PANCADA · '+seconds+'s':'BOLSA PANCADA';
   const span=button.querySelector('span');
   if(span && span.textContent!==label) span.textContent=label;
-  button.title=game.god.l?'E — Bolsa Pancada (GOD: sem recarga)':
-    seconds>0?'Recarregando: '+seconds+'s':'E — Bolsa Pancada (25 HP; recarga de 1,4 segundos)';
+  button.title=seconds>0?'Recarregando: '+seconds+'s':'E — Bolsa Pancada (25 HP; recarga de 1,4 segundos)';
 }
 
 function applySpecialHit(sp,now){
@@ -1661,7 +1662,7 @@ function applySpecialHit(sp,now){
   if(shieldOn(target,now)){shieldImpact(target,now);return;}
   game.hp[target]=Math.max(0,game.hp[target]-damage);
   // Suppress damage reactions only on the GOD recipient, never the damage.
-  if(!game.god[target]){
+  {
     if(target==='l'){
       const to=Math.max(LULA_WALL_X,from-KNOCKBACK_DISTANCE);
       lulaKnockback={start:now,duration:600,from,to};lulaX=to;
@@ -1739,7 +1740,7 @@ function drawBolsaImpact(now){
 function startTaok(){
   const now=performance.now();
   if(!canStartSpecial('b',now,taokReadyAt)) return;
-  taokReadyAt=game.god.b?0:now+TAOK_COOLDOWN_MS;
+  taokReadyAt=now+TAOK_COOLDOWN_MS;
   specialEffects.push({type:'taok',side:'b',start:now,duration:TAOK_DURATION_MS,
     originX:bolsonaroX,round:game.round,hit:false});
   $('message').textContent='BOLSONARO — TÁ OK!';
@@ -1751,13 +1752,12 @@ function startTaok(){
 function updateTaokButton(now){
   const button=$('specialB');
   if(!button)return;
-  const seconds=game.god.b?0:Math.ceil(Math.max(0,taokReadyAt-now)/1000);
+  const seconds=Math.ceil(Math.max(0,taokReadyAt-now)/1000);
   button.disabled=!canStartSpecial('b',now,taokReadyAt);
   const span=button.querySelector('span');
   const label=seconds>0?'TÁ OK! · '+seconds+'s':'TÁ OK!';
   if(span && span.textContent!==label)span.textContent=label;
-  button.title=game.god.b?'P — TÁ OK! (GOD: sem recarga)':
-    seconds>0?'Recarga: '+seconds+'s':'P — TÁ OK! (25 HP; 1,4s)';
+  button.title=seconds>0?'Recarga: '+seconds+'s':'P — TÁ OK! (25 HP; 1,4s)';
 }
 
 function drawTaok(now,sp){
@@ -2080,9 +2080,7 @@ $('hadoukenB').onclick=()=>startHadouken('b');
 
 // P - Especial TÁ OK! do Bolsonaro.
 $('specialB').onclick=startTaok;
-$('godL').onclick=()=>setGod('l',!game.god.l);
-$('godB').onclick=()=>setGod('b',!game.god.b);
-updateGodControls();
+// GOD removido da interface e dos atalhos.
 
 // ========================================
 // ATALHOS DO TECLADO
@@ -2118,8 +2116,7 @@ document.addEventListener(
       i:'attackB',
       o:'hadoukenB',
       p:'specialB',
-      r:'godL',
-      u:'godB'
+      // GOD removido
     };
 
     const id=shortcuts[
@@ -2139,7 +2136,7 @@ document.addEventListener(
 
 function resetLocalFight(){
   game.reset();
-  updateGodControls();
+  // GOD desativado.
 
   lulaX=290;
   lulaKnockback=null;
