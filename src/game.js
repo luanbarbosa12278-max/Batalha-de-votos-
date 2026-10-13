@@ -1,5 +1,5 @@
 
-import {Fight, VoteTracker, ATTACK_MS, HIT_MS, MAX_HP, BasicProjectiles} from './engine.js?v=1.6.17';
+import {Fight, VoteTracker, ATTACK_MS, HIT_MS, MAX_HP, BasicProjectiles} from './engine.js?v=1.6.18';
 
 const API='https://tiktok-live-servidor.onrender.com';
 const $=id=>document.getElementById(id);
@@ -484,6 +484,9 @@ async function loadAssets(){
       shieldL:'./assets/fighters/escudo-lula.png',
       shieldB:'./assets/fighters/escudo-chinelo.png',
 
+      picanhaProjectile:'./assets/fighters/picanha-projetil.png',
+      bandeiraProjectile:'./assets/fighters/bandeira-projetil.png',
+
       l:'./assets/fighters/lula-idle.png',
       b:'./assets/fighters/bolsonaro-idle.png',
 
@@ -546,6 +549,7 @@ bolsonaroVictory:
             key==='arena' || key==='shieldL' || key==='shieldB' ||
             key==='hadouken' ||
             key==='lulaHadouken' ||
+             key==='picanhaProjectile' || key==='bandeiraProjectile' ||
             key==='taokWave' ||
             key==='bolsaShadow' || key==='bolsaExplosion' ||
             key==='taokBurst'
@@ -865,25 +869,22 @@ function drawBasicShots(){
       ctx.fillRect(-dir*(17+i*7),Math.round(Math.sin(p.age/40+i)*4),3,3);
     }
     ctx.globalAlpha=1;
-    if(p.side==='l'){
-      // Stepped steak silhouette, charred edges, white fat cap and hot highlights.
-      for(const [color,x,y,w,h] of [
-        ['#281817',-12,-10,22,3],['#281817',-17,-7,33,14],['#281817',-11,7,22,3],
-        ['#8b3226',-13,-5,26,11],['#c55436',-10,-3,21,7],
-        ['#fff1d3',-12,-7,23,4],['#ddb87b',-15,-3,4,7],
-        ['#59251e',-6,-2,3,6],['#59251e',3,-1,3,6],['#ffd268',8,1,3,2]]){
-        ctx.fillStyle=color;ctx.fillRect(x,y,w,h);
-      }
+    const art=p.side==='l'?images.picanhaProjectile:images.bandeiraProjectile;
+    if(art){
+      // Fit the uploaded transparent PNG into a compact arcade projectile.
+      // Maintain aspect ratio and face the opponent.
+      const maxW=46,maxH=34;
+      const scale=Math.min(maxW/art.width,maxH/art.height);
+      const w=Math.max(1,Math.round(art.width*scale));
+      const h=Math.max(1,Math.round(art.height*scale));
+      ctx.imageSmoothingEnabled=false;
+      ctx.drawImage(art,-Math.round(w/2),-Math.round(h/2),w,h);
     }else{
-      // Two-pixel stepped waving flag; every column preserves the national design.
-      for(let col=0;col<15;col++){
-        const x=-15+col*2, wave=reduceMotion?0:Math.round(Math.sin(p.age/80+col*.4))*2;
-        ctx.fillStyle='#102c27';ctx.fillRect(x,-11+wave,2,22);
-        ctx.fillStyle='#15984a';ctx.fillRect(x,-9+wave,2,18);
-        const diamond=Math.max(0,7-Math.abs(col-7))*2;
-        if(diamond){ctx.fillStyle='#ffe147';ctx.fillRect(x,-diamond/2+wave,2,diamond);}
-        if(Math.abs(col-7)<=2){ctx.fillStyle='#174bb6';ctx.fillRect(x,-4+wave,2,8);ctx.fillStyle='#fff';ctx.fillRect(x,-1+wave,2,2);}
-      }
+      // Fallback if the uploaded image cannot be loaded.
+      ctx.fillStyle=p.side==='l'?'#b94c30':'#169c4d';
+      ctx.fillRect(-16,-9,32,18);
+      ctx.fillStyle=p.side==='l'?'#ffe5c1':'#ffdb39';
+      ctx.fillRect(-11,-5,22,10);
     }
     ctx.restore();
   }
