@@ -164,7 +164,9 @@ export class Fight {
       const step=Math.min(dt,duration-this.elapsed);
       this.elapsed+=step; dt-=step;
       if (this.phase==='attack'&&!this.hit&&this.elapsed>=HIT_MS) {
-        if(this.attack==='both'){
+        if(this.onBasicFire){
+          for(const side of this.attack==='both'?['l','b']:[this.attack]) this.onBasicFire(side);
+        }else if(this.attack==='both'){
           if(!this.shieldActive.l)this.hp.l=Math.max(0,this.hp.l-DAMAGE);
           if(!this.shieldActive.b)this.hp.b=Math.max(0,this.hp.b-DAMAGE);
           this.delivered+=2;
@@ -210,5 +212,46 @@ export class VoteTracker {
     // A decrease signals a server reset. The new values represent new comments.
     if(l<previous.l||b<previous.b) return {l,b,baseline:false,changed:false,reset:true};
     return {l:l-previous.l,b:b-previous.b,baseline:false,changed:false,reset:false};
+  }
+}
+
+// Spatial basic attacks. The Fight scheduler still owns the 240 ms cadence.
+export class BasicProjectiles {
+  constructor(fight) { this.fight=fight; this.clear(); }
+  clear() { this.items=[]; this.impacts=[]; }
+  fire(side,x,y=320) {
+    if(this.fight.phase==='ko' || this.fight.hp.l<=0 || this.fight.hp.b<=0)return;
+    this.items.push({side,x,y,round:this.fight.round,age:0,fresh:true});
+  }
+  advance(dt,boxes,{blocked=side=>this.fight.shieldActive[side],invulnerable=side=>this.fight.invulnerable?.[side]===true,onImpact=()=>{}}={}) {
+    if(!Number.isFinite(dt)||dt<0)throw new Error('Tempo inválido');
+    const f=this.fight;
+    if(f.phase==='ko'||f.hp.l<=0||f.hp.b<=0){this.clear();return;}
+    this.impacts=this.impacts.filter(p=>(p.age+=dt)<280 && p.round===f.round);
+    const remaining=[];
+    let landed=false;
+    // Resolve this frame together so simultaneous lethal projectiles can draw.
+    for(const p of this.items){
+      if(p.round!==f.round)continue;
+      const step=p.fresh?0:dt;p.fresh=false;p.age+=step;
+      const next=p.x+(p.side==='l'?1:-1)*1.8*step;
+      const target=p.side==='l'?'b':'l', box=boxes[target];
+      const shield=blocked(target), margin=shield?70:0;
+      const left=box.x-box.width/2-margin, right=box.x+box.width/2+margin;
+      // Swept AABB prevents tunnelling even on slow mobile frames.
+      const hit=Math.max(p.x,next)+16>=left && Math.min(p.x,next)-16<=right &&
+        p.y+10>=box.y && p.y-10<=box.y+box.height;
+      if(hit){
+        p.x=p.side==='l'?left:right;
+        f.delivered++;
+        if(!shield&&!invulnerable(target)){f.hp[target]=Math.max(0,f.hp[target]-DAMAGE);landed=true;}
+        this.impacts.push({...p,age:0,shield});
+        onImpact(target,p,shield);
+      }else if(next>=-20&&next<=980){p.x=next;remaining.push(p);}
+      else f.delivered++;
+    }
+    this.items=remaining;
+    if(landed)f.enterKO();
+    if(f.phase==='ko')this.clear();
   }
 }

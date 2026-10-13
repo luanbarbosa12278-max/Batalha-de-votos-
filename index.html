@@ -1394,10 +1394,10 @@ body:not(.arcade-playing) textarea {
  image-rendering:pixelated;
  filter:drop-shadow(2px 3px 0 #070a16);
 }
-#attackL::before{background-image:url("./assets/fighters/lula-icone-soco.png")}
+#attackL::before{background-image:url("./assets/fighters/icone-picanha.svg")}
 #shoryukenL::before{background-image:url("./assets/fighters/lula-icone-hadouken.png")}
 #specialL::before{background-image:url("./assets/fighters/lula-icone-bolsa.png")}
-#attackB::before{background-image:url("./assets/fighters/bolsonaro-icone-soco.png")}
+#attackB::before{background-image:url("./assets/fighters/icone-bandeira.svg")}
 #hadoukenB::before{background-image:url("./assets/fighters/bolsonaro-icone-hadouken.png")}
 #specialB::before{background-image:url("./assets/fighters/bolsonaro-icone-taok.png")}
 .arcade-action .attack-icon{
@@ -1670,7 +1670,7 @@ body.svf-debate-playing #arcadeArena.arcade-fallback-fullscreen .arcade-touch-co
     >
       <button id="attackL" type="button" disabled>
         <kbd>Q</kbd>
-        <span>SOCO</span>
+        <span>PICANHA</span>
       </button>
 
       <button id="shoryukenL" type="button" disabled>
@@ -1739,7 +1739,7 @@ body.svf-debate-playing #arcadeArena.arcade-fallback-fullscreen .arcade-touch-co
         <button id="arcadeSwitch" type="button" aria-label="Trocar lutador">⇄ BOLSONARO</button>
       </div>
       <div class="stage">
-        <span class="arcade-version" aria-label="Versão do jogo">v1.6.13</span>
+        <span class="arcade-version" aria-label="Versão do jogo">v1.6.14</span>
         <canvas
           id="game"
           width="960"
@@ -1757,7 +1757,7 @@ body.svf-debate-playing #arcadeArena.arcade-fallback-fullscreen .arcade-touch-co
       <div class="arcade-touch-controls" aria-label="Controles de luta mobile">
         <div class="arcade-fighter-tag" id="arcadeFighterTag">🔴 LULA</div>
         <div class="arcade-actions">
-          <button type="button" class="arcade-action arcade-punch" data-action="punch"><img class="attack-icon" src="./assets/fighters/lula-icone-soco.png" alt="" aria-hidden="true"><span>SOCO</span></button>
+          <button type="button" class="arcade-action arcade-punch" data-action="punch"><img class="attack-icon" src="./assets/fighters/icone-picanha.svg" alt="" aria-hidden="true"><span>PICANHA</span></button>
           <button type="button" class="arcade-action arcade-power" data-action="power"><img class="attack-icon" src="./assets/fighters/lula-icone-hadouken.png" alt="" aria-hidden="true"><span>HADOUKEN</span></button>
           <button type="button" class="arcade-action arcade-special" data-action="special"><img class="attack-icon" src="./assets/fighters/lula-icone-bolsa.png" alt="" aria-hidden="true"><span>BOLSA PANCADA</span></button>
         </div>
@@ -1781,7 +1781,7 @@ body.svf-debate-playing #arcadeArena.arcade-fallback-fullscreen .arcade-touch-co
     >
       <button id="attackB" type="button" disabled>
         <kbd>I</kbd>
-        <span>SOCO</span>
+        <span>BANDEIRA</span>
       </button>
 
       <button id="hadoukenB" type="button" disabled>
@@ -1871,9 +1871,9 @@ body.svf-debate-playing #arcadeArena.arcade-fallback-fullscreen .arcade-touch-co
 
       <div class="test-buttons">
         <p class="explain">
-          Q = Soco Lula · W = Shoryuken · E = Bolsa Pancada
+          Q = Picanha Lula · W = Shoryuken · E = Bolsa Pancada
           <br>
-          I = Soco Bolsonaro · O = Hadouken
+          I = Bandeira Bolsonaro · O = Hadouken
         </p>
       </div>
 
@@ -2612,7 +2612,7 @@ body.svf-debate-playing #arcadeArena #arcadeExit,
 }
 </style>
 <!-- SCRIPT ORIGINAL DO JOGO -->
-<script type="module" src="./src/game.js?v=1.6.0"></script>
+<script type="module" src="./src/game.js?v=1.6.14"></script>
 
 
 <script>
@@ -2655,12 +2655,12 @@ body.svf-debate-playing #arcadeArena #arcadeExit,
     tag.textContent=side==='l'?'🔴 LULA':'🟢 BOLSONARO';
     swap.textContent=side==='l'?'⇄ BOLSONARO':'⇄ LULA';
     const iconFiles=side==='l'
-      ? {punch:'lula-icone-soco',power:'lula-icone-hadouken',special:'lula-icone-bolsa'}
-      : {punch:'bolsonaro-icone-soco',power:'bolsonaro-icone-hadouken',special:'bolsonaro-icone-taok'};
+      ? {punch:'icone-picanha',power:'lula-icone-hadouken',special:'lula-icone-bolsa'}
+      : {punch:'icone-bandeira',power:'bolsonaro-icone-hadouken',special:'bolsonaro-icone-taok'};
     buttons.forEach(b=>{
       const icon=b.querySelector('.attack-icon');
       if(icon){
-        const src='./assets/fighters/'+iconFiles[b.dataset.action]+'.png';
+        const src='./assets/fighters/'+iconFiles[b.dataset.action]+(b.dataset.action==='punch'?'.svg':'.png');
         if(icon.getAttribute('src')!==src)icon.setAttribute('src',src);
       }
       const source=document.getElementById(actions[side][b.dataset.action]);

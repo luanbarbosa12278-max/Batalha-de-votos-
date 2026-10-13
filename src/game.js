@@ -1,11 +1,17 @@
 
-import {Fight, VoteTracker, ATTACK_MS, HIT_MS, MAX_HP} from './engine.js';
+import {Fight, VoteTracker, ATTACK_MS, HIT_MS, MAX_HP, BasicProjectiles} from './engine.js?v=1.6.14';
 
 const API='https://tiktok-live-servidor.onrender.com';
 const $=id=>document.getElementById(id);
 
 const game=new Fight();
 const tracker=new VoteTracker();
+const basicShots=new BasicProjectiles(game);
+game.onBasicFire=side=>{
+  const box=basicHurtboxes(performance.now())[side];
+  basicShots.fire(side,box.x+(side==='l'?78:-78),box.y+115);
+  playPew(side);
+};
 
 const canvas=$('game');
 const ctx=canvas.getContext('2d');
@@ -153,7 +159,21 @@ let audioMuted=false;
 let lastOccasionalVoice=-100000;
 let hadoukenVoiceUntil=0;
 const OCCASIONAL_COOLDOWN=1600;
-function unlockAudio(){audioUnlocked=true;}
+let pewContext=null;
+function unlockAudio(){
+  audioUnlocked=true;
+  const AudioContext=window.AudioContext||window.webkitAudioContext;
+  if(AudioContext){try{pewContext??=new AudioContext();pewContext.resume().catch(()=>{});}catch(_){}}
+}
+function playPew(side){
+  if(audioMuted||!audioUnlocked||!pewContext||pewContext.state!=='running')return;
+  const t=pewContext.currentTime, osc=pewContext.createOscillator(), gain=pewContext.createGain();
+  osc.type='square';osc.frequency.setValueAtTime(side==='l'?900:1100,t);
+  osc.frequency.exponentialRampToValueAtTime(160,t+.085);
+  gain.gain.setValueAtTime(.035,t);gain.gain.exponentialRampToValueAtTime(.001,t+.095);
+  osc.connect(gain);gain.connect(pewContext.destination);osc.start(t);osc.stop(t+.1);
+  osc.onended=()=>{osc.disconnect();gain.disconnect();};
+}
 document.addEventListener('pointerdown',unlockAudio);
 document.addEventListener('keydown',unlockAudio);
 function stopVoice(){
@@ -551,6 +571,13 @@ bolsonaroVictory:
       images.lulaHadoukenPose=images.lulaPunch || images.l;
     }
 
+    // Optional animation assets: see docs/finger-guns.md for the exact PNG contract.
+    await Promise.all(['l','b'].flatMap(side=>['aim','fire','recovery'].map(async phase=>{
+      try{images[side+'Finger'+phase]=await loadImage('./assets/fighters/'+
+        (side==='l'?'lula':'bolsonaro')+'-finger-'+phase+'.png');}
+      catch(_){/* Keep the approved idle art until these poses are supplied. */}
+    })));
+
     // Artes opcionais nas laterais da arena: não impedem o jogo de iniciar.
     await Promise.all([
       ['sideHue','./assets/fighters/fundo-huehue.png'],
@@ -663,52 +690,11 @@ function fighter(side,time){
     );
 
     if(godPunch || game.attack===side || game.attack==='both'){
-      const reach=side==='l'
-        ?205
-        :160;
+      // Dedicated poses are optional until approved transparent PNGs are supplied.
+      // Never reuse the punching sprite or paint an improvised hand over the fighter.
+      const phase=t<HIT_MS/ATTACK_MS?'aim':t<.64?'fire':'recovery';
+      sprite=images[side+'Finger'+phase] || images[side];
 
-      const approach=Math.min(
-        1,
-        t/.32
-      );
-
-      const retreat=t>.68
-        ?(1-t)/.32
-        :1;
-
-      const dashDirection=side==='l' ? 1 : -1;
-
-x+=dashDirection*reach*Math.max(
-  0,
-  Math.min(approach,retreat)
-);
-
-      // Sprites de soco específicos.
-      if(side==='l'){
-        sprite=images.lulaPunch;
-      }else{
-        sprite=images.punch;
-      }
-
-      sy=1+(
-        reduceMotion
-          ?0
-          :Math.sin(t*Math.PI*4)*.018
-      );
-
-    }else if(game.hit && !game.god[side]){
-      x+=(side==='l' ? -1 : 1)*(
-        reduceMotion
-          ?3
-          :Math.sin(
-            Math.min(
-              1,
-              (game.elapsed-HIT_MS)/220
-            )*Math.PI
-          )*12
-      );
-
-      tilt=.09;
     }
 
   }else{
@@ -837,6 +823,61 @@ x+=dashDirection*reach*Math.max(
 // DESENHAR CENÁRIO
 // ========================================
 
+function basicHurtboxes(now){
+  const box=(x,kb)=>{
+    // Match the interpolated displacement used by fighter(), including special knockback.
+    let lift=0;
+    if(kb){const t=Math.min(1,Math.max(0,(now-kb.start)/kb.duration));x=kb.from+(kb.to-kb.from)*(1-Math.pow(1-t,3));lift=65*Math.sin(t*Math.PI);}
+    return {x,y:205-lift,width:90,height:285};
+  };
+  return {l:box(lulaX,lulaKnockback),b:box(bolsonaroX,bolsonaroKnockback)};
+}
+function drawBasicShots(){
+  const palettes={l:['#b73b28','#ef7750','#ffd15c','#fff2d6'],b:['#21c15a','#ffe34b','#278af3','#fff']};
+  for(const p of basicShots.items){
+    const colors=palettes[p.side],dir=p.side==='l'?1:-1;
+    ctx.save();ctx.translate(Math.round(p.x),Math.round(p.y));
+    for(let i=1;i<=4;i++){
+      ctx.globalAlpha=(5-i)/6;ctx.fillStyle=colors[i%3];
+      ctx.fillRect(-dir*(17+i*7),Math.round(Math.sin(p.age/40+i)*4),3,3);
+    }
+    ctx.globalAlpha=1;
+    if(p.side==='l'){
+      // Stepped steak silhouette, charred edges, white fat cap and hot highlights.
+      for(const [color,x,y,w,h] of [
+        ['#281817',-12,-10,22,3],['#281817',-17,-7,33,14],['#281817',-11,7,22,3],
+        ['#8b3226',-13,-5,26,11],['#c55436',-10,-3,21,7],
+        ['#fff1d3',-12,-7,23,4],['#ddb87b',-15,-3,4,7],
+        ['#59251e',-6,-2,3,6],['#59251e',3,-1,3,6],['#ffd268',8,1,3,2]]){
+        ctx.fillStyle=color;ctx.fillRect(x,y,w,h);
+      }
+    }else{
+      // Two-pixel stepped waving flag; every column preserves the national design.
+      for(let col=0;col<15;col++){
+        const x=-15+col*2, wave=reduceMotion?0:Math.round(Math.sin(p.age/80+col*.4))*2;
+        ctx.fillStyle='#102c27';ctx.fillRect(x,-11+wave,2,22);
+        ctx.fillStyle='#15984a';ctx.fillRect(x,-9+wave,2,18);
+        const diamond=Math.max(0,7-Math.abs(col-7))*2;
+        if(diamond){ctx.fillStyle='#ffe147';ctx.fillRect(x,-diamond/2+wave,2,diamond);}
+        if(Math.abs(col-7)<=2){ctx.fillStyle='#174bb6';ctx.fillRect(x,-4+wave,2,8);ctx.fillStyle='#fff';ctx.fillRect(x,-1+wave,2,2);}
+      }
+    }
+    ctx.restore();
+  }
+  for(const p of basicShots.impacts){
+    const t=p.age/280;ctx.save();ctx.globalAlpha=1-t;
+    for(let i=0;i<10;i++){
+      const a=i*Math.PI/5,r=6+t*(reduceMotion?12:34);
+      ctx.fillStyle=palettes[p.side][i%4];
+      ctx.fillRect(Math.round(p.x+Math.cos(a)*r),Math.round(p.y+Math.sin(a)*r+t*t*14),i%3===0?5:3,3);
+    }
+    ctx.restore();
+  }
+}
+
+
+// ========================================
+
 function paint(time){
   ctx.imageSmoothingEnabled=false;
 
@@ -873,43 +914,7 @@ function paint(time){
     fighter('b',time);
   }
 
-  // Efeito dos socos.
-  if(
-    game.phase==='attack' &&
-    game.hit &&
-    game.elapsed<HIT_MS+150
-  ){
-    ctx.save();
-
-    ctx.strokeStyle='#ffe9a5';
-    ctx.lineWidth=4;
-
-    const impactXs=game.attack==='both' ? [lulaX+200,bolsonaroX-200] : [game.attack==='l' ? lulaX+300 : bolsonaroX-300];
-
-    const y=337;
-
-    for(const x of impactXs){
-    for(let i=0;i<8;i++){
-      const a=i*Math.PI/4;
-
-      ctx.beginPath();
-
-      ctx.moveTo(
-        x+Math.cos(a)*12,
-        y+Math.sin(a)*12
-      );
-
-      ctx.lineTo(
-        x+Math.cos(a)*26,
-        y+Math.sin(a)*26
-      );
-
-      ctx.stroke();
-    }
-    }
-
-    ctx.restore();
-  }
+  drawBasicShots();
 
   for(const sp of specialEffects) drawSpecial(time,sp);
   drawBolsaImpact(time);
@@ -1205,19 +1210,6 @@ function updateFightAudio(now){
     game.phase==='attack'
       ?game.attack
       :null;
-
-  // SOCOS: 12% de chance.
-  if(
-    attacking &&
-    previousAttack!==attacking
-  ){
-    if(attacking==='both'){
-      playSound('lulaSoco');
-      playSound('bolsonaroSoco');
-    }else{
-      playSound(attacking==='l' ? 'lulaSoco' : 'bolsonaroSoco');
-    }
-  }
 
   previousAttack=attacking;
 
@@ -2000,17 +1992,10 @@ function frame(now){
 
   updateSpecialEffects(now);
   if(ready){
-    const beforeHit=game.hit, beforePhase=game.phase, beforeAttack=game.attack;
-    const blockedBefore={...game.godBlockedHits};
     game.advance(dt,{pauseNormal:specialEffects.length>0});
-    if(game.hit && (!beforeHit || beforePhase!=='attack')){
-      const attacking=game.attack||beforeAttack;
-      if((attacking==='b'||attacking==='both')&&shieldOn('l',now))shieldImpact('l',now);
-      if((attacking==='l'||attacking==='both')&&shieldOn('b',now))shieldImpact('b',now);
-    }
-    for(const side of ['l','b']){
-      if(game.godBlockedHits[side]>blockedBefore[side])shieldImpact(side,now);
-    }
+    basicShots.advance(dt,basicHurtboxes(now),{
+      onImpact:(side,p,blocked)=>{if(blocked)shieldImpact(side,now);}
+    });
     if(game.phase==='ko') specialEffects=[];
   }
 
@@ -2035,9 +2020,9 @@ document.addEventListener(
 // BOTÕES DOS GOLPES
 // ========================================
 
-// Q - Soco do Lula.
+// Q - Picanha do Lula.
 $('attackL').onclick=()=>{
-  if(!ready){
+  if(!ready || debatePauseStart || game.phase==='ko'){
     return;
   }
 
@@ -2048,9 +2033,9 @@ $('attackL').onclick=()=>{
   );
 };
 
-// I - Soco do Bolsonaro.
+// I - Bandeira do Bolsonaro.
 $('attackB').onclick=()=>{
-  if(!ready){
+  if(!ready || debatePauseStart || game.phase==='ko'){
     return;
   }
 
@@ -2136,6 +2121,7 @@ document.addEventListener(
 
 function resetLocalFight(){
   game.reset();
+  basicShots.clear();
   // GOD desativado.
 
   lulaX=290;
