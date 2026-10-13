@@ -1,7 +1,7 @@
 export const MAX_HP = 500;
 export const DAMAGE = 10;
-export const ATTACK_MS = 240;
-export const HIT_MS = 100;
+export const ATTACK_MS = 300;
+export const HIT_MS = 125;
 export const KO_MS = 6500;
 
 // Batches preserve every count without allocating one item per comment.
