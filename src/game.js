@@ -1,5 +1,5 @@
 
-import {Fight, VoteTracker, ATTACK_MS, HIT_MS, MAX_HP, BasicProjectiles} from './engine.js?v=1.6.14';
+import {Fight, VoteTracker, ATTACK_MS, HIT_MS, MAX_HP, BasicProjectiles} from './engine.js?v=1.6.15';
 
 const API='https://tiktok-live-servidor.onrender.com';
 const $=id=>document.getElementById(id);
@@ -571,6 +571,15 @@ bolsonaroVictory:
       images.lulaHadoukenPose=images.lulaPunch || images.l;
     }
 
+    // Seis quadros reais do disparo de picanha do Lula (opcionais).
+    // Normalizar individualmente mantém escala e alinhamento com o lutador.
+    await Promise.all(Array.from({length:6},async (_,i)=>{
+      try{
+        const file='./assets/fighters/lula-tiro-'+String(i+1).padStart(2,'0')+'.png';
+        images['lulaTiro'+i]=normalizeSprite(await loadImage(file));
+      }catch(error){ images['lulaTiro'+i]=null; }
+    }));
+
     // Optional animation assets: see docs/finger-guns.md for the exact PNG contract.
     await Promise.all(['l','b'].flatMap(side=>['aim','fire','recovery'].map(async phase=>{
       try{images[side+'Finger'+phase]=await loadImage('./assets/fighters/'+
@@ -693,7 +702,13 @@ function fighter(side,time){
       // Dedicated poses are optional until approved transparent PNGs are supplied.
       // Never reuse the punching sprite or paint an improvised hand over the fighter.
       const phase=t<HIT_MS/ATTACK_MS?'aim':t<.64?'fire':'recovery';
-      sprite=images[side+'Finger'+phase] || images[side];
+      // Frame 03 coincide com o instante do disparo; quadros 04-06 recuperam.
+      const fireAt=HIT_MS/ATTACK_MS;
+      const frameIndex=t<fireAt
+        ?Math.min(1,Math.floor(t/Math.max(fireAt,0.01)*2))
+        :Math.min(5,2+Math.floor((t-fireAt)/Math.max(1-fireAt,0.01)*4));
+      sprite=(side==='l' ? images['lulaTiro'+frameIndex] : null)
+        || images[side+'Finger'+phase] || images[side];
 
     }
 
