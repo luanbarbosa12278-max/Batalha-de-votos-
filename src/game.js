@@ -1,5 +1,5 @@
 
-import {Fight, VoteTracker, ATTACK_MS, HIT_MS, MAX_HP, BasicProjectiles} from './engine.js?v=1.6.21';
+import {Fight, VoteTracker, ATTACK_MS, HIT_MS, MAX_HP, BasicProjectiles} from './engine.js?v=1.6.22';
 
 const API='https://tiktok-live-servidor.onrender.com';
 const $=id=>document.getElementById(id);
@@ -1652,14 +1652,15 @@ function updateGodControls(){
   }
 }
 
-function startBolsaPancada(){
+function startBolsaPancada(side='l'){
+  if(side!=='l'&&side!=='b')side='l'; // DOM click passes an Event.
   const now=performance.now();
-  if(!canStartSpecial('l',now,bolsaReadyAt,true)) return;
+  if(!canStartSpecial(side,now,bolsaReadyAt,true)) return;
   bolsaReadyAt=now+BOLSA_COOLDOWN_MS;
-  specialEffects.push({type:'bolsaPancada',side:'l',start:now,
-    duration:BOLSA_DURATION_MS,round:game.round,x:bolsonaroX,hit:false});
-  $('message').textContent='LULA — BOLSA PANCADA!';
-  playSound('lulaBolsa');
+  specialEffects.push({type:'bolsaPancada',side,start:now,
+    duration:BOLSA_DURATION_MS,round:game.round,x:side==='l'?bolsonaroX:lulaX,hit:false});
+  $('message').textContent=(side==='l'?'LULA':'BOLSONARO')+' — BOLSA PANCADA!';
+  if(side==='l')playSound('lulaBolsa');
   updateBolsaButton(now);
 }
 
@@ -2001,6 +2002,7 @@ window.addEventListener('streetvote:debate-end',()=>{
   if(taokReadyAt>0)taokReadyAt+=elapsed;
 });
 function frame(now){
+  drainLiveCommands();
   if(debatePauseStart){
     previousTime=now;
     requestAnimationFrame(frame);
@@ -2422,6 +2424,33 @@ $('connectForm').addEventListener(
 );
 
 // ========================================
+// Live mode uses this same-origin receiver and never polls legacy vote totals.
+const liveQueue=[];
+function receiveLiveCommand(command){
+  if(!command || !['l','b'].includes(command.side) ||
+    !['shot','hadouken','shield','bolsa','taok'].includes(command.action) ||
+    !Number.isSafeInteger(command.count) || command.count<1 || command.count>100 ||
+    (command.action==='taok'&&command.side!=='b') || liveQueue.length>=500) return;
+  liveQueue.push({...command,expires:performance.now()+60000});
+}
+function drainLiveCommands(){
+  const now=performance.now();
+  while(liveQueue.length&&liveQueue[0].expires<now)liveQueue.shift();
+  const command=liveQueue[0];
+  if(!command||!ready||debatePauseStart||game.phase==='ko')return;
+  if(command.action==='shot') {
+    if(game.pending>10000)return;
+    game.enqueue(command.side==='l'?command.count:0,command.side==='b'?command.count:0);
+    liveQueue.shift();return;
+  }
+  if(command.action==='shield'){activateShield(command.side);liveQueue.shift();return;}
+  const cooldown=command.action==='bolsa'?bolsaReadyAt:command.action==='taok'?taokReadyAt:0;
+  if(!canStartSpecial(command.side,now,cooldown,command.action==='bolsa'))return;
+  if(command.action==='hadouken')startHadouken(command.side);
+  else if(command.action==='bolsa')startBolsaPancada(command.side);
+  else startTaok();
+  if(--command.count===0)liveQueue.shift();
+}
 // INICIALIZAÇÃO
 // ========================================
 
@@ -2430,9 +2459,13 @@ updateHUD();
 
 requestAnimationFrame(frame);
 
-pollVotes();
-
-setInterval(
-  pollVotes,
-  2000
-);
+if(new URLSearchParams(location.search).get('live')==='1'){
+  const stream=new EventSource('/live/stream');
+  stream.onmessage=event=>{try{receiveLiveCommand(JSON.parse(event.data));}catch{}};
+  stream.onopen=()=>{$('status').textContent='Receptor da live conectado';};
+  stream.onerror=()=>{$('status').textContent='Receptor desconectado; reconectando…';};
+  $('connect').disabled=true;
+}else{
+  pollVotes();
+  setInterval(pollVotes,2000);
+}

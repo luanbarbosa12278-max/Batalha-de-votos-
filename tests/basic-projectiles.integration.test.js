@@ -48,7 +48,7 @@ function harness(){
   const api=new Function('document','Element','Audio','performance','matchMedia',
     'requestAnimationFrame','Image','confirm','window',source+
     '\nreturn {game,images,soundGroups,frame,startBolsaPancada,startHadouken,startTaok,activateShield,basicShots,resetLocalFight,'+
-    'updateSpecialEffects,updateBolsaButton,drawBolsaPancada,fighter,'+
+    'updateSpecialEffects,updateBolsaButton,drawBolsaPancada,fighter,receiveLiveCommand,drainLiveCommands,'+
     'enable(){ready=true;},effect:()=>specialEffects[0]??null,impact:()=>bolsaImpact};'
   )(document,Element,Audio,{now:()=>now},()=>({matches:false}),()=>{},
     class {},()=>true,{addEventListener(type,fn){(events[type]??=[]).push(fn);}});
@@ -56,6 +56,22 @@ function harness(){
   for(const k of ['bolsaGlove','lulaVictory','bolsonaroVictory','l','b','hadoukenPose','lulaHadoukenPose','bolsaPrepare','bolsaSummon','bolsaFinal','taokPrepare','taokShout','taokFinal','knockback','bolsonaroKnockbackPose'])api.images[k]={width:280,height:256};
   return {...api, tick(t){now=t;api.frame(t);}, key(key){for(const fn of events.keydown??[])fn({key,target:new Element('target'),preventDefault(){}});}, event(type){for(const fn of events[type]??[])fn();}, click(id){document.getElementById(id).click();}};
 }
+test('live commands dispatch both shots, shields and each special through the game',()=>{
+  for(const side of ['l','b']){
+    const a=harness();a.receiveLiveCommand({action:'shot',side,count:2});a.drainLiveCommands();
+    assert.equal(a.game.votes[side],2);
+    a.receiveLiveCommand({action:'shield',side,count:1});a.drainLiveCommands();
+    assert.equal(a.game.shieldActive[side],true);
+  }
+  for(const [action,side,type] of [['hadouken','l','lulaHadouken'],['bolsa','b','bolsaPancada'],['taok','b','taok']]){
+    const a=harness();a.receiveLiveCommand({action,side,count:1});a.drainLiveCommands();
+    assert.equal(a.effect().type,type);assert.equal(a.effect().side,side);
+    a.updateSpecialEffects(1200);
+    assert.equal(a.game.hp[side==='l'?'b':'l'],action==='hadouken'?480:475);
+    assert.equal(a.game.hp[side],500);
+  }
+});
+
 test('actual game Q/I and button handlers fire, collide, block, pause and resume',()=>{
  const a=harness();a.tick(1);a.key('q');a.tick(101);
  assert.equal(a.basicShots.items.length,1);assert.equal(a.game.hp.b,500);

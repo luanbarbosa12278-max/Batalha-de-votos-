@@ -69,3 +69,7 @@ GitHub Pages: HTML/CSS/JS e PNG estáticos com caminhos relativos, sem build nec
 ## Modo GOD (v1.6.0)
 
 R alterna GOD de Lula; U alterna GOD de Bolsonaro. Os botões no HUD também funcionam por toque em tela cheia. Veja [controles, regras e testes](docs/god-v1.6.0.md).
+# TikTok live v1.6.22
+
+Integração direta e receptor autenticado: consulte [configuração e mapeamento](docs/tiktok-live.md). IDs de presentes permanecem desativados até confirmação no catálogo da live.
+
