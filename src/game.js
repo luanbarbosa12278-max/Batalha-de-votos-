@@ -1,5 +1,5 @@
 
-import {Fight, VoteTracker, ATTACK_MS, HIT_MS, MAX_HP, BasicProjectiles} from './engine.js?v=1.6.19';
+import {Fight, VoteTracker, ATTACK_MS, HIT_MS, MAX_HP, BasicProjectiles} from './engine.js?v=1.6.20';
 
 const API='https://tiktok-live-servidor.onrender.com';
 const $=id=>document.getElementById(id);
@@ -10,9 +10,9 @@ const basicShots=new BasicProjectiles(game);
 game.onBasicFire=side=>{
   const box=basicHurtboxes(performance.now())[side];
   // O tiro nasce à frente da mão estendida, não no centro do tronco.
-  // Ajuste de origem exclusivo do Lula; preservar a bandeira do Bolsonaro.
-  const muzzleX=side==='l'?box.x+132:box.x-78;
-  const muzzleY=side==='l'?box.y+83:box.y+115;
+  // Ambos os tiros partem da frente da arminha de dedo.
+  const muzzleX=side==='l'?box.x+132:box.x-132;
+  const muzzleY=box.y+83;
   basicShots.fire(side,muzzleX,muzzleY);
   playPew(side);
 };
@@ -877,8 +877,8 @@ function drawBasicShots(){
     if(art){
       // Fit the uploaded transparent PNG into a compact arcade projectile.
       // Maintain aspect ratio and face the opponent.
-      const maxW=p.side==='l'?100:46;
-      const maxH=p.side==='l'?72:34;
+      const maxW=100;
+      const maxH=72;
       const scale=Math.min(maxW/art.width,maxH/art.height);
       const w=Math.max(1,Math.round(art.width*scale));
       const h=Math.max(1,Math.round(art.height*scale));
