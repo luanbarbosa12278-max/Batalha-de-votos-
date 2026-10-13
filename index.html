@@ -1543,7 +1543,7 @@ body:not(.arcade-playing) textarea {
 #debateSpeaker{color:#ffe27b;margin-bottom:7px}#debateProgress{position:absolute;bottom:0;left:0;width:0;height:4px;background:#ffdc59;z-index:7}
 @media(max-width:650px){#debateLaunch{padding:6px;font-size:9px}#debateSubtitle{bottom:1%;padding:6px}}
 
-/* Debate cinematografico v1.5.41 */
+/* Debate cinematografico v1.5.42 */
 #debateOverlay{isolation:isolate;animation:debateFadeIn .32s ease-out both}
 #debateScene{animation:debateBackdrop 16s ease-in-out infinite alternate}
 #debateScene:after{background:linear-gradient(180deg,#06142655 0%,transparent 24%,transparent 49%,#00142da8 100%)}
@@ -1564,7 +1564,7 @@ body:not(.arcade-playing) textarea {
 @media(max-width:650px){#debateHeader{top:3%;left:41%;max-width:55%;font-size:9px}#debateSkip{font-size:10px;padding:5px;right:1.5%;top:2%}.debateCharacter{height:64%;width:39%;bottom:17%}#debateLula{left:0}#debateBolsonaro{right:0}#debateSubtitle{bottom:1.5%;left:3%;width:94%;min-height:23%;font-size:clamp(8px,2vw,11px);padding:6px}#debateSpeaker{font-size:9px;margin-bottom:4px}}
 @media(prefers-reduced-motion:reduce){#debateOverlay,#debateScene{animation:none}.debateCharacter,#debateSubtitle{transition:none}}
 
-/* Debate monocromatico estilo animacao / quadrinhos v1.5.41 */
+/* Debate monocromatico estilo animacao / quadrinhos v1.5.42 */
 #debateSubtitle{color:#fff!important;background:#050505f5!important;border:3px solid #fff!important;border-radius:0!important;box-shadow:0 0 0 3px #050505,6px 6px 0 #000b!important;text-shadow:2px 2px #000!important;transition:none!important}
 #debateOverlay[data-speaker="l"] #debateSubtitle,#debateOverlay[data-speaker="b"] #debateSubtitle{border-color:#fff!important}
 #debateSpeaker{color:#fff!important;text-shadow:2px 2px #000!important}
@@ -1572,7 +1572,7 @@ body:not(.arcade-playing) textarea {
 #debateProgress{background:#fff!important;box-shadow:0 -1px 5px #ffffff70!important}
 #debateSkip{background:#000!important;color:#fff!important;border:2px solid #fff!important;box-shadow:3px 3px #000!important}
 
-/* Baloes de fala 16-bit: papel branco, tinta preta, cauda pixelada v1.5.41 */
+/* Baloes de fala 16-bit: papel branco, tinta preta, cauda pixelada v1.5.42 */
 #debateSubtitle{position:absolute!important;overflow:visible!important;box-sizing:border-box!important;background:#fff!important;color:#000!important;border:4px solid #000!important;border-radius:0!important;box-shadow:4px 4px 0 #fff,8px 8px 0 #000!important;text-shadow:none!important;padding:clamp(9px,1.5vw,17px)!important;bottom:5%!important;min-height:17%!important;z-index:4!important}
 #debateSubtitle::before{content:"";position:absolute;bottom:100%;left:19%;width:0;height:0;border-style:solid;border-width:0 0 26px 24px;border-color:transparent transparent #000 transparent;filter:none;image-rendering:pixelated}
 #debateSubtitle::after{content:"";position:absolute;bottom:calc(100% - 4px);left:calc(19% + 5px);width:0;height:0;border-style:solid;border-width:0 0 17px 16px;border-color:transparent transparent #fff transparent}
@@ -1584,7 +1584,7 @@ body:not(.arcade-playing) textarea {
 #debateProgress{background:#000!important;box-shadow:none!important;height:4px!important}
 @media(max-width:650px){#debateSubtitle{bottom:4%!important;min-height:21%!important;padding:8px!important;border-width:3px!important;box-shadow:3px 3px 0 #fff,6px 6px 0 #000!important}#debateSubtitle::before{border-width:0 0 18px 17px}#debateSubtitle::after{border-width:0 0 11px 10px}}
 
-/* Dialogo visual novel 16-bit: retrato no canto, inspirado na referencia v1.5.41 */
+/* Dialogo visual novel 16-bit: retrato no canto, inspirado na referencia v1.5.42 */
 #debateSubtitle{bottom:3%!important;left:5%!important;width:90%!important;min-height:24%!important;max-height:34%!important;display:flex!important;flex-direction:column!important;align-items:flex-start!important;justify-content:center!important;text-align:left!important;box-sizing:border-box!important;background:#271a2b!important;color:#fff3df!important;border:4px solid #c6a18c!important;border-radius:0!important;box-shadow:inset 0 0 0 4px #4a3042,4px 4px 0 #0d101b!important;padding:clamp(9px,1.6vw,19px) clamp(85px,20%,190px) clamp(9px,1.6vw,19px) clamp(13px,2.4vw,27px)!important;overflow:visible!important}
 #debateSubtitle::before,#debateSubtitle::after{content:none!important;display:none!important}
 #debateSpeaker{color:#f6d4b0!important;text-shadow:2px 2px #130e17!important;font-size:clamp(9px,1.2vw,14px)!important;margin-bottom:9px!important}
@@ -1606,8 +1606,8 @@ body.svf-debate-playing #arcadeArena.arcade-fallback-fullscreen .arcade-touch-co
 #arcadeArena:has(#debateOverlay:not([hidden])) .arcade-fighter-tag{display:none!important}
 
 
-/* Canhao de energia cilindrico arcade v1.5.41 */
-#svfObliterator{position:absolute;inset:0;z-index:1000;pointer-events:none;overflow:hidden;display:none;image-rendering:pixelated}#svfObliterator.active{display:block}#svfObliterator .svfSky{position:absolute;inset:0;background:radial-gradient(ellipse at 72% 72%,#bfefff77,#6635d44d 40%,#030820c9 85%);animation:svfStorm .15s steps(2,end) infinite}#svfObliterator .svfBolt{position:absolute;left:72%;top:-8%;height:105%;width:22%;transform:translateX(-50%) scaleY(0);transform-origin:top center;background:linear-gradient(90deg,#5125d7 0%,#4de3ff 10%,#d8ffff 25%,#fff 50%,#d8ffff 75%,#4de3ff 90%,#5125d7 100%);border-left:8px solid #bd9cff;border-right:8px solid #bd9cff;box-shadow:0 0 22px 14px #62eaffaa,0 0 60px 26px #763cff99;animation:svfBeamDrop .4s steps(6,end) .32s forwards,svfBeamPulse .12s steps(2,end) .72s infinite}#svfObliterator .svfBolt::before{content:"";position:absolute;left:-4%;top:-2%;width:108%;height:10%;border-radius:50%;background:radial-gradient(ellipse,#fff 20%,#85efff 65%,#6432cc 100%);box-shadow:0 0 18px #fff}#svfObliterator .svfBolt::after{content:"";position:absolute;left:-7%;bottom:-2%;width:114%;height:11%;border-radius:50%;background:radial-gradient(ellipse,#fff 10%,#6de9ff 58%,#7137d4 90%);box-shadow:0 0 32px 14px #7af4ff}#svfObliterator .svfImpact{position:absolute;left:72%;bottom:7%;width:38%;aspect-ratio:1;transform:translate(-50%,45%) scale(0);border:14px solid #fff;border-radius:50%;box-shadow:0 0 0 18px #51d9ff,0 0 45px 32px #934dff;animation:svfBlast 1.2s steps(6,end) .72s forwards}#svfObliterator .svfTitle{position:absolute;top:10%;left:0;right:0;text-align:center;font:900 clamp(12px,3vw,30px) 'Press Start 2P',monospace;color:#fff;text-shadow:4px 4px #150040,-3px -3px #751fff;animation:svfTitlePop .55s steps(3,end) both}#svfObliterator .svfWhiteout{position:absolute;inset:0;background:#fff;opacity:0;animation:svfFlash 1.4s steps(3,end) .7s both}@keyframes svfStorm{50%{filter:brightness(2)}}@keyframes svfBeamDrop{to{transform:translateX(-50%) scaleY(1)}}@keyframes svfBeamPulse{50%{filter:brightness(1.5);width:24%}}@keyframes svfBlast{15%{transform:translate(-50%,45%) scale(.5);opacity:1}100%{transform:translate(-50%,45%) scale(3);opacity:0}}@keyframes svfFlash{15%{opacity:.94}45%{opacity:.2}100%{opacity:0}}@keyframes svfTitlePop{0%{transform:scale(.5);opacity:0}100%{transform:scale(1);opacity:1}}
+/* Canhao de energia cilindrico arcade v1.5.42 */
+#svfObliterator{position:absolute;inset:0;z-index:1000;pointer-events:none;overflow:hidden;display:none;image-rendering:pixelated}#svfObliterator.active{display:block}#svfObliterator .svfSky{position:absolute;inset:0;background:radial-gradient(ellipse at 72% 72%,#bfefff77,#6635d44d 40%,#030820c9 85%);animation:svfStorm .15s steps(2,end) infinite}#svfObliterator .svfBolt{position:absolute;left:var(--svf-target-x,72%);top:-8%;height:105%;width:22%;transform:translateX(-50%) scaleY(0);transform-origin:top center;background:linear-gradient(90deg,#5125d7 0%,#4de3ff 10%,#d8ffff 25%,#fff 50%,#d8ffff 75%,#4de3ff 90%,#5125d7 100%);border-left:8px solid #bd9cff;border-right:8px solid #bd9cff;box-shadow:0 0 22px 14px #62eaffaa,0 0 60px 26px #763cff99;animation:svfBeamDrop .4s steps(6,end) .32s forwards,svfBeamPulse .12s steps(2,end) .72s infinite}#svfObliterator .svfBolt::before{content:"";position:absolute;left:-4%;top:-2%;width:108%;height:10%;border-radius:50%;background:radial-gradient(ellipse,#fff 20%,#85efff 65%,#6432cc 100%);box-shadow:0 0 18px #fff}#svfObliterator .svfBolt::after{content:"";position:absolute;left:-7%;bottom:-2%;width:114%;height:11%;border-radius:50%;background:radial-gradient(ellipse,#fff 10%,#6de9ff 58%,#7137d4 90%);box-shadow:0 0 32px 14px #7af4ff}#svfObliterator .svfImpact{position:absolute;left:var(--svf-target-x,72%);bottom:7%;width:38%;aspect-ratio:1;transform:translate(-50%,45%) scale(0);border:14px solid #fff;border-radius:50%;box-shadow:0 0 0 18px #51d9ff,0 0 45px 32px #934dff;animation:svfBlast 1.2s steps(6,end) .72s forwards}#svfObliterator .svfTitle{position:absolute;top:10%;left:0;right:0;text-align:center;font:900 clamp(12px,3vw,30px) 'Press Start 2P',monospace;color:#fff;text-shadow:4px 4px #150040,-3px -3px #751fff;animation:svfTitlePop .55s steps(3,end) both}#svfObliterator .svfWhiteout{position:absolute;inset:0;background:#fff;opacity:0;animation:svfFlash 1.4s steps(3,end) .7s both}@keyframes svfStorm{50%{filter:brightness(2)}}@keyframes svfBeamDrop{to{transform:translateX(-50%) scaleY(1)}}@keyframes svfBeamPulse{50%{filter:brightness(1.5);width:24%}}@keyframes svfBlast{15%{transform:translate(-50%,45%) scale(.5);opacity:1}100%{transform:translate(-50%,45%) scale(3);opacity:0}}@keyframes svfFlash{15%{opacity:.94}45%{opacity:.2}100%{opacity:0}}@keyframes svfTitlePop{0%{transform:scale(.5);opacity:0}100%{transform:scale(1);opacity:1}}
 </style><style id="svf-debate-visible-v1530">
 .mobile-arcade-bar{display:flex!important;flex-wrap:wrap!important;align-items:center!important;justify-content:center!important;gap:10px!important}
 .mobile-arcade-bar #debateLaunch{display:inline-flex!important;align-items:center;justify-content:center;visibility:visible!important;opacity:1!important;position:relative!important;margin:0!important;min-height:42px;background:#123a70!important;color:#fff3a3!important;border:3px solid #ffdc59!important;box-shadow:3px 3px #09152b!important;font:700 clamp(10px,2.4vw,13px) 'Press Start 2P',monospace!important}
@@ -1697,7 +1697,6 @@ body.svf-debate-playing #arcadeArena.arcade-fallback-fullscreen .arcade-touch-co
           </div>
 
           <small id="winsL">0 ROUNDS</small>
-          <button id="godL" class="god-toggle" type="button" aria-pressed="false" aria-label="Lula — GOD desligado, ativar">R · GOD OFF</button>
         </div>
 
         <div class="round">
@@ -1721,7 +1720,6 @@ body.svf-debate-playing #arcadeArena.arcade-fallback-fullscreen .arcade-touch-co
           </div>
 
           <small id="winsB">0 ROUNDS</small>
-          <button id="godB" class="god-toggle" type="button" aria-pressed="false" aria-label="Bolsonaro — GOD desligado, ativar">U · GOD OFF</button>
         </div>
 
       </div>
@@ -2598,7 +2596,18 @@ stage.appendChild(overlay);
 const obliterator=document.createElement('div');obliterator.id='svfObliterator';obliterator.setAttribute('aria-hidden','true');obliterator.innerHTML='<div class="svfSky"></div><div class="svfBolt"></div><div class="svfImpact"></div><div class="svfWhiteout"></div>';
 stage.appendChild(obliterator);
 let obliteratorTimer=0;
+function aimObliterator(){
+ const canvas=stage.querySelector('canvas');
+ const pos=window.streetVoteBolsonaroPosition?.();
+ if(!canvas||!pos)return;
+ const rect=canvas.getBoundingClientRect(),parent=stage.getBoundingClientRect();
+ const fitW=Math.min(rect.width,rect.height*960/540);
+ const left=rect.left+(rect.width-fitW)/2-parent.left;
+ const center=left+Math.max(0,Math.min(960,pos.x))/960*fitW;
+ obliterator.style.setProperty('--svf-target-x',center+'px');
+}
 function superRaio(){
+ aimObliterator();
  clearTimeout(obliteratorTimer);obliterator.classList.remove('active');void obliterator.offsetWidth;
  obliterator.classList.add('active');
  obliteratorTimer=setTimeout(()=>window.dispatchEvent(new Event('streetvote:debate-hitkill')),850);
