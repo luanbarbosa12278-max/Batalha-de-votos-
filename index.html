@@ -1740,7 +1740,7 @@ body.svf-debate-playing #arcadeArena.arcade-fallback-fullscreen .arcade-touch-co
         <button id="arcadeSwitch" type="button" aria-label="Trocar lutador">⇄ BOLSONARO</button>
       </div>
       <div class="stage">
-        <span class="arcade-version" aria-label="Versão do jogo">v1.6.7</span>
+        <span class="arcade-version" aria-label="Versão do jogo">v1.6.8</span>
         <canvas
           id="game"
           width="960"
@@ -2515,6 +2515,39 @@ body.svf-debate-playing #arcadeArena:fullscreen #arcadeExit,body.svf-debate-play
 /* v1.6.7: tela cheia permanece na barra original; somente o controle do overlay aparece durante a cena. */
 #debateOverlay #debateFullscreenToggle{position:absolute!important;top:12px!important;left:12px!important;right:auto!important;z-index:2147483006!important;display:inline-flex!important;visibility:visible!important;opacity:1!important;pointer-events:auto!important;background:#101b34!important;color:white!important;border:3px solid white!important;padding:10px 12px!important;font:700 clamp(8px,1.3vw,13px) 'Press Start 2P',monospace!important;box-shadow:3px 3px #000!important;cursor:pointer!important}
 .svf-extra-actions #arcadeFullscreen{display:none!important}
+/* v1.6.8 — harmonização visual dos comandos, sem mudar funções. */
+:root{--svf-ui-gold:#ffd65c;--svf-ui-ink:#0d1628;--svf-ui-border:#f5d06b}
+.mobile-arcade-bar{display:flex!important;align-items:center!important;justify-content:center!important;gap:10px!important;flex-wrap:wrap!important}
+.mobile-arcade-bar #arcadeFullscreen,.mobile-arcade-bar #debateLaunch{
+ border:3px solid var(--svf-ui-border)!important;border-radius:5px!important;
+ box-shadow:inset 2px 2px #ffffff45,3px 4px #050a18!important;
+ font-family:'Press Start 2P',monospace!important;letter-spacing:0!important;
+ transition:filter .15s ease,transform .12s ease!important;
+}
+.mobile-arcade-bar #arcadeFullscreen:active,.mobile-arcade-bar #debateLaunch:active,
+.svf-extra-actions button:active{transform:translate(2px,2px)!important}
+.svf-extra-actions{
+ width:min(100% - 28px,760px)!important;max-width:760px!important;
+ margin:10px auto 18px!important;padding:12px!important;
+ background:linear-gradient(180deg,#18243c,#0c1528)!important;
+ border:3px solid var(--svf-ui-border)!important;border-radius:3px!important;
+ box-shadow:inset 0 0 0 3px #293c55,4px 5px 0 #050914!important;
+ gap:9px!important;
+}
+.svf-extra-actions .shield-live-controls{flex:1 1 240px!important;justify-content:center!important;gap:8px!important}
+.svf-extra-actions .shield-live{flex:1 1 auto!important;min-height:40px!important;border-radius:3px!important;line-height:1.4!important;letter-spacing:0!important}
+.svf-extra-actions #debateLaunch{flex:0 1 auto!important;min-height:40px!important;border-radius:3px!important;white-space:nowrap!important}
+.svf-extra-actions button{transition:filter .15s ease,transform .12s ease!important}
+.svf-extra-actions button:hover{filter:brightness(1.13)!important}
+@media(max-width:420px){.svf-extra-actions{padding:9px!important;gap:7px!important}.svf-extra-actions .shield-live-controls{flex-basis:100%!important}.svf-extra-actions #debateLaunch{width:100%!important}}
+#arcadeArena:fullscreen .svf-extra-actions,#arcadeArena.arcade-fallback-fullscreen .svf-extra-actions{
+ width:auto!important;max-width:55vw!important;margin:0!important;padding:7px!important;
+ background:#101b30e8!important;border:2px solid #f5d06b!important;
+ box-shadow:2px 3px #050914!important;gap:5px!important;
+}
+#arcadeArena:fullscreen .svf-extra-actions .shield-live-controls,#arcadeArena.arcade-fallback-fullscreen .svf-extra-actions .shield-live-controls{flex:0 0 auto!important;flex-wrap:nowrap!important}
+#arcadeArena:fullscreen .svf-extra-actions #debateLaunch,#arcadeArena.arcade-fallback-fullscreen .svf-extra-actions #debateLaunch{width:auto!important;min-height:28px!important;flex:0 0 auto!important}
+#debateOverlay #debateFullscreenToggle{border-radius:3px!important;box-shadow:3px 3px #000!important}
 </style>
 <!-- SCRIPT ORIGINAL DO JOGO -->
 <script type="module" src="./src/game.js?v=1.6.0"></script>
