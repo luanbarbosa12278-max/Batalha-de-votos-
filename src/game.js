@@ -1514,6 +1514,27 @@ function drawVictoryScreen(now){
     }
   }
 
+  // Entrada cinematografica: cortina em pixels, holofotes e chuva de estrelas.
+  const entrance=Math.min(1,elapsed/900);
+  const pulse=reduceMotion?0:Math.sin(t*4)*.5+.5;
+  ctx.fillStyle='rgba(255,217,102,'+(0.05+pulse*.07)+')';
+  ctx.fillRect(26,28,908,445);
+  for(let i=0;i<7;i++){
+    const sx=90+i*130;
+    const sy=50+(reduceMotion?0:Math.sin(t*2+i)*11);
+    ctx.fillStyle=i%2?'#fff3bd':'#7eeaff';
+    ctx.fillRect(Math.round(sx),Math.round(sy),8,8);
+    ctx.fillRect(Math.round(sx+3),Math.round(sy-7),2,22);
+    ctx.fillRect(Math.round(sx-7),Math.round(sy+3),22,2);
+  }
+  // A revelacao cresce com degraus de pixel art.
+  if(entrance<1){
+    ctx.fillStyle='#050715';
+    const curtain=Math.round((1-entrance)*480/12)*12;
+    ctx.fillRect(0,0,curtain,540);
+    ctx.fillRect(960-curtain,0,curtain,540);
+  }
+
   // Placa superior de campeão.
   victoryPixelFrame(55,35,850,115,'#dca83d');
   ctx.fillStyle='#090d1e';
@@ -1547,6 +1568,21 @@ function drawVictoryScreen(now){
     drawVictoryBubble(492,197,397,142,info.phrase);
     victoryText('ROUND '+String(game.round).padStart(2,'0'),690,388,14,'#ffe4a1',380);
     victoryText('K.O.!',690,437,27,accent,350);
+  }
+
+  // Medalha de vitoria e aviso de proximo round, com tempo para apreciar.
+  if(elapsed>1100){
+    const shine=reduceMotion?1:0.65+Math.sin(t*3)*.35;
+    ctx.save();ctx.globalAlpha=shine;
+    victoryText('★',835,373,22,'#ffe789',60);
+    victoryText('★',545,373,22,'#ffe789',60);
+    ctx.restore();
+  }
+  if(elapsed>3500){
+    const reveal=Math.min(1,(elapsed-3500)/450);
+    ctx.save();ctx.globalAlpha=reveal;
+    victoryText('PROXIMO ROUND EM BREVE...',480,465,10,'#aeeaff',840);
+    ctx.restore();
   }
 
   // Rodapé.
