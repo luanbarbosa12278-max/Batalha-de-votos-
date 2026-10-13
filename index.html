@@ -1733,7 +1733,7 @@ body.svf-debate-playing #arcadeArena.arcade-fallback-fullscreen .arcade-touch-co
         <button id="arcadeSwitch" type="button" aria-label="Trocar lutador">⇄ BOLSONARO</button>
       </div>
       <div class="stage">
-        <span class="arcade-version" aria-label="Versão do jogo">v1.6.3</span>
+        <span class="arcade-version" aria-label="Versão do jogo">v1.6.4</span>
         <canvas
           id="game"
           width="960"
@@ -2491,7 +2491,11 @@ body.svf-debate-playing #arcadeArena.arcade-fallback-fullscreen .arcade-touch-co
  #arcadeArena.arcade-fallback-fullscreen .hud{padding-top:2px!important;}
 }
 
-/* v1.6.3: comandos extras abaixo dos atalhos, fora do canvas. */
+/* v1.6.4: manter o acesso a tela cheia durante o debate. */
+body.svf-debate-playing #arcadeFullscreen{visibility:visible!important;pointer-events:auto!important;opacity:1!important;display:inline-flex!important;position:relative!important;z-index:2147483005!important}
+body.svf-debate-playing .mobile-arcade-bar{visibility:visible!important;position:relative!important;z-index:2147483005!important}
+body.svf-debate-playing #arcadeArena:fullscreen #arcadeExit,body.svf-debate-playing #arcadeArena.arcade-fallback-fullscreen #arcadeExit{visibility:visible!important;pointer-events:auto!important;z-index:2147483005!important}
+/* v1.6.4: comandos extras abaixo dos atalhos, fora do canvas. */
 .svf-extra-actions{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:10px;margin:12px auto 16px;padding:0 12px;max-width:760px;box-sizing:border-box}
 .svf-extra-actions .shield-live-controls{display:flex!important;flex-wrap:wrap;gap:7px!important}
 .svf-extra-actions #debateLaunch{display:inline-flex!important;align-items:center;justify-content:center;min-height:36px!important;margin:0!important;padding:9px 12px!important;font-size:clamp(8px,1.8vw,11px)!important}
