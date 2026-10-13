@@ -215,7 +215,7 @@ export class VoteTracker {
   }
 }
 
-// Spatial basic attacks. The Fight scheduler still owns the 240 ms cadence.
+// Spatial basic attacks. The Fight scheduler controls the normal attack cadence.
 export class BasicProjectiles {
   constructor(fight) { this.fight=fight; this.clear(); }
   clear() { this.items=[]; this.impacts=[]; }
@@ -234,7 +234,7 @@ export class BasicProjectiles {
     for(const p of this.items){
       if(p.round!==f.round)continue;
       const step=p.fresh?0:dt;p.fresh=false;p.age+=step;
-      const next=p.x+(p.side==='l'?1:-1)*1.8*step;
+      const next=p.x+(p.side==='l'?1:-1)*1.4*step;
       const target=p.side==='l'?'b':'l', box=boxes[target];
       const shield=blocked(target), margin=shield?70:0;
       const left=box.x-box.width/2-margin, right=box.x+box.width/2+margin;
