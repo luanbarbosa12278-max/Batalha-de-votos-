@@ -1,5 +1,5 @@
 
-import {Fight, VoteTracker, ATTACK_MS, HIT_MS, MAX_HP, BasicProjectiles} from './engine.js?v=1.6.16';
+import {Fight, VoteTracker, ATTACK_MS, HIT_MS, MAX_HP, BasicProjectiles} from './engine.js?v=1.6.17';
 
 const API='https://tiktok-live-servidor.onrender.com';
 const $=id=>document.getElementById(id);
@@ -580,6 +580,14 @@ bolsonaroVictory:
       }catch(error){ images['lulaTiro'+i]=null; }
     }));
 
+    // Seis quadros de disparo do Bolsonaro, preservando o desenho original.
+    await Promise.all(Array.from({length:6},async (_,i)=>{
+      try{
+        const file='./assets/fighters/bolsonaro-tiro-'+String(i+1).padStart(2,'0')+'.png';
+        images['bolsonaroTiro'+i]=normalizeSprite(await loadImage(file));
+      }catch(error){ images['bolsonaroTiro'+i]=null; }
+    }));
+
     // Optional animation assets: see docs/finger-guns.md for the exact PNG contract.
     await Promise.all(['l','b'].flatMap(side=>['aim','fire','recovery'].map(async phase=>{
       try{images[side+'Finger'+phase]=await loadImage('./assets/fighters/'+
@@ -707,7 +715,7 @@ function fighter(side,time){
       const frameIndex=t<fireAt
         ?Math.min(1,Math.floor(t/Math.max(fireAt,0.01)*2))
         :Math.min(5,2+Math.floor((t-fireAt)/Math.max(1-fireAt,0.01)*4));
-      sprite=(side==='l' ? images['lulaTiro'+frameIndex] : null)
+      sprite=(side==='l' ? images['lulaTiro'+frameIndex] : images['bolsonaroTiro'+frameIndex])
         || images[side+'Finger'+phase] || images[side];
 
     }
