@@ -1,5 +1,5 @@
 
-import {Fight, VoteTracker, ATTACK_MS, HIT_MS, MAX_HP, BasicProjectiles} from './engine.js?v=1.6.15';
+import {Fight, VoteTracker, ATTACK_MS, HIT_MS, MAX_HP, BasicProjectiles} from './engine.js?v=1.6.16';
 
 const API='https://tiktok-live-servidor.onrender.com';
 const $=id=>document.getElementById(id);
