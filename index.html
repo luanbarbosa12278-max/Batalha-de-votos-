@@ -1740,7 +1740,7 @@ body.svf-debate-playing #arcadeArena.arcade-fallback-fullscreen .arcade-touch-co
         <button id="arcadeSwitch" type="button" aria-label="Trocar lutador">⇄ BOLSONARO</button>
       </div>
       <div class="stage">
-        <span class="arcade-version" aria-label="Versão do jogo">v1.6.10</span>
+        <span class="arcade-version" aria-label="Versão do jogo">v1.6.11</span>
         <canvas
           id="game"
           width="960"
@@ -2517,7 +2517,7 @@ body.svf-debate-playing #arcadeExit{display:none!important;visibility:hidden!imp
 /* v1.6.8: tela cheia permanece na barra original; somente o controle do overlay aparece durante a cena. */
 #debateOverlay #debateFullscreenToggle{position:absolute!important;top:12px!important;left:12px!important;right:auto!important;z-index:2147483006!important;display:inline-flex!important;visibility:visible!important;opacity:1!important;pointer-events:auto!important;background:#101b34!important;color:white!important;border:3px solid white!important;padding:10px 12px!important;font:700 clamp(8px,1.3vw,13px) 'Press Start 2P',monospace!important;box-shadow:3px 3px #000!important;cursor:pointer!important}
 .svf-extra-actions #arcadeFullscreen{display:none!important}
-/* v1.6.10 — harmonização visual dos comandos, sem mudar funções. */
+/* v1.6.11 — harmonização visual dos comandos, sem mudar funções. */
 :root{--svf-ui-gold:#ffd65c;--svf-ui-ink:#0d1628;--svf-ui-border:#f5d06b}
 .mobile-arcade-bar{display:flex!important;align-items:center!important;justify-content:center!important;gap:10px!important;flex-wrap:wrap!important}
 .mobile-arcade-bar #arcadeFullscreen,.mobile-arcade-bar #debateLaunch{
@@ -2550,7 +2550,7 @@ body.svf-debate-playing #arcadeExit{display:none!important;visibility:hidden!imp
 #arcadeArena:fullscreen .svf-extra-actions .shield-live-controls,#arcadeArena.arcade-fallback-fullscreen .svf-extra-actions .shield-live-controls{flex:0 0 auto!important;flex-wrap:nowrap!important}
 #arcadeArena:fullscreen .svf-extra-actions #debateLaunch,#arcadeArena.arcade-fallback-fullscreen .svf-extra-actions #debateLaunch{width:auto!important;min-height:28px!important;flex:0 0 auto!important}
 #debateOverlay #debateFullscreenToggle{border-radius:3px!important;box-shadow:3px 3px #000!important}
-/* v1.6.10 — acabamento coerente em HUD, ataques e comandos extras. */
+/* v1.6.11 — acabamento coerente em HUD, ataques e comandos extras. */
 :root{--svf-edge:#f5d06b;--svf-shadow:#050914;--svf-panel:#111d34}
 .arcade-touch-controls .arcade-action,.svf-extra-actions button,.mobile-arcade-bar button{
  touch-action:manipulation!important;-webkit-tap-highlight-color:transparent;
@@ -2578,13 +2578,15 @@ body.svf-debate-playing #arcadeExit{display:none!important;visibility:hidden!imp
 #arcadeArena:fullscreen .svf-extra-actions .shield-live-controls,#arcadeArena.arcade-fallback-fullscreen .svf-extra-actions .shield-live-controls{width:auto!important}
 #arcadeArena:fullscreen .svf-extra-actions .shield-live,#arcadeArena.arcade-fallback-fullscreen .svf-extra-actions .shield-live{min-height:28px!important}
 @media(prefers-reduced-motion:reduce){.svf-extra-actions button,.mobile-arcade-bar button{transition:none!important}}
-/* v1.6.10: remover apenas o pequeno X SAIR no debate; preservar botao grande de tela cheia. */
+/* v1.6.11: remover apenas o pequeno X SAIR no debate; preservar botao grande de tela cheia. */
 #arcadeArena:has(#debateOverlay:not([hidden])) #arcadeExit,
 body.svf-debate-playing #arcadeArena #arcadeExit,
 #arcadeArena:fullscreen:has(#debateOverlay:not([hidden])) #arcadeExit,
 #arcadeArena.arcade-fallback-fullscreen:has(#debateOverlay:not([hidden])) #arcadeExit{
  display:none!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important;
 }
+/* v1.6.11: remover permanentemente o pequeno botao X SAIR duplicado. */
+#arcadeExit,#arcadeArena #arcadeExit,#arcadeArena:fullscreen #arcadeExit,#arcadeArena.arcade-fallback-fullscreen #arcadeExit{display:none!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important}
 </style>
 <!-- SCRIPT ORIGINAL DO JOGO -->
 <script type="module" src="./src/game.js?v=1.6.0"></script>
