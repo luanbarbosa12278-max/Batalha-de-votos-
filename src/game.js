@@ -1,5 +1,5 @@
 
-import {Fight, VoteTracker, ATTACK_MS, HIT_MS, MAX_HP, BasicProjectiles} from './engine.js?v=1.6.20';
+import {Fight, VoteTracker, ATTACK_MS, HIT_MS, MAX_HP, BasicProjectiles} from './engine.js?v=1.6.21';
 
 const API='https://tiktok-live-servidor.onrender.com';
 const $=id=>document.getElementById(id);
@@ -12,7 +12,7 @@ game.onBasicFire=side=>{
   // O tiro nasce à frente da mão estendida, não no centro do tronco.
   // Ambos os tiros partem da frente da arminha de dedo.
   const muzzleX=side==='l'?box.x+132:box.x-132;
-  const muzzleY=box.y+83;
+  const muzzleY=box.y+75;
   basicShots.fire(side,muzzleX,muzzleY);
   playPew(side);
 };
