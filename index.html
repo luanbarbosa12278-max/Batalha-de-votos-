@@ -1742,7 +1742,7 @@ body.svf-debate-playing #arcadeArena.arcade-fallback-fullscreen .arcade-touch-co
           </div>
           <p class="menu-note"><kbd>ESC</kbd> abre o menu durante a luta. No debate, use PULAR ou ESC. Os dados locais não alteram os votos no servidor.</p>
         </section>
-        <div class="menu-bottomline"><span>© STREET VOTE FIGHTER <b>v1.7.0</b></span><span>JOGO FICTÍCIO E CARICATURAL · ENQUETE INFORMAL</span></div>
+        <div class="menu-bottomline"><span>© STREET VOTE FIGHTER <b>v1.7.1</b></span><span>JOGO FICTÍCIO E CARICATURAL · ENQUETE INFORMAL</span></div>
       </div>
     </section>
     <div id="roundTransition" role="status" aria-live="assertive" hidden><span id="roundTransitionLabel">ROUND 1</span><strong>FIGHT!</strong><small>STREET VOTE FIGHTER</small></div>
@@ -1908,46 +1908,13 @@ body.svf-debate-playing #arcadeArena.arcade-fallback-fullscreen .arcade-touch-co
   <!-- PAINÉIS -->
   <div class="panels">
 
-    <!-- CONEXÃO TIKTOK -->
-    <section class="panel">
-      <p class="eyebrow">01 / ENTRE NA LIVE</p>
-
-      <h2>Conecte o TikTok</h2>
-
-      <form id="connectForm">
-        <label for="usuario">Conta da live</label>
-
-        <input
-          id="usuario"
-          placeholder="@seuusuario"
-          autocomplete="off"
-          spellcheck="false"
-          required
-        >
-
-        <label for="senha">Senha de administrador</label>
-
-        <input
-          id="senha"
-          type="password"
-          placeholder="Digite sua senha"
-          autocomplete="off"
-          required
-        >
-
-        <button id="connect" class="primary" type="submit">
-          CONECTAR LIVE ↗
-        </button>
-      </form>
-
-      <p id="status" class="status" role="status">
-        Consultando o servidor…
-      </p>
-    </section>
+    <!-- Estado de conexão mantido apenas para o monitoramento automático. -->
+    <input id="usuario" type="hidden" value="">
+    <p id="status" class="status" role="status" hidden></p>
 
     <!-- TESTES -->
     <section class="panel">
-      <p class="eyebrow">02 / AQUEÇA OS PUNHOS</p>
+      <p class="eyebrow">01 / AQUEÇA OS PUNHOS</p>
 
       <h2>Teste a arena</h2>
 
@@ -2699,7 +2666,7 @@ body.svf-debate-playing #arcadeArena #arcadeExit,
 }
 </style>
 <!-- SCRIPT ORIGINAL DO JOGO -->
-<script type="module" src="./src/game.js?v=1.7.0"></script>
+<script type="module" src="./src/game.js?v=1.7.1"></script>
 
 
 <script>
