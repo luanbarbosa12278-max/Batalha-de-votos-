@@ -1,8 +1,11 @@
 
-import {Fight, VoteTracker, ATTACK_MS, HIT_MS, MAX_HP, BasicProjectiles} from './engine.js?v=1.6.22';
+import {Fight, VoteTracker, ATTACK_MS, HIT_MS, MAX_HP, BasicProjectiles} from './engine.js?v=1.7.0';
 
 const API='https://tiktok-live-servidor.onrender.com';
 const $=id=>document.getElementById(id);
+const arcade=window.streetVoteArcade;
+const menuPaused=()=>arcade?.paused===true;
+const particlesEnabled=()=>arcade?.settings.particles!==false;
 
 const game=new Fight();
 const tracker=new VoteTracker();
@@ -14,15 +17,18 @@ game.onBasicFire=side=>{
   const muzzleX=side==='l'?box.x+132:box.x-132;
   const muzzleY=box.y+75;
   basicShots.fire(side,muzzleX,muzzleY);
+  arcade?.attack(side);
   playPew(side);
 };
 
 const canvas=$('game');
 const ctx=canvas.getContext('2d');
 
-const reduceMotion=matchMedia(
+let reduceMotion=arcade?.reducedMotion ?? matchMedia(
   '(prefers-reduced-motion: reduce)'
 ).matches;
+
+arcade?.subscribe(()=>{reduceMotion=arcade.reducedMotion;});
 
 const images={};
 
@@ -170,18 +176,18 @@ function unlockAudio(){
   if(AudioContext){try{pewContext??=new AudioContext();pewContext.resume().catch(()=>{});}catch(_){}}
 }
 function playPew(side){
-  if(audioMuted||!audioUnlocked||!pewContext||pewContext.state!=='running')return;
+  if(audioMuted||!audioUnlocked||!pewContext||pewContext.state!=='running'||arcade?.volume('effects')===0)return;
   const t=pewContext.currentTime, osc=pewContext.createOscillator(), gain=pewContext.createGain();
   osc.type='square';osc.frequency.setValueAtTime(side==='l'?900:1100,t);
   osc.frequency.exponentialRampToValueAtTime(160,t+.085);
-  gain.gain.setValueAtTime(.035,t);gain.gain.exponentialRampToValueAtTime(.001,t+.095);
+  gain.gain.setValueAtTime(.035*(arcade?.volume('effects')??1),t);gain.gain.exponentialRampToValueAtTime(.001,t+.095);
   osc.connect(gain);gain.connect(pewContext.destination);osc.start(t);osc.stop(t+.1);
   osc.onended=()=>{osc.disconnect();gain.disconnect();};
 }
 document.addEventListener('pointerdown',unlockAudio);
 document.addEventListener('keydown',unlockAudio);
 function stopVoice(){
-  for(const voice of activeVoices){voice.pause();try{voice.currentTime=0;}catch(_){}}
+  for(const voice of activeVoices){voice.pause();try{voice.currentTime=0;}catch(_){} arcade?.releaseAudio(voice);}
   activeVoices.clear();
 }
 function playSound(group){
@@ -200,14 +206,16 @@ function playSound(group){
   const options=sounds.length>1?sounds.filter(a=>a.src!==previous):sounds;
   const template=options[Math.floor(Math.random()*options.length)]||sounds[0];
   const voice=template.cloneNode(true);
-  voice.volume=isSpecial?.75:isHit?.52:isAmbient?.50:.64;
+  const baseVolume=isSpecial?.75:isHit?.52:isAmbient?.50:.64;
+  voice.volume=baseVolume;
+  arcade?.registerAudio(voice,'voices',baseVolume);
   voice.playbackRate=isSpecial?1:(.95+Math.random()*.10);
   if(activeVoices.size>=MAX_SIMULTANEOUS_VOICES){
     const oldest=activeVoices.values().next().value;
-    if(oldest){oldest.pause();activeVoices.delete(oldest);}
+    if(oldest){oldest.pause();activeVoices.delete(oldest);arcade?.releaseAudio(oldest);}
   }
   activeVoices.add(voice);
-  const cleanup=()=>activeVoices.delete(voice);
+  const cleanup=()=>{activeVoices.delete(voice);arcade?.releaseAudio(voice);};
   voice.addEventListener('ended',cleanup,{once:true});
   voice.addEventListener('error',cleanup,{once:true});
   voice.play().catch(error=>{cleanup();console.warn('Áudio '+group,error);});
@@ -598,6 +606,11 @@ bolsonaroVictory:
 
     // Optional animation assets: see docs/finger-guns.md for the exact PNG contract.
     await Promise.all(['l','b'].flatMap(side=>['aim','fire','recovery'].map(async phase=>{
+      const prefix=side==='l'?'lula':'bolsonaro';
+      const frames={aim:[0,1],fire:[2,3],recovery:[4,5]};
+      // Installed six-frame animations already cover these poses. Avoid requesting
+      // six nonexistent legacy files on every page load; retain their fallback.
+      if(frames[phase].every(i=>images[prefix+'Tiro'+i]))return;
       try{images[side+'Finger'+phase]=await loadImage('./assets/fighters/'+
         (side==='l'?'lula':'bolsonaro')+'-finger-'+phase+'.png');}
       catch(_){/* Keep the approved idle art until these poses are supplied. */}
@@ -640,8 +653,11 @@ bolsonaroVictory:
 
     $('message').textContent=
       'ROUND 01 — FIGHT!';
+    if(arcade){arcade.ready=true;window.dispatchEvent(new Event('streetvote:ready'));}
+    paint(performance.now());
 
   }catch(error){
+    if(arcade){arcade.loadError=error.message+'. Recarregue para tentar novamente.';window.dispatchEvent(new Event('streetvote:loaderror'));}
     $('loading').textContent=
       error.message+
       '. Recarregue para tentar novamente.';
@@ -868,7 +884,7 @@ function drawBasicShots(){
   for(const p of basicShots.items){
     const colors=palettes[p.side],dir=p.side==='l'?1:-1;
     ctx.save();ctx.translate(Math.round(p.x),Math.round(p.y));
-    for(let i=1;i<=4;i++){
+    for(let i=1;particlesEnabled()&&i<=4;i++){
       ctx.globalAlpha=(5-i)/6;ctx.fillStyle=colors[i%3];
       ctx.fillRect(-dir*(17+i*7),Math.round(Math.sin(p.age/40+i)*4),3,3);
     }
@@ -893,7 +909,7 @@ function drawBasicShots(){
     }
     ctx.restore();
   }
-  for(const p of basicShots.impacts){
+  for(const p of particlesEnabled()?basicShots.impacts:[]){
     const t=p.age/280;ctx.save();ctx.globalAlpha=1-t;
     for(let i=0;i<10;i++){
       const a=i*Math.PI/5,r=6+t*(reduceMotion?12:34);
@@ -1528,7 +1544,7 @@ function drawVictoryScreen(now){
   ctx.restore();
 
   // Confetes e faíscas em quadradinhos.
-  if(!reduceMotion){
+  if(!reduceMotion&&particlesEnabled()){
     for(const c of victoryConfetti){
       const cy=(c.y+elapsed*c.speed*.07)%530;
       const cx=c.x+Math.sin(t*2+c.drift)*15;
@@ -1623,7 +1639,7 @@ function drawVictoryScreen(now){
 
 // GOD bypasses only this fighter's action gates; life and KO remain authoritative.
 function canStartSpecial(side, now, readyAt=0, bolsa=false){
-  if(!ready || debatePauseStart || game.phase==='ko' || game.hp.l<=0 || game.hp.b<=0) return false;
+  if(!ready || menuPaused() || debatePauseStart || game.phase==='ko' || game.hp.l<=0 || game.hp.b<=0) return false;
   // Sem bypass GOD: respeitar recargas e animacoes.
   return game.phase==='ready' && specialEffects.length===0 &&
     !lulaKnockback && (bolsa || !bolsonaroKnockback) && now>=readyAt;
@@ -1656,6 +1672,7 @@ function startBolsaPancada(side='l'){
   if(side!=='l'&&side!=='b')side='l'; // DOM click passes an Event.
   const now=performance.now();
   if(!canStartSpecial(side,now,bolsaReadyAt,true)) return;
+  arcade?.attack(side);
   bolsaReadyAt=now+BOLSA_COOLDOWN_MS;
   specialEffects.push({type:'bolsaPancada',side,start:now,
     duration:BOLSA_DURATION_MS,round:game.round,x:side==='l'?bolsonaroX:lulaX,hit:false});
@@ -1746,12 +1763,12 @@ function drawBolsaImpact(now){
   ctx.globalAlpha=1-t;
   const size=270+110*t;
   ctx.drawImage(images.bolsaExplosion,bolsaImpact.x-size/2,305-size/2,size,size);
-  for(let i=0;i<16;i++){
+  for(let i=0;particlesEnabled()&&i<16;i++){
     const angle=i*Math.PI/8,distance=24+t*105,px=i%2?8:12;
     ctx.fillStyle=i%3===0?'#fff8da':'#ffce65';
     ctx.fillRect(Math.round(bolsaImpact.x+Math.cos(angle)*distance),Math.round(310+Math.sin(angle)*distance),px,px);
   }
-  for(let i=0;i<12;i++){
+  for(let i=0;particlesEnabled()&&i<12;i++){
     const direction=i%2?1:-1,distance=(12+i*5)*(1+t*2);
     ctx.fillStyle=i%2?'#c9ac83':'#8d775f';
     ctx.fillRect(Math.round(bolsaImpact.x+direction*distance),Math.round(482-Math.sin(t*Math.PI)*(12+i*3)),12+i%3*4,8+i%3*4);
@@ -1762,6 +1779,7 @@ function drawBolsaImpact(now){
 function startTaok(){
   const now=performance.now();
   if(!canStartSpecial('b',now,taokReadyAt)) return;
+  arcade?.attack('b');
   taokReadyAt=now+TAOK_COOLDOWN_MS;
   specialEffects.push({type:'taok',side:'b',start:now,duration:TAOK_DURATION_MS,
     originX:bolsonaroX,round:game.round,hit:false});
@@ -1821,7 +1839,7 @@ function shieldOn(side,now=performance.now()){
   return game.phase!=='ko' && now<shieldUntil[side];
 }
 function activateShield(side){
-  if(!ready || game.phase==='ko')return;
+  if(!ready || menuPaused() || debatePauseStart || game.phase==='ko')return;
   const now=performance.now();
   shieldUntil[side]=now+SHIELD_DURATION_MS;
   game.shieldActive[side]=true;
@@ -1942,7 +1960,7 @@ function drawShields(now){
     ctx.lineWidth=2;
     ellipse(0,0,rx-15,ry-20,5.62,6.08);ctx.stroke();
     // Pequenos pixels orbitais e estrelas pontuais.
-    for(let i=0;i<9;i++){
+    for(let i=0;particlesEnabled()&&i<9;i++){
       const t=i*Math.PI*2/9+(reduceMotion?0:now/1700)*(isLula?1:-1);
       const px=Math.cos(t)*(rx+7),py=Math.sin(t)*(ry+7);
       const size=i%3===0?5:3;
@@ -1976,18 +1994,22 @@ window.addEventListener('streetvote:debate-hitkill',()=>{
   if(game.phase==='ko')return;
   game.hp.b=0;
   game.enterKO();
+  arcade?.observeWins(game.wins);
   updateHUD();
 });
 let debatePauseStart=0;
-window.addEventListener('streetvote:debate-start',()=>{
-  if(debatePauseStart)return;
-  debatePauseStart=performance.now();
-  stopVoice();
-});
-window.addEventListener('streetvote:debate-end',()=>{
-  if(!debatePauseStart)return;
-  const elapsed=performance.now()-debatePauseStart;
-  debatePauseStart=0;
+let combatPauseStart=menuPaused()?performance.now():null;
+function syncCombatPause(){
+  const paused=menuPaused() || !!debatePauseStart || document.hidden===true;
+  const now=performance.now();
+  if(paused){
+    if(combatPauseStart===null){combatPauseStart=now;stopVoice();}
+    previousTime=0;
+    return;
+  }
+  if(combatPauseStart===null)return;
+  const elapsed=now-combatPauseStart;
+  combatPauseStart=null;
   previousTime=0;
   for(const side of ['l','b']){
     if(shieldUntil[side]>0)shieldUntil[side]+=elapsed;
@@ -2000,10 +2022,23 @@ window.addEventListener('streetvote:debate-end',()=>{
   if(taokImpact?.start)taokImpact.start+=elapsed;
   if(bolsaReadyAt>0)bolsaReadyAt+=elapsed;
   if(taokReadyAt>0)taokReadyAt+=elapsed;
+  if(victoryStart>0)victoryStart+=elapsed;
+}
+window.addEventListener('streetvote:modechange',syncCombatPause);
+window.addEventListener('streetvote:debate-start',()=>{
+  debatePauseStart=performance.now()||.001;
+  stopVoice();
+  syncCombatPause();
+});
+window.addEventListener('streetvote:debate-end',()=>{
+  debatePauseStart=0;
+  syncCombatPause();
 });
 function frame(now){
+  arcade?.tick(now);
+  syncCombatPause();
   drainLiveCommands();
-  if(debatePauseStart){
+  if(combatPauseStart!==null){
     previousTime=now;
     requestAnimationFrame(frame);
     return;
@@ -2030,6 +2065,7 @@ function frame(now){
     if(game.phase==='ko') specialEffects=[];
   }
 
+arcade?.observeWins(game.wins);
 updateFightAudio(now);
 paint(now);
 drawVictoryScreen(now);
@@ -2044,6 +2080,7 @@ document.addEventListener(
   'visibilitychange',
   ()=>{
     previousTime=0;
+    syncCombatPause();
   }
 );
 
@@ -2053,7 +2090,7 @@ document.addEventListener(
 
 // Q - Picanha do Lula.
 $('attackL').onclick=()=>{
-  if(!ready || debatePauseStart || game.phase==='ko'){
+  if(!ready || menuPaused() || debatePauseStart || game.phase==='ko'){
     return;
   }
 
@@ -2066,7 +2103,7 @@ $('attackL').onclick=()=>{
 
 // I - Bandeira do Bolsonaro.
 $('attackB').onclick=()=>{
-  if(!ready || debatePauseStart || game.phase==='ko'){
+  if(!ready || menuPaused() || debatePauseStart || game.phase==='ko'){
     return;
   }
 
@@ -2081,6 +2118,7 @@ $('attackB').onclick=()=>{
 function startHadouken(side){
   const now=performance.now();
   if(!canStartSpecial(side,now)) return;
+  arcade?.attack(side);
   specialEffects.push({type:side==='l'?'lulaHadouken':'hadouken',side,
     start:now,duration:850,originX:side==='l'?lulaX:bolsonaroX,
     hit:false,round:game.round});
@@ -2152,6 +2190,7 @@ document.addEventListener(
 
 function resetLocalFight(){
   game.reset();
+  arcade?.resetWinBaseline();
   basicShots.clear();
   // GOD desativado.
 
@@ -2427,17 +2466,19 @@ $('connectForm').addEventListener(
 // Live mode uses this same-origin receiver and never polls legacy vote totals.
 const liveQueue=[];
 function receiveLiveCommand(command){
+  const now=performance.now();
+  while(liveQueue.length&&liveQueue[0].expires<now)liveQueue.shift();
   if(!command || !['l','b'].includes(command.side) ||
     !['shot','hadouken','shield','bolsa','taok'].includes(command.action) ||
     !Number.isSafeInteger(command.count) || command.count<1 || command.count>100 ||
     (command.action==='taok'&&command.side!=='b') || liveQueue.length>=500) return;
-  liveQueue.push({...command,expires:performance.now()+60000});
+  liveQueue.push({...command,expires:now+60000});
 }
 function drainLiveCommands(){
   const now=performance.now();
   while(liveQueue.length&&liveQueue[0].expires<now)liveQueue.shift();
   const command=liveQueue[0];
-  if(!command||!ready||debatePauseStart||game.phase==='ko')return;
+  if(!command||!ready||menuPaused()||debatePauseStart||document.hidden===true||game.phase==='ko')return;
   if(command.action==='shot') {
     if(game.pending>10000)return;
     game.enqueue(command.side==='l'?command.count:0,command.side==='b'?command.count:0);

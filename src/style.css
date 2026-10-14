@@ -257,3 +257,7 @@ body.arcade-playing{overflow:hidden}
 @media(max-width:600px),(max-height:500px){
   #arcadeArena .god-toggle{min-width:96px;font-size:10px;margin-top:3px;padding:5px}
 }
+
+/* v1.7.0: keep the menu control clear of the page masthead. */
+.masthead{padding-right:160px!important}
+@media(max-width:600px){.masthead .edition{display:none}.masthead{padding-right:120px!important}}

@@ -10,7 +10,7 @@
   <title>Street Vote Fighter | Arcade ao vivo</title>
 
   <!-- CSS ORIGINAL DO JOGO -->
-  <link rel="stylesheet" href="./src/style.css?v=1.6.0">
+  <link rel="stylesheet" href="./src/style.css?v=1.7.0">
 
   <!-- FONTE PIXEL ART -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1621,9 +1621,12 @@ body.svf-debate-playing #arcadeArena.arcade-fallback-fullscreen .arcade-touch-co
 #debateFullscreenLaunch{display:none}
 #arcadeArena:fullscreen #debateFullscreenLaunch,#arcadeArena.arcade-fallback-fullscreen #debateFullscreenLaunch{display:block!important;position:absolute!important;right:10px;top:clamp(6px,2vh,16px);z-index:130!important;border:2px solid #ffe579;background:#102f5d;color:#fff3a3;padding:8px;font:700 clamp(9px,1.2vw,12px) 'Press Start 2P',monospace;box-shadow:2px 2px #050b18;cursor:pointer}
 #arcadeArena:fullscreen #debateFullscreenLaunch:focus-visible,#debateLaunch:focus-visible{outline:3px solid white;outline-offset:2px}
-</style></head>
+</style><link rel="stylesheet" href="./src/menu.css?v=1.7.0">
+<script src="./src/arcade-state.js?v=1.7.0"></script>
+</head>
 
-<body>
+<body class="svf-menu-open">
+<noscript>Ative o JavaScript para carregar o menu e jogar Street Vote Fighter.</noscript>
 <main>
 
   <!-- CABEÇALHO -->
@@ -1662,6 +1665,90 @@ body.svf-debate-playing #arcadeArena.arcade-fallback-fullscreen .arcade-touch-co
       <span>📱 CONTROLES MOBILE</span>
     </div>
   <div class="fight-layout" id="arcadeArena">
+    <section id="arcadeMenu" role="dialog" aria-modal="true" aria-label="Menu principal Street Vote Fighter" data-screen="home">
+      <div class="menu-scenery" aria-hidden="true"><div class="menu-grid"></div><div class="menu-sparks"></div></div>
+      <div class="menu-frame">
+        <div class="menu-topline"><span class="menu-mark">SVF<span> / ARCADE SYSTEM</span></span><span class="menu-edition">BRASIL · EDIÇÃO VIADUTO</span></div>
+        <button id="menuBack" type="button" hidden><span aria-hidden="true">‹</span> VOLTAR</button>
+        <div data-menu-screen="home" class="menu-home">
+          <header class="menu-title">
+            <p class="menu-kicker"><span></span> O PRÓXIMO ROUND É SEU <span></span></p>
+            <h1><span>STREET VOTE</span><strong>FIGHTER</strong></h1>
+            <p class="menu-subtitle">DIRETO DAS RUAS DO BRASIL</p>
+          </header>
+          <div class="menu-match">
+            <figure class="menu-fighter menu-fighter-l"><div class="menu-fighter-art"><img src="./assets/fighters/lula-idle.png" alt="Lula em posição de luta"></div><figcaption><span>PLAYER 01</span><strong>LULA</strong><b>13</b></figcaption></figure>
+            <nav class="menu-options" aria-label="Escolha uma opção">
+              <p class="menu-select">SELECT YOUR MODE</p>
+              <button type="button" data-menu-action="play" class="is-selected"><span class="menu-icon icon-play" aria-hidden="true"></span><span id="menuPlayLabel">JOGAR</span><span class="menu-arrow" aria-hidden="true">›</span></button>
+              <button type="button" data-menu-action="debate"><span class="menu-icon icon-film" aria-hidden="true"></span><span>DEBATE FINAL</span><span class="menu-arrow" aria-hidden="true">›</span></button>
+              <button type="button" data-menu-action="stats"><span class="menu-icon icon-cup" aria-hidden="true"></span><span>ESTATÍSTICAS</span><span class="menu-arrow" aria-hidden="true">›</span></button>
+              <button type="button" data-menu-action="settings"><span class="menu-icon icon-settings" aria-hidden="true"></span><span>CONFIGURAÇÕES</span><span class="menu-arrow" aria-hidden="true">›</span></button>
+              <button type="button" data-menu-action="help"><span class="menu-icon icon-help" aria-hidden="true">?</span><span>COMO JOGAR</span><span class="menu-arrow" aria-hidden="true">›</span></button>
+              <p class="menu-key-hint"><kbd>↑</kbd><kbd>↓</kbd> SELECIONAR <span>·</span> <kbd>ENTER</kbd> CONFIRMAR</p>
+            </nav>
+            <figure class="menu-fighter menu-fighter-b"><div class="menu-fighter-art"><img src="./assets/fighters/bolsonaro-idle.png" alt="Bolsonaro em posição de luta"></div><figcaption><span>PLAYER 02</span><strong>BOLSONARO</strong><b>22</b></figcaption></figure>
+          </div>
+          <p id="menuStatus" class="menu-status" role="status">PREPARANDO A ARENA…</p>
+        </div>
+        <section data-menu-screen="stats" class="menu-panel" hidden>
+          <p class="menu-kicker">SEU HISTÓRICO NA ARENA</p><h2 tabindex="-1">ESTATÍSTICAS</h2>
+          <p class="menu-description">Cada golpe executado conta. Seu histórico fica salvo neste navegador.</p>
+          <div class="stats-feature"><span>TOTAL DE GOLPES</span><strong id="stat-attacks">0</strong><small>ATAQUES NORMAIS + ESPECIAIS</small></div>
+          <div class="menu-stats-grid">
+            <div class="stat-card red"><span>ATAQUES DO LULA</span><strong id="stat-attacksL">0</strong></div>
+            <div class="stat-card blue"><span>ATAQUES DO BOLSONARO</span><strong id="stat-attacksB">0</strong></div>
+            <div class="stat-card red"><span>VITÓRIAS DO LULA</span><strong id="stat-winsL">0</strong></div>
+            <div class="stat-card blue"><span>VITÓRIAS DO BOLSONARO</span><strong id="stat-winsB">0</strong></div>
+            <div class="stat-card"><span>DEBATES INICIADOS</span><strong id="stat-debates">0</strong></div>
+            <div class="stat-card"><span>TEMPO DE JOGO</span><strong id="stat-playMs">00:00:00</strong></div>
+          </div>
+          <p class="menu-note">Tempo na arena e no debate, com a aba visível. Empates não contam como vitória. Reiniciar a luta mantém este histórico.</p>
+        </section>
+        <section data-menu-screen="settings" class="menu-panel" hidden>
+          <p class="menu-kicker">DO SEU JEITO</p><h2 tabindex="-1">CONFIGURAÇÕES</h2>
+          <p class="menu-description">Ajuste o som e a atmosfera do seu fliperama.</p>
+          <div class="menu-settings">
+            <div class="menu-range"><label for="setting-master">VOLUME GERAL</label><output id="value-master" for="setting-master">80%</output><input id="setting-master" type="range" min="0" max="100" value="80"></div>
+            <div class="menu-range"><label for="setting-voices">VOZES</label><output id="value-voices" for="setting-voices">100%</output><input id="setting-voices" type="range" min="0" max="100" value="100"></div>
+            <div class="menu-range"><label for="setting-effects">EFEITOS SONOROS</label><output id="value-effects" for="setting-effects">80%</output><input id="setting-effects" type="range" min="0" max="100" value="80"></div>
+            <label class="menu-toggle"><span>ANIMAÇÕES ADICIONAIS<small>Brilho, movimento ambiente e tremor de tela</small></span><input id="setting-animations" type="checkbox" checked><span class="toggle-track" aria-hidden="true"></span></label>
+            <label class="menu-toggle"><span>PARTÍCULAS<small>Faíscas, rastros e confetes</small></span><input id="setting-particles" type="checkbox" checked><span class="toggle-track" aria-hidden="true"></span></label>
+            <div class="menu-settings-actions"><button id="menuFullscreen" type="button" aria-pressed="false">ATIVAR TELA CHEIA</button><button id="restoreSettings" type="button">RESTAURAR PADRÕES</button></div>
+          </div>
+          <p id="settingsSaved" class="menu-note" role="status">PREFERÊNCIAS SALVAS NESTE DISPOSITIVO</p>
+          <p class="menu-note">A preferência de movimento reduzido do sistema é respeitada. A trilha pode ser ligada e ajustada no player da arena.</p>
+        </section>
+        <section data-menu-screen="help" class="menu-panel menu-help" hidden>
+          <p class="menu-kicker">APRENDA OS COMANDOS</p><h2 tabindex="-1">COMO JOGAR</h2>
+          <p class="menu-description">Dois lutadores. Seis golpes. Você e a live no controle.</p>
+          <div class="help-fighters">
+            <section class="help-fighter red"><h3><span>P1 / 13</span> LULA</h3>
+              <div><img src="./assets/fighters/icone-picanha.svg" alt=""><kbd>Q</kbd><span>ATAQUE NORMAL<small>Picanha · projétil</small></span></div>
+              <div><img src="./assets/fighters/lula-icone-hadouken.png" alt=""><kbd>W</kbd><span>HADOUKEN<small>Energia vermelha</small></span></div>
+              <div><img src="./assets/fighters/lula-icone-bolsa.png" alt=""><kbd>E</kbd><span>BOLSA PANCADA<small>Golpe especial · recarga</small></span></div>
+            </section>
+            <section class="help-fighter blue"><h3><span>P2 / 22</span> BOLSONARO</h3>
+              <div><img src="./assets/fighters/icone-bandeira.svg" alt=""><kbd>I</kbd><span>ATAQUE NORMAL<small>Bandeira · projétil</small></span></div>
+              <div><img src="./assets/fighters/bolsonaro-icone-hadouken.png" alt=""><kbd>O</kbd><span>HADOUKEN<small>Energia azul</small></span></div>
+              <div><img src="./assets/fighters/bolsonaro-icone-taok.png" alt=""><kbd>P</kbd><span>TÁ OK!<small>Onda sonora · recarga</small></span></div>
+            </section>
+          </div>
+          <div class="help-notes">
+            <article><h3>01 / ESCUDOS</h3><p><kbd>1</kbd> Lula · <kbd>2</kbd> Bolsonaro. Proteção por 5 segundos. Use também os botões de escudo na arena.</p></article>
+            <article><h3>02 / DEBATE FINAL</h3><p>Abra pelo menu ou com <kbd>D</kbd> na arena. A luta pausa durante as falas. PULAR retorna à luta sem executar o golpe final da cena.</p></article>
+            <article><h3>03 / NO CELULAR</h3><p>Toque nos botões dos golpes. Em tela cheia, use os ícones e TROCAR LUTADOR para alternar o personagem. Os escudos e a tela cheia têm botões próprios.</p></article>
+            <article><h3>04 / A LIVE CONTINUA</h3><p>O menu pausa a luta. Votos do Render aguardam; comandos da live aguardam até 60 segundos, com limite de 500 na fila. Ao continuar, a execução retoma.</p></article>
+          </div>
+          <p class="menu-note"><kbd>ESC</kbd> abre o menu durante a luta. No debate, use PULAR ou ESC. Os dados locais não alteram os votos no servidor.</p>
+        </section>
+        <div class="menu-bottomline"><span>© STREET VOTE FIGHTER <b>v1.7.0</b></span><span>JOGO FICTÍCIO E CARICATURAL · ENQUETE INFORMAL</span></div>
+      </div>
+    </section>
+    <div id="roundTransition" role="status" aria-live="assertive" hidden><span id="roundTransitionLabel">ROUND 1</span><strong>FIGHT!</strong><small>STREET VOTE FIGHTER</small></div>
+    <button id="openArcadeMenu" type="button" aria-label="Abrir menu principal">≡ MENU <kbd>ESC</kbd></button>
+
+
 
     <!-- LULA -->
     <aside
@@ -1739,7 +1826,7 @@ body.svf-debate-playing #arcadeArena.arcade-fallback-fullscreen .arcade-touch-co
         <button id="arcadeSwitch" type="button" aria-label="Trocar lutador">⇄ BOLSONARO</button>
       </div>
       <div class="stage">
-        <span class="arcade-version" aria-label="Versão do jogo">v1.6.22</span>
+        <span class="arcade-version" aria-label="Versão do jogo">v1.7.0</span>
         <canvas
           id="game"
           width="960"
@@ -2005,7 +2092,7 @@ body.svf-debate-playing #arcadeArena.arcade-fallback-fullscreen .arcade-touch-co
       Math.min(100, Number(volume) || 0)
     );
 
-    musica.volume = numero / 100;
+    window.streetVoteArcade.registerAudio(musica, "music", numero / 100);
     regulador.value = String(numero);
     valor.textContent = Math.round(numero) + "%";
 
@@ -2612,7 +2699,7 @@ body.svf-debate-playing #arcadeArena #arcadeExit,
 }
 </style>
 <!-- SCRIPT ORIGINAL DO JOGO -->
-<script type="module" src="./src/game.js?v=1.6.22"></script>
+<script type="module" src="./src/game.js?v=1.7.0"></script>
 
 
 <script>
@@ -2715,13 +2802,8 @@ const shieldGroup=arena.querySelector('.shield-live-controls');
 if(extraActions&&shieldGroup){extraActions.appendChild(shieldGroup);extraActions.appendChild(launch);} // fullscreen remains in its original mobile bar
 
 const overlay=document.createElement('div');overlay.id='debateOverlay';overlay.hidden=true;overlay.setAttribute('role','dialog');overlay.setAttribute('aria-label','Debate Final');
-overlay.innerHTML='<div id="debateScene"></div><img id="debateBolsonaro" class="debateCharacter" alt="Bolsonaro no debate" src="./assets/fighters/bolsonaro-debate-idle.png"><img id="debateLula" class="debateCharacter" alt="Lula no debate" src="./assets/fighters/lula-debate-idle.png"><div id="debateHeader">DEBATE FINAL</div><button id="debateFullscreenToggle" type="button">⛶ TELA CHEIA</button><button id="debateSkip" type="button">✕ PULAR</button><div id="debateSubtitle" aria-live="polite"><div id="debateSpeaker"></div><div id="debateText"></div><img id="debatePortrait" src="./assets/fighters/lula-debate-idle.png" alt="" aria-hidden="true"></div><div id="debateProgress"></div>';
+overlay.innerHTML='<div id="debateScene"></div><img id="debateBolsonaro" class="debateCharacter" alt="Bolsonaro no debate" src="./assets/fighters/bolsonaro-debate-idle.png"><img id="debateLula" class="debateCharacter" alt="Lula no debate" src="./assets/fighters/lula-debate-idle.png"><div id="debateHeader">DEBATE FINAL</div><button id="debateSkip" type="button">✕ PULAR</button><div id="debateSubtitle" aria-live="polite"><div id="debateSpeaker"></div><div id="debateText"></div><img id="debatePortrait" src="./assets/fighters/lula-debate-idle.png" alt="" aria-hidden="true"></div><div id="debateProgress"></div>';
 stage.appendChild(overlay);
-const debateFullToggle=overlay.querySelector('#debateFullscreenToggle');
-debateFullToggle.addEventListener('click',async(e)=>{e.preventDefault();e.stopPropagation();const full=document.getElementById('arcadeFullscreen');if(full)full.click();});
-function updateDebateFullLabel(){debateFullToggle.textContent=(document.fullscreenElement||arena.classList.contains('arcade-fallback-fullscreen'))?'⛶ SAIR DA TELA CHEIA':'⛶ TELA CHEIA';}
-document.addEventListener('fullscreenchange',updateDebateFullLabel);debateFullToggle.addEventListener('click',()=>setTimeout(updateDebateFullLabel,350));
-
 const obliterator=document.createElement('div');obliterator.id='svfObliterator';obliterator.setAttribute('aria-hidden','true');obliterator.innerHTML='<div class="svfSky"></div><div class="svfBolt"></div><div class="svfImpact"></div><div class="svfWhiteout"></div>';
 stage.appendChild(obliterator);
 let obliteratorTimer=0;
@@ -2760,16 +2842,16 @@ let running=false,serial=0,voice=null,finishAudio=null,progressFrame=0,previousF
 const speakerEl=overlay.querySelector('#debateSpeaker'),textEl=overlay.querySelector('#debateText'),progressEl=overlay.querySelector('#debateProgress'),skip=overlay.querySelector('#debateSkip');
 const portraitEl=overlay.querySelector('#debatePortrait');
 const audioPath='./assets/fighters/audio/';
-const clips=lines.map((line)=>{const audio=new Audio(audioPath+line[2]);audio.preload='auto';audio.volume=.95;return audio});
+const clips=lines.map((line)=>{const audio=new Audio(audioPath+line[2]);audio.preload='auto';window.streetVoteArcade.registerAudio(audio,'voices',.95);return audio});
 function cancelProgress(){if(progressFrame){cancelAnimationFrame(progressFrame);progressFrame=0}}
-function stop(){
+function stop(completed=false){
  if(!running)return;
  running=false;serial++;cancelProgress();
  if(voice){voice.pause();voice.currentTime=0;voice=null}
  if(finishAudio){const finish=finishAudio;finishAudio=null;finish()}
  overlay.hidden=true;document.body.classList.remove('svf-debate-playing');overlay.dataset.speaker='';idle();progressEl.style.width='0%';
- window.dispatchEvent(new Event('streetvote:debate-end'));
- if(previousFocus?.isConnected)previousFocus.focus({preventScroll:true});else launch.focus({preventScroll:true});
+ window.dispatchEvent(new CustomEvent('streetvote:debate-end',{detail:{completed:completed===true}}));
+ if(previousFocus?.isConnected && previousFocus.getClientRects().length)previousFocus.focus({preventScroll:true});else document.getElementById('openArcadeMenu')?.focus({preventScroll:true});
  previousFocus=null;
 }
 function animateProgress(audio,index,token){
@@ -2785,18 +2867,18 @@ function animateProgress(audio,index,token){
 function playLine(audio,caption,token){
  return new Promise(resolve=>{
  let done=false,timeout=0;
- const finish=()=>{if(done)return;done=true;clearTimeout(timeout);audio.removeEventListener('ended',finish);audio.removeEventListener('error',finish);if(finishAudio===finish)finishAudio=null;resolve()};
+ const finish=()=>{if(done)return;done=true;clearTimeout(timeout);audio.removeEventListener('loadedmetadata',arm);audio.removeEventListener('ended',finish);audio.removeEventListener('error',finish);if(finishAudio===finish)finishAudio=null;resolve()};
  finishAudio=finish;
  audio.addEventListener('ended',finish);audio.addEventListener('error',finish);
  const fallbackMs=Math.max(2800,Math.min(22000,caption.length*145));
- const arm=()=>{clearTimeout(timeout);const maxMs=Number.isFinite(audio.duration)&&audio.duration>0?Math.min(45000,Math.max(fallbackMs,audio.duration*1000+1800)):fallbackMs;timeout=setTimeout(finish,maxMs)};
+ const arm=()=>{if(done)return;clearTimeout(timeout);const maxMs=Number.isFinite(audio.duration)&&audio.duration>0?Math.min(45000,Math.max(fallbackMs,audio.duration*1000+1800)):fallbackMs;timeout=setTimeout(finish,maxMs)};
  arm();audio.addEventListener('loadedmetadata',arm,{once:true});
  audio.currentTime=0;
  audio.play().then(()=>{if(running&&serial===token)animateProgress(audio,lines.findIndex(l=>l[2]===audio.src.split('/').pop()),token)}).catch(()=>{clearTimeout(timeout);timeout=setTimeout(finish,Math.min(3800,fallbackMs))});
  });
 }
 async function start(){
- if(running)return;
+ if(running || window.streetVoteArcade?.mode==='transition' || !window.streetVoteArcade?.ready)return;
  running=true;const token=++serial;previousFocus=document.activeElement;
  document.body.classList.add('svf-debate-playing');overlay.hidden=false;overlay.dataset.speaker='';idle();progressEl.style.width='0%';
  window.dispatchEvent(new Event('streetvote:debate-start'));
@@ -2814,15 +2896,23 @@ async function start(){
   voice=null;progressEl.style.width=((i+1)/lines.length*100)+'%';
   if(i<lines.length-1)await new Promise(resolve=>setTimeout(resolve,220));
  }
- if(running&&serial===token){stop();superRaio();}
+ if(running&&serial===token){stop(true);superRaio();}
 }
-launch.addEventListener('click',start);skip.addEventListener('click',stop);
+launch.addEventListener('click',start);skip.addEventListener('click',()=>stop());
 window.streetVoteDebate=start;window.streetVoteSkipDebate=stop;
 document.addEventListener('keydown',e=>{
- if(running){if(e.key==='Escape'){e.preventDefault();e.stopImmediatePropagation();stop()}else if(e.key!=='Tab'){e.preventDefault();e.stopImmediatePropagation()}return}
+ if(running){
+  if(e.key==='Escape'){e.preventDefault();e.stopImmediatePropagation();stop()}
+  else if(e.key==='Tab'){e.preventDefault();skip.focus()}
+  else if(!(e.target===skip&&(e.key==='Enter'||e.key===' '))){e.preventDefault();e.stopImmediatePropagation()}
+  return;
+ }
+ if(window.streetVoteArcade?.mode!=='arena')return;
  if(e.key.toLowerCase()==='d'&&!e.repeat&&!e.ctrlKey&&!e.altKey&&!e.metaKey&&!e.target.closest('input,textarea,select,[contenteditable="true"]')){e.preventDefault();start()}
 },true);
 arena.addEventListener('click',e=>{if(running&&!e.target.closest('#debateSkip,#debateFullscreenToggle')){e.preventDefault();e.stopImmediatePropagation()}},true);
 })();
-</script></body>
+</script>
+<script src="./src/menu.js?v=1.7.0"></script>
+</body>
 </html>
