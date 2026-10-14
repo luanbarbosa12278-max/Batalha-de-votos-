@@ -2339,130 +2339,7 @@ async function pollVotes(){
   }
 }
 
-// ========================================
-// CONECTAR LIVE
-// ========================================
-
-$('connectForm').addEventListener(
-  'submit',
-  async event=>{
-    event.preventDefault();
-
-    if(configuring){
-      return;
-    }
-
-    const usuario=
-      $('usuario').value.trim();
-
-    const senha=
-      $('senha').value;
-
-    if(
-      !usuario ||
-      !senha
-    ){
-      $('status').textContent=
-        'Digite o @ e a senha.';
-
-      return;
-    }
-
-    configuring=true;
-    epoch++;
-
-    pollController?.abort();
-    pollController=null;
-
-    $('connect').disabled=true;
-
-    $('status').textContent=
-      'Conectando…';
-
-    const controller=
-      new AbortController();
-
-    const timeout=setTimeout(
-      ()=>controller.abort(),
-      20000
-    );
-
-    try{
-      const response=await fetch(
-        API+'/configurar',
-        {
-          method:'POST',
-          signal:controller.signal,
-
-          headers:{
-            'Content-Type':
-              'application/json',
-
-            'X-Admin-Password':
-              senha
-          },
-
-          body:JSON.stringify({
-            usuario
-          })
-        }
-      );
-
-      const data=
-        await response.json();
-
-      if(!response.ok){
-        throw new Error(
-          typeof data.detail==='string'
-            ?data.detail
-            :'Erro ao conectar'
-        );
-      }
-
-      if(
-        typeof data.usuario!=='string' ||
-        !data.usuario
-      ){
-        throw new Error(
-          'Resposta de configuração inválida'
-        );
-      }
-
-      tracker.baseline(
-        data.usuario,
-        0,
-        0
-      );
-
-      resetLocalFight();
-      userEdited=false;
-
-      $('usuario').value=
-        data.usuario;
-
-      $('status').textContent=
-        'Conta selecionada: '+
-        data.usuario;
-
-      updateHUD();
-
-    }catch(error){
-      $('status').textContent=
-        error.name==='AbortError'
-          ?'A configuração demorou. Confira o estado da live antes de tentar novamente.'
-          :error.message;
-
-    }finally{
-      clearTimeout(timeout);
-
-      $('senha').value='';
-      configuring=false;
-      $('connect').disabled=false;
-    }
-  }
-);
-
-// ========================================
+// O painel de conexão manual foi removido.
 // Live mode uses this same-origin receiver and never polls legacy vote totals.
 const liveQueue=[];
 function receiveLiveCommand(command){
@@ -2505,7 +2382,6 @@ if(new URLSearchParams(location.search).get('live')==='1'){
   stream.onmessage=event=>{try{receiveLiveCommand(JSON.parse(event.data));}catch{}};
   stream.onopen=()=>{$('status').textContent='Receptor da live conectado';};
   stream.onerror=()=>{$('status').textContent='Receptor desconectado; reconectando…';};
-  $('connect').disabled=true;
 }else{
   pollVotes();
   setInterval(pollVotes,2000);
